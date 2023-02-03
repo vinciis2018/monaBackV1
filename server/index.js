@@ -7,6 +7,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 import userRouter from "./routers/userRouter.js";
+import screenRouter from "./routers/screenRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -28,6 +29,7 @@ app.use(express.static("public"));
 
 //routers
 app.use("/api/users", userRouter);
+app.use("/api/screens", screenRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));
