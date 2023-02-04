@@ -295,6 +295,16 @@ export async function updateScreenById(req, res) {
       screen.size.width = req.body.screenWidth || screen.size.width;
       screen.size.measurementUnit =
         req.body.measurementUnit || screen.size.measurementUnit;
+      // we need to change address each video when we chnage address of screen //v
+      screen.videos.map(async (_id) => {
+        const video = await Video.findById({ _id });
+        console.log("video : 33", video);
+        video.screenAddress = req.body.screenAddress || video.screenAddress; //v
+        video.districtCity = req.body.districtCity || video.districtCity; //v
+        video.stateUT = req.body.stateUT || video.stateUT; //v
+        video.country = req.body.country || video.country; //v
+        await video.save();
+      });
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
       screen.districtCity = req.body.districtCity || screen.districtCity; //v
       screen.stateUT = req.body.stateUT || screen.stateUT; //v
@@ -594,11 +604,3 @@ export async function addScreenLikeByScreenId(req, res) {
     return res.status(401).send(error.message);
   }
 }
-
-/*
-try {
-  } catch (error) {
-      return res.status(401).send(error.message);
-    }
-
-*/
