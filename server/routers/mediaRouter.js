@@ -11,12 +11,12 @@ import { isAuth } from "../utils/authUtils.js";
 const mediaRouter = express.Router();
 
 //post request
-mediaRouter.post("/create", isAuth, AddNewMedia);  //tested
+mediaRouter.post("/create", isAuth, AddNewMedia); //tested
 
 //get request
 mediaRouter.get("/", getAllMedia); // tested
 mediaRouter.get("/:cid", getMediaByCid); // tested
-mediaRouter.get("/:id/my", isAuth, getAllMediaByUserId); // tested
+mediaRouter.get("/:id/my", getAllMediaByUserId); // tested
 
 //put request
 

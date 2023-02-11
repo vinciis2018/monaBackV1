@@ -1,6 +1,7 @@
-import User from "../modles/userModel.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-
+import Screen from "../models/screenModel.js";
+import Video from "../models/videoModel.js";
 import { generateToken } from "../utils/authUtils.js";
 import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
@@ -79,6 +80,9 @@ export async function userSignin(req, res) {
         isAlly: user.isAlly,
         isBrand: user.isBrand,
         isViewer: user.isViewer,
+        phone: user.phone,
+        districtCity: user.districtCity,
+        pincode: user.pincode,
 
         defaultWallet: user.defaultWallet,
         wallets: user.wallets,
@@ -142,6 +146,33 @@ export async function topBrand(req, res) {
     .sort({ "brand.rating": -1 })
     .limit(7);
   res.status(200).send(topBrands);
+}
+
+// get screenList of a user
+export async function getUserScreens(req, res) {
+  try {
+    console.log("getUserScreens called!");
+    console.log("req.params.id : ", req.params.id);
+    const master = req.params.id;
+    const myScreens = await Screen.find({ master });
+    console.log("myScreens : ", myScreens);
+    if (myScreens) return res.status(200).send(myScreens);
+    return res.status(404).send({ message: "Screens not found" });
+  } catch (error) {
+    res.status(500).send({ message: `User router error ${error.message}` });
+  }
+}
+
+// get user videos
+export async function getUserVideos(req, res) {
+  try {
+    console.log("getUserVideos called!");
+    const myVideos = await Video.find({ uploader: req.params.id });
+    if (myVideos) return res.status(200).send(myVideos);
+    else return res.status(401).send({ message: "Videos not found" });
+  } catch (error) {
+    res.status(500).send({ message: `User router error ${error.message}` });
+  }
 }
 
 // seed data

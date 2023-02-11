@@ -1,4 +1,4 @@
-import Media from "../modles/mediaModel.js";
+import Media from "../models/mediaModel.js";
 
 // add new media
 export async function AddNewMedia(req, res) {

@@ -1,5 +1,5 @@
-import Screen from "../modles/screenModel.js";
-import Pin from "../modles/pinModel.js";
+import Screen from "../models/screenModel.js";
+import Pin from "../models/pinModel.js";
 
 // get all pins data from pin collection
 export async function getAllPins(req, res) {

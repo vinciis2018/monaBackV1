@@ -2,7 +2,9 @@ import express from "express";
 import {
   deleteUser,
   getDefaultWallet,
+  getUserScreens,
   getUsersList,
+  getUserVideos,
   seedData,
   topAllies,
   topBrand,
@@ -27,7 +29,8 @@ userRouter.get("/top-allies", topAllies);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
-
+userRouter.get("/:id/:wallet/myScreens", isAuth, getUserScreens);
+userRouter.get("/:id/:wallet/myVideos", isAuth, getUserVideos);
 //put request
 userRouter.put("/profile", isAuth, updateUserProfile);
 userRouter.put("/:id", isAuth, isItanimulli, updateUser);

@@ -1,7 +1,7 @@
-import User from "../modles/userModel.js";
+import User from "../models/userModel.js";
 import data from "../utils/data.js";
-import Video from "../modles/videoModel.js";
-import Screen from "../modles/screenModel.js";
+import Video from "../models/videoModel.js";
+import Screen from "../models/screenModel.js";
 
 //get seed video data
 export async function getSeed(req, res) {

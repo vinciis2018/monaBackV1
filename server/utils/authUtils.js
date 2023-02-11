@@ -27,7 +27,7 @@ export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (authorization) {
     const token = authorization.slice(7, authorization.length); //Bearer XXXXXXXX... (removes Bearer_ and gives token XXXXXXXXX...)
-    // console.log(token);
+    console.log("isAuth : ", token);
     jwt.verify(
       token,
       process.env.ACCESS_TOKEN_JWT_SECRET || "mysecretkey",

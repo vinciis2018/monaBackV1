@@ -11,6 +11,7 @@ import screenRouter from "./routers/screenRouter.js";
 import videoRouter from "./routers/videoRouter.js";
 import pinRouter from "./routers/pinRouter.js";
 import mediaRouter from "./routers/mediaRouter.js";
+import walletRouter from "./routers/walletRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -36,6 +37,7 @@ app.use("/api/screens", screenRouter);
 app.use("/api/videos", videoRouter);
 app.use("/api/pins", pinRouter);
 app.use("/api/media", mediaRouter);
+app.use("/api/wallet", walletRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));

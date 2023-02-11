@@ -1,8 +1,8 @@
-import Screen from "../modles/screenModel.js";
-import Video from "../modles/videoModel.js";
-import Calender from "../modles/calenderModel.js";
-import Pin from "../modles/pinModel.js";
-import User from "../modles/userModel.js";
+import Screen from "../models/screenModel.js";
+import Video from "../models/videoModel.js";
+import Calender from "../models/calenderModel.js";
+import Pin from "../models/pinModel.js";
+import User from "../models/userModel.js";
 import mongoose from "mongoose";
 
 //add new screen
