@@ -26,7 +26,6 @@ const videoSchema = new mongoose.Schema(
     uploaderName: { type: String, required: true },
     brandName: { type: String, default: "brand name" },
     category: { type: String, default: "Consumer Good" },
-    paidForSlots: { type: Boolean, default: false },
 
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
     screenAddress: { type: String }, //v
@@ -34,6 +33,7 @@ const videoSchema = new mongoose.Schema(
     stateUT: { type: String, required: true }, //v
     country: { type: String, required: true }, //v
     //calender details
+    paidForSlots: { type: Boolean, default: false },
     totalNoOfSlots: { type: Number, required: true, default: 0 },
     startedOn: { type: Date },
     endedOn: { type: Date },

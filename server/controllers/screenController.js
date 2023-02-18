@@ -142,7 +142,7 @@ export async function addNewScreen(req, res) {
     });
   } catch (error) {
     console.error(error);
-    return res.status(401).send(error);
+    return res.status(500).send(error);
   }
 }
 
@@ -158,7 +158,7 @@ export async function getTopVideos(req, res) {
     res.status(200).send(topVideos);
   } catch (error) {
     console.error(error);
-    return res.status(401).send(`screen router error ${error}`);
+    return res.status(500).send(`screen router error ${error}`);
   }
 }
 
@@ -222,7 +222,7 @@ export async function getScreensList(req, res) {
       .send({ screens, page, pages: Math.ceil(countDocuments / pageSize) });
   } catch (error) {
     console.error(error);
-    return res.status(401).send(`screen router error ${error}`);
+    return res.status(500).send(`screen router error ${error}`);
   }
 }
 
@@ -246,7 +246,7 @@ export async function getScreenDetailsByScreenId(req, res) {
     screen.save();
     res.status(200).send(screen);
   } catch (error) {
-    return res.status(401).send(``);
+    return res.status(500).send(``);
   }
 }
 
@@ -260,13 +260,15 @@ export async function getPinDetailsByScreenId(req, res) {
     const pin = await Pin.findById(pinId);
     return res.status(200).send(pin);
   } catch (error) {
-    return res.status(401).send(error);
+    return res.status(500).send(error);
   }
 }
 
 //update screen by screen Id Note :  here we are  updating screen detail as wellas pin details also
 export async function updateScreenById(req, res) {
   try {
+    console.log("updateScreenById called!");
+    console.log("req.body : ", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findOne({ _id: screenId });
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
@@ -296,15 +298,21 @@ export async function updateScreenById(req, res) {
       screen.size.measurementUnit =
         req.body.measurementUnit || screen.size.measurementUnit;
       // we need to change address each video when we chnage address of screen //v
-      screen.videos.map(async (_id) => {
-        const video = await Video.findById({ _id });
-        console.log("video : 33", video);
-        video.screenAddress = req.body.screenAddress || video.screenAddress; //v
-        video.districtCity = req.body.districtCity || video.districtCity; //v
-        video.stateUT = req.body.stateUT || video.stateUT; //v
-        video.country = req.body.country || video.country; //v
-        await video.save();
-      });
+      if (
+        req.body.districtCity !== screen.districtCity ||
+        req.body.stateUT !== screen.districtCity ||
+        req.body.country !== screen.country
+      ) {
+        screen.videos.map(async (_id) => {
+          const video = await Video.findById({ _id });
+          console.log("video : 33", video);
+          video.screenAddress = req.body.screenAddress || video.screenAddress; //v
+          video.districtCity = req.body.districtCity || video.districtCity; //v
+          video.stateUT = req.body.stateUT || video.stateUT; //v
+          video.country = req.body.country || video.country; //v
+          await video.save();
+        });
+      }
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
       screen.districtCity = req.body.districtCity || screen.districtCity; //v
       screen.stateUT = req.body.stateUT || screen.stateUT; //v
@@ -342,7 +350,7 @@ export async function updateScreenById(req, res) {
       });
     }
   } catch (error) {
-    return res.status(401).send({ message: `screen router error, ${error}` });
+    return res.status(500).send({ message: `screen router error, ${error}` });
   }
 }
 
@@ -372,7 +380,7 @@ export async function deleteScreenById(req, res) {
       calender: calender,
     });
   } catch (error) {
-    return res.status(401).send({ message: `screen router error, ${error}` });
+    return res.status(500).send({ message: `screen router error, ${error}` });
   }
 }
 
@@ -407,7 +415,7 @@ export async function addReview(req, res) {
       review: updatedScreen.reviews[updatedScreen.reviews.length - 1],
     });
   } catch (error) {
-    return res.status(401).send({ message: `screen router error, ${error}` });
+    return res.status(500).send({ message: `screen router error, ${error}` });
   }
 }
 
@@ -426,7 +434,7 @@ export async function getVideosListByScreenName(req, res) {
     //const myScreenVideos = [...paidVideos]; // what is use of this?
     return res.status(200).send(myScreenVideos);
   } catch (error) {
-    return res.status(401).send({ message: `screen router error, ${error}` });
+    return res.status(500).send({ message: `screen router error, ${error}` });
   }
 }
 

@@ -6,15 +6,49 @@ import { generateToken } from "../utils/authUtils.js";
 import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
 
+const changePassword = async (req, res, user) => {
+  try {
+    console.log("request came for password change");
+    user.password = bcrypt.hashSync(req.body.password, 8);
+    const updateUser = await user.save();
+    return res.status(200).send({
+      _id: updateUser._id,
+      name: updateUser.name,
+      email: updateUser.email,
+      avatar: updateUser.avatar,
+      isItanimulli: updateUser.isItanimulli,
+      isMaster: updateUser.isMaster,
+      isAlly: updateUser.isAlly,
+      isBrand: updateUser.isBrand,
+      isViewer: updateUser.isViewer,
+      defaultWallet: updateUser.defaultWallet,
+      wallets: updateUser.wallets,
+      screens: updateUser.screens,
+      screensSubscribed: updateUser.screensSubscribed,
+      screensLiked: updateUser.screensLiked,
+      screensFlagged: updateUser.screensFlagged,
+      videos: updateUser.videos,
+      videosLiked: updateUser.videosLiked,
+      videosFlagged: updateUser.videosFlagged,
+      videosViewed: updateUser.videosViewed,
+      pleasMade: updateUser.pleasMade,
+      alliedScreens: updateUser.alliedScreens,
+      createdAt: updateUser.createdAt,
+      token: generateToken(updateUser),
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
 export async function userSignUp(req, res) {
   try {
     const newUser = await User.findOne({ email: req.body.email });
-    if (newUser) {
-      return res.status(401).send({
-        message: "mail already in use, try with different email",
-      });
+    if (newUser && req.body.password) {
+      changePassword(req, res, newUser);
     }
-    if (!newUser && req.body.password === "") {
+
+    if (req.body.password === "") {
       sendConfirmationEmail(req.body.email, req.body.name);
       return res.status(200).send({
         message: "Email sent to your ragistered email.",
