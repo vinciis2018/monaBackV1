@@ -14,6 +14,7 @@ import mediaRouter from "./routers/mediaRouter.js";
 import walletRouter from "./routers/walletRouter.js";
 import creditRouter from "./routers/creditRouter.js";
 import calenderRouter from "./routers/calenderRouter.js";
+import campaignRouter from "./routers/campaignRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -42,6 +43,7 @@ app.use("/api/media", mediaRouter);
 app.use("/api/wallet", walletRouter);
 app.use("/api/credit", creditRouter);
 app.use("/api/calender", calenderRouter);
+app.use("/api/campaign", campaignRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));
