@@ -4,7 +4,7 @@ import {
   getDefaultWallet,
   getUserScreens,
   getUsersList,
-  getUserVideos,
+  getUserMedias,
   seedData,
   topAllies,
   topBrand,
@@ -30,7 +30,7 @@ userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
 userRouter.get("/:id/:wallet/myScreens", isAuth, getUserScreens);
-userRouter.get("/:id/:wallet/myVideos", isAuth, getUserVideos);
+userRouter.get("/:id/:wallet/myMedias", isAuth, getUserMedias);
 //put request
 userRouter.put("/profile", isAuth, updateUserProfile);
 userRouter.put("/:id", isAuth, isItanimulli, updateUser);

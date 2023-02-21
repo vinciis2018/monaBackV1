@@ -6,7 +6,7 @@ const slotDetailsSchema = new mongoose.Schema(
     slotTimeEnd: { type: String },
     isSlotBooked: { type: Boolean, default: false },
     dataAttached: {
-      video: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
+      media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
       transaction: {},
       duration: { type: Number, default: 20 },
       played: { type: Boolean, default: false },
@@ -25,7 +25,7 @@ const dayDetailsSchema = new mongoose.Schema({
   slotsBooked: [
     {
       numberOfSlots: { type: Number },
-      campaignDetails: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
+      campaignDetails: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
       isSlotBooked: { type: Boolean, default: false },
     },
   ],

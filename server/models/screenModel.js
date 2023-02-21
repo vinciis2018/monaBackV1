@@ -54,7 +54,7 @@ const screenSchema = new mongoose.Schema(
     },
     masterName: { type: String },
 
-    videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
 
     subscribers: [{ type: String }],
 

@@ -2,7 +2,7 @@ import Calender from "../models/calenderModel.js";
 import Screen from "../models/screenModel.js";
 import User from "../models/userModel.js";
 import Wallet from "../models/walletModel.js";
-import Video from "../models/videoModel.js";
+import Media from "../models/mediaModel.js";
 
 // get all slots
 export async function getAllSlots(req, res) {
@@ -120,7 +120,7 @@ export async function getDayDetails(req, res) {
     const calender = await Calender.findOne({
       screen: screen._id,
     });
-    const video = await Video.findById(req.body.daySlotToBook.video._id);
+    const video = await Media.findById(req.body.daySlotToBook.video._id);
 
     const numberOfSlots = Number(req.body.daySlotToBook.slotsPerDay);
     const campaignDetails = video._id;
@@ -321,7 +321,7 @@ export async function bookCalendarSlotDayWise(req, res) {
   }
 }
 
-// export async function getTopVideos(req, res) {
+// export async function getTopCampaigns(req, res) {
 //   try {
 //   } catch (error) {
 //     console.error(error);

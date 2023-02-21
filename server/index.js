@@ -8,9 +8,8 @@ import bodyParser from "body-parser";
 
 import userRouter from "./routers/userRouter.js";
 import screenRouter from "./routers/screenRouter.js";
-import videoRouter from "./routers/videoRouter.js";
-import pinRouter from "./routers/pinRouter.js";
 import mediaRouter from "./routers/mediaRouter.js";
+import pinRouter from "./routers/pinRouter.js";
 import walletRouter from "./routers/walletRouter.js";
 import creditRouter from "./routers/creditRouter.js";
 import calenderRouter from "./routers/calenderRouter.js";
@@ -37,9 +36,8 @@ app.use(express.static("public"));
 //routers
 app.use("/api/users", userRouter);
 app.use("/api/screens", screenRouter);
-app.use("/api/videos", videoRouter);
+app.use("/api/medias", mediaRouter);
 app.use("/api/pins", pinRouter);
-app.use("/api/media", mediaRouter);
 app.use("/api/wallet", walletRouter);
 app.use("/api/credit", creditRouter);
 app.use("/api/calender", calenderRouter);

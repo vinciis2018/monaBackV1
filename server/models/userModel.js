@@ -65,13 +65,13 @@ const userSchema = new mongoose.Schema(
 
     screensFlagged: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
 
-    videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    medias: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
 
-    videosLiked: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    mediasLiked: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
 
-    videosFlagged: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    mediasFlagged: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
 
-    videoViewed: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    mediasViewed: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
 
     pleasMade: [{ type: mongoose.Schema.Types.ObjectId, ref: "Plea" }],
 

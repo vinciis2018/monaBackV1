@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const campaignSchema = new mongoose.Schema(
   {
-    video: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
+    media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    mediaURL: { type: String },
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
     calendar: {
       startDate: { type: Date },
@@ -10,7 +11,7 @@ const campaignSchema = new mongoose.Schema(
       startTime: { type: Date },
       endTime: { Type: Date },
     },
-    ScreenOwner: {
+    master: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
@@ -23,16 +24,21 @@ const campaignSchema = new mongoose.Schema(
     allyWalletAddress: { type: String },
     vault: { type: Number, default: 0 },
     totalSlotBooked: { type: Number, default: 0 },
+    remainingSlots: { type: Number, default: 0 },
     rentPerSlot: { type: Number, default: 0 },
     totalAmount: { type: Number, default: 0 },
     isSlotBooked: { type: Boolean, default: false },
     paidForSlot: { type: Boolean, default: false },
+    screenAddress: { type: String }, //v
+    districtCity: { type: String, required: true }, //v
+    stateUT: { type: String, required: true }, //v
+    country: { type: String, required: true }, //v
   },
   {
     timestamps: true,
   }
 );
 
-const Campaign = mongoose.model("slotBooking", campaignSchema);
+const Campaign = mongoose.model("Campaign", campaignSchema);
 
 export default Campaign;

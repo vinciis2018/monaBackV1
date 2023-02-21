@@ -1,9 +1,11 @@
 import express from "express";
 import {
-  AddNewMedia,
-  getAllMedia,
-  getAllMediaByUserId,
-  getMediaByCid,
+  addNewMedia,
+  deleteMediaByMediaId,
+  getSeed,
+  getMediaDetailByMediaId,
+  getMediasList,
+  updateMediaByMediaId,
 } from "../controllers/mediaController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -11,15 +13,18 @@ import { isAuth } from "../utils/authUtils.js";
 const mediaRouter = express.Router();
 
 //post request
-mediaRouter.post("/create", isAuth, AddNewMedia); //tested
+mediaRouter.post("/create", isAuth, addNewMedia); // tesed
 
 //get request
-mediaRouter.get("/", getAllMedia); // tested
-mediaRouter.get("/:cid", getMediaByCid); // tested
-mediaRouter.get("/:id/my", getAllMediaByUserId); // tested
+mediaRouter.get("/seed", getSeed); // wahi is the use of?
+mediaRouter.get("/", getMediasList); //tested
+mediaRouter.get("/:id", getMediaDetailByMediaId); // tested
 
 //put request
 
+mediaRouter.put("/:id", isAuth, updateMediaByMediaId); // tested
+
 //delete request
+mediaRouter.delete("/:id", isAuth, deleteMediaByMediaId); // tested
 
 export default mediaRouter;

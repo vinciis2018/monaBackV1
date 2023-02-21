@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import Screen from "../models/screenModel.js";
-import Video from "../models/videoModel.js";
+import Media from "../models/mediaModel.js";
 import { generateToken } from "../utils/authUtils.js";
 import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
@@ -27,10 +27,10 @@ const changePassword = async (req, res, user) => {
       screensSubscribed: updateUser.screensSubscribed,
       screensLiked: updateUser.screensLiked,
       screensFlagged: updateUser.screensFlagged,
-      videos: updateUser.videos,
-      videosLiked: updateUser.videosLiked,
-      videosFlagged: updateUser.videosFlagged,
-      videosViewed: updateUser.videosViewed,
+      medias: updateUser.medias,
+      mediasLiked: updateUser.mediasLiked,
+      mediasFlagged: updateUser.mediasFlagged,
+      mediasViewed: updateUser.mediasViewed,
       pleasMade: updateUser.pleasMade,
       alliedScreens: updateUser.alliedScreens,
       createdAt: updateUser.createdAt,
@@ -43,9 +43,9 @@ const changePassword = async (req, res, user) => {
 
 export async function userSignUp(req, res) {
   try {
-    const newUser = await User.findOne({ email: req.body.email });
-    if (newUser && req.body.password) {
-      changePassword(req, res, newUser);
+    const oldUser = await User.findOne({ email: req.body.email });
+    if (oldUser && req.body.password) {
+      changePassword(req, res, oldUser);
     }
 
     if (req.body.password === "") {
@@ -54,7 +54,7 @@ export async function userSignUp(req, res) {
         message: "Email sent to your ragistered email.",
       });
     }
-    if (!newUser && req.body.password) {
+    if (!oldUser && req.body.password) {
       const user = new User({
         name: req.body.name,
         email: req.body.email,
@@ -79,10 +79,10 @@ export async function userSignUp(req, res) {
         screensSubscribed: createdUser.screensSubscribed,
         screensLiked: createdUser.screensLiked,
         screensFlagged: createdUser.screensFlagged,
-        videos: createdUser.videos,
-        videosLiked: createdUser.videosLiked,
-        videosFlagged: createdUser.videosFlagged,
-        videosViewed: createdUser.videosViewed,
+        medias: createdUser.medias,
+        mediasLiked: createdUser.mediasLiked,
+        mediasFlagged: createdUser.mediasFlagged,
+        mediasViewed: createdUser.mediasViewed,
         pleasMade: createdUser.pleasMade,
         alliedScreens: createdUser.alliedScreens,
         createdAt: createdUser.createdAt,
@@ -125,10 +125,10 @@ export async function userSignin(req, res) {
         screensSubscribed: user.screensSubscribed,
         screensLiked: user.screensLiked,
         screensFlagged: user.screensFlagged,
-        videos: user.videos,
-        videosLiked: user.videosLiked,
-        videosFlagged: user.videosFlagged,
-        videosViewed: user.videosViewed,
+        medias: user.medias,
+        mediasLiked: user.mediasLiked,
+        mediasFlagged: user.mediasFlagged,
+        mediasViewed: user.mediasViewed,
 
         pleasMade: user.pleasMade,
         alliedScreens: user.alliedScreens,
@@ -197,13 +197,13 @@ export async function getUserScreens(req, res) {
   }
 }
 
-// get user videos
-export async function getUserVideos(req, res) {
+// get user medias
+export async function getUserMedias(req, res) {
   try {
-    console.log("getUserVideos called!");
-    const myVideos = await Video.find({ uploader: req.params.id });
-    if (myVideos) return res.status(200).send(myVideos);
-    else return res.status(401).send({ message: "Videos not found" });
+    console.log("getUsermedias called!");
+    const mymedias = await Media.find({ uploader: req.params.id });
+    if (mymedias) return res.status(200).send(mymedias);
+    else return res.status(401).send({ message: "medias not found" });
   } catch (error) {
     res.status(500).send({ message: `User router error ${error.message}` });
   }
@@ -291,10 +291,10 @@ export async function updateUserProfile(req, res) {
         screensSubscribed: updatedUser.screensSubscribed,
         screensLiked: updatedUser.screensLiked,
         screensFlagged: updatedUser.screensFlagged,
-        videos: updatedUser.videos,
-        videosLiked: updatedUser.videosLiked,
-        videosFlagged: updatedUser.videosFlagged,
-        videosViewed: updatedUser.videosViewed,
+        medias: updatedUser.medias,
+        mediasLiked: updatedUser.mediasLiked,
+        mediasFlagged: updatedUser.mediasFlagged,
+        mediasViewed: updatedUser.mediasViewed,
 
         pleasMade: updatedUser.pleasMade,
         alliedScreens: updatedUser.alliedScreens,

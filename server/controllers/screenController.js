@@ -1,9 +1,10 @@
 import Screen from "../models/screenModel.js";
-import Video from "../models/videoModel.js";
+import Media from "../models/mediaModel.js";
 import Calender from "../models/calenderModel.js";
 import Pin from "../models/pinModel.js";
 import User from "../models/userModel.js";
 import mongoose from "mongoose";
+import Campaign from "../models/campaignModel.js";
 
 //add new screen
 export async function addNewScreen(req, res) {
@@ -45,38 +46,6 @@ export async function addNewScreen(req, res) {
     console.log("pin", pin._id);
     const pinAdded = await pin.save();
 
-    //create new video for this new screen
-    const video = new Video({
-      _id: videoId,
-      uploader: req.body._id,
-      uploaderName: req.body.name,
-      description: "Demo screen video",
-      brandName: "Vinciis Default Brand",
-      reviews: [],
-      numReviews: 0,
-      views: 0,
-      rating: 0,
-      likedBy: [],
-      flaggedBy: [],
-      screen: screenId,
-      screenAddress: "address" || req.body.screenAddress,
-      districtCity: "district/city" || req.body.districtCity,
-      stateUT: "state/UT" || req.body.stateUT,
-      country: "country" || req.body.country,
-      video:
-        "https://ipfs.io/ipfs/QmNubs7ShhWUDcUN2kSmTxp6HvLE4zdz5UnFRKDdF9i1n8",
-
-      title: "Demo_video.mp4",
-      thumbnail:
-        "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos",
-      viewedBy: [],
-      reviews: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-    console.log("video", video._id);
-    const createdScreenVideo = await video.save();
-
     //now we are going to create new screen
     const screen = new Screen({
       _id: screenId,
@@ -112,9 +81,9 @@ export async function addNewScreen(req, res) {
       rentPerSlot: req.body.rentPerSlot,
       rentOffInPercent: req.body.rentOffInPercent, //v
 
+      campaigns: [],
       allies: [],
       pleas: [],
-      videos: [video],
       subscribers: [],
       likedBy: [],
       flaggedBy: [],
@@ -129,14 +98,12 @@ export async function addNewScreen(req, res) {
     console.log(screen._id);
     const createdScreen = await screen.save();
 
-    await user.videos.push(video);
     await user.screens.push(screen);
     await user.save();
 
     return res.status(200).send({
-      message: "Screen & Video Created",
+      message: "Screen Created",
       screen: createdScreen,
-      video: createdScreenVideo,
       pin: pinAdded,
       calender: calenderAdded,
     });
@@ -146,16 +113,14 @@ export async function addNewScreen(req, res) {
   }
 }
 
-// top screen videos
-export async function getTopVideos(req, res) {
+// top screen medias
+export async function getTopCampaigns(req, res) {
   try {
-    console.warn("getTopVideos called");
-    const topVideos = await Video.find({
-      isMaster: true,
-    })
+    console.warn("getTopCampaigns called");
+    const topmedias = await Campaign.find({})
       .sort({ "master.rating": -1 })
       .limit(3);
-    res.status(200).send(topVideos);
+    res.status(200).send(topmedias);
   } catch (error) {
     console.error(error);
     return res.status(500).send(`screen router error ${error}`);
@@ -303,14 +268,17 @@ export async function updateScreenById(req, res) {
         req.body.stateUT !== screen.districtCity ||
         req.body.country !== screen.country
       ) {
-        screen.videos.map(async (_id) => {
-          const video = await Video.findById({ _id });
-          console.log("video : 33", video);
-          video.screenAddress = req.body.screenAddress || video.screenAddress; //v
-          video.districtCity = req.body.districtCity || video.districtCity; //v
-          video.stateUT = req.body.stateUT || video.stateUT; //v
-          video.country = req.body.country || video.country; //v
-          await video.save();
+        console.log("changing campaiign addredd too!");
+        screen.campaigns.map(async (_id) => {
+          const campaign = await Campaign.findById({ _id });
+          console.log("video : 33", campaign);
+          campaign.screenAddress =
+            req.body.screenAddress || campaign.screenAddress; //v
+          campaign.districtCity =
+            req.body.districtCity || campaign.districtCity; //v
+          campaign.stateUT = req.body.stateUT || campaign.stateUT; //v
+          campaign.country = req.body.country || campaign.country; //v
+          await campaign.save();
         });
       }
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
@@ -354,7 +322,7 @@ export async function updateScreenById(req, res) {
   }
 }
 
-//delete screen by screen id
+//delete screen by screen id (i have work on this latter)
 export async function deleteScreenById(req, res) {
   try {
     const screen = await Screen.findById(req.params.id);
@@ -365,9 +333,9 @@ export async function deleteScreenById(req, res) {
     console.log("screenPin");
     const screenCalender = screen.calender;
     console.log("screenCalender");
-    //deleting all videos/capaign from video collection which running on this screen
-    screen.videos.map((_id) => {
-      Video.findByIdAndRemove(_id);
+    //deleting all medias/capaign from video collection which running on this screen
+    screen.campaigns.map((_id) => {
+      Campaign.findByIdAndRemove(_id);
     });
     const deleteScreen = screen.remove();
     const pin = await Pin.findByIdAndRemove(screenPin);
@@ -419,44 +387,6 @@ export async function addReview(req, res) {
   }
 }
 
-// get videos list which running on this screen whose name was given
-export async function getVideosListByScreenName(req, res) {
-  try {
-    const screenName = req.params.name;
-    const screen = await Screen.findOne({ name: screenName });
-    if (!screen) return res.status(401).send({ message: "Videos not found" });
-
-    const screenVideos = await Video.find({ screen: screen._id });
-    const myScreenVideos = screenVideos.filter((video) => {
-      video.paidForSlots === true;
-      return video;
-    });
-    //const myScreenVideos = [...paidVideos]; // what is use of this?
-    return res.status(200).send(myScreenVideos);
-  } catch (error) {
-    return res.status(500).send({ message: `screen router error, ${error}` });
-  }
-}
-
-// get videos list which running on this screen whose id was given
-export async function getVideosListByScreenId(req, res) {
-  try {
-    const screenId = req.params.id;
-    const screenVideos = await Video.find({ screen: screenId });
-    if (!screenVideos)
-      return res.status(401).send({ message: "Videos not found" });
-    const myScreenVideos = screenVideos.filter((video) => {
-      video.paidForSlots === true;
-      return video;
-    });
-
-    return res.status(200).send(myScreenVideos);
-  } catch (error) {
-    return res
-      .status(401)
-      .send({ message: `screen router error, ${error.message}` });
-  }
-}
 // get playList
 
 export async function getScreenPlayList(req, res) {
@@ -464,12 +394,12 @@ export async function getScreenPlayList(req, res) {
     const screenId = req.params.id;
     let index = 1;
     let eventVideo = []; // =[]; for default value
-    const screenVideos = await Video.find({ screen: screenId });
-    if (!screenVideos)
-      return res.status(401).send({ message: "Videos not found" });
+    const screenCampaign = await Campaign.find({ screen: screenId });
+    if (!screenCampaign)
+      return res.status(401).send({ message: "Campaigns not found" });
 
     //create a new array of video url
-    const videos = screenVideos.map((video) => video.video);
+    const videos = screenCampaign.map((campaign) => campaign.mediaURL);
     console.log("getScreenPlayList videos : ", videos);
     if (videos.length > 0) {
       if (index === videos.length) {
@@ -477,96 +407,10 @@ export async function getScreenPlayList(req, res) {
       } else {
         index = index + 1;
       }
-      eventVideo = videos.map((video) => video.video)[index - 1];
+      eventVideo = campaignsIdList.map((video) => video.video)[index - 1];
       console.log("eventVideo : ", eachVideo);
     }
     return res.status(200).send(eventVideo);
-  } catch (error) {
-    return res.status(401).send(error.message);
-  }
-}
-// upload screen videos
-
-export async function addNewVideoOnScreen(req, res) {
-  try {
-    const screenId = req.params.id;
-    console.log("from backend", req.params.id);
-
-    if (!screenId)
-      return res.status(401).send({ message: "please choose a screen first" });
-
-    const screenVideo = await Screen.findById(screenId);
-    console.log("after from backend", screenId);
-
-    const userVideo = await User.findById(req.user._id);
-
-    if (userVideo) {
-      const video = new Video({
-        title: req.body.title,
-        description: req.body.description,
-        video: req.body.video,
-        // duration: duration,
-        thumbnail: req.body.thumbnail,
-        uploader: req.user._id,
-        screen: req.params.id,
-        uploaderName: req.user.name,
-
-        adWorth: req.body.adWorth,
-        adBudget: req.body.adBudget,
-        expectedViews: req.body.expectedViews,
-
-        hrsToComplete: req.body.hrsToComplete,
-      });
-      console.log(video);
-      const newVideo = await video.save();
-      userVideo.videos.push(newVideo._id);
-      screenVideo.videos.push(newVideo._id);
-
-      await userVideo.save();
-      await screenVideo.save();
-      return res.status(200).send(newVideo);
-    }
-    return res.status(401).send({ message: "user does not exist" });
-  } catch (error) {
-    return res.status(401).send(error.message);
-  }
-}
-
-//detele video from video , screen, and users By video id
-
-export async function deleteVideoByVideoId(req, res) {
-  try {
-    const video = await Video.findById(req.params.id);
-    console.log(video._id);
-
-    if (!video) res.status(404).send({ message: "Video not found" });
-    const screenId = video.screen._id;
-    const uploaderId = video.uploader;
-
-    const videoScreen = await Screen.findById(screenId);
-    const videoUploader = await User.findOne({
-      _id: uploaderId,
-      // defaultWallet: uploaderId
-    });
-
-    console.log("yes", video._id);
-
-    videoScreen.videos.remove(video._id);
-    const deletedVideoScreen = await videoScreen.save();
-    console.log("1", deletedVideoScreen.videos);
-
-    videoUploader.videos.remove(video._id);
-    const deletedVideoUploader = await videoUploader.save();
-    console.log("2", deletedVideoUploader.videos); // print remaning list of user video after deleting selected video
-
-    const deletedVideo = await video.remove();
-
-    return res.status(200).send({
-      message: "Video deleted",
-      video: deletedVideo,
-      deletedVideoScreen,
-      deletedVideoUploader,
-    });
   } catch (error) {
     return res.status(401).send(error.message);
   }
