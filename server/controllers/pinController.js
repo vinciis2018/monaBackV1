@@ -47,7 +47,7 @@ export async function getAllPinsGeoJson(req, res) {
   try {
     console.log("getAllPinsGeoJson called!");
     const allPins = await Pin.find();
-    console.log("app pins : ", allPins);
+    //console.log("app pins : ", allPins);
     if (!allPins) return res.status(404).send(error);
     const jsonData = {
       features: allPins.map((pin) => {

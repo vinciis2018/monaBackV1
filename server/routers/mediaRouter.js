@@ -13,7 +13,7 @@ import { isAuth } from "../utils/authUtils.js";
 const mediaRouter = express.Router();
 
 //post request
-mediaRouter.post("/create", isAuth, addNewMedia); // tesed
+mediaRouter.post("/create",  addNewMedia); // tesed
 
 //get request
 mediaRouter.get("/seed", getSeed); // wahi is the use of?

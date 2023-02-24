@@ -66,6 +66,7 @@ req.body = {
 export async function addNewMedia(req, res) {
   try {
     console.log("add new media called!");
+    console.log("userInfo : ", req.body.userInfo);
     const mediaUser = await User.findOne({
       _id: req.body.userInfo._id,
       // defaultWallet: req.body.campaign.defaultWallet
@@ -86,7 +87,7 @@ export async function addNewMedia(req, res) {
         uploader: mediaUser._id,
         uploaderName: mediaUser.name,
         // category: req.body.campaign.category,
-        brandName: req.body.brandName,
+        brandName: req.body.brandName || "dummy brand",
         adWorth: req.body.adWorth || 0,
         adBudget: req.body.adBudget || 0,
         expectedViews: req.body.expectedViews || 0,

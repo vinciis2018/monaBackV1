@@ -5,7 +5,7 @@ import { sendMoneyBackToAlly } from "../helpers/sendMoney.js";
 
 export async function addNewCampaign(req, res) {
   try {
-    console.log("addNewCampaign called!");
+    console.log("addNewCampaign called! body : ", req.body);
     const user = req.body.user; // ally
     const screenId = req.body.screenId;
     const mediaId = req.body.mediaId;
@@ -21,6 +21,8 @@ export async function addNewCampaign(req, res) {
     const newCampaign = new Campaign({
       screen: screenId,
       media: mediaId,
+      thumbnail: req.body.thumbnail || media.thumbnail,
+      campaignName: req.body.campaignName || "campaign Name",
       mediaURL: media.media,
       ally: user._id,
       master: screen.master,
@@ -32,18 +34,18 @@ export async function addNewCampaign(req, res) {
       totalAmount: req.body.totalSlotBooked * screen.rentPerSlot,
       vault: req.body.totalSlotBooked * screen.rentPerSlot,
       allyWalletAddress: user.defaultWallet,
-      calender: {
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        startTime: req.body.startTime,
-        endTime: req.body.endTime,
-      },
+
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+
       screenAddress: screen.screenAddress,
       districtCity: screen.districtCity,
       stateUT: screen.stateUT,
       country: screen.country,
     });
-    console.log("new campaign  : ", newCampaign);
+    //console.log("new campaign  : ", newCampaign);
     const campaign = await newCampaign.save();
     console.log("new campaign  : ", campaign);
     screen.campaigns.push(campaign._id);
@@ -139,5 +141,77 @@ export async function deleteCampaign(req, res) {
     console.log("after deleting campaign from screen  : ", updatedeScreen);
     const deletedcampaign = await campaign.remove();
     console.log("delted campaign : ", deleteCampaign);
+  }
+}
+
+//get campaign detail by campaignId
+
+export async function getCampaignDetail(req, res) {
+  try {
+    const campaignId = req.params.id;
+    const campaign = await Campaign.findById(campaignId);
+    if (campaign) {
+      return res.status(200).send(campaign);
+    } else {
+      return res.status(404).send({ message: "No campaign found" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+export async function getCampaignAndMediaListByScreenId(req, res) {
+  try {
+    const screenId = req.params.id;
+    const screen = await Screen.findById(screenId);
+    console.log(" screen : ", screen);
+    if (!screen) return res.status(404).send({ message: "No Screen found" });
+    let data = [];
+    //let data = [{media : {}, campaign : {}},{media : {}, campaign : {}}];
+    if (screen.campaigns.length > 0) {
+      for (let index = 0; index < screen.campaigns.length; index++) {
+        const campaignId = screen.campaigns[index];
+        let campaign, media;
+        campaign = await Campaign.findById(campaignId);
+        if (campaign) {
+          media = await Media.findById(campaign.media);
+        }
+        console.log("campaign : ", campaign);
+        console.log("media : ", media);
+        if (campaign && media) {
+          data.push({
+            media,
+            campaign,
+          });
+        }
+      }
+      console.log("data : ", data);
+      res.status(200).send(data);
+    } else {
+      return res.status(404).send({ message: "No Screen found", data });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+export async function updateCampaignById(req, res) {
+  try {
+    const campaign = await Campaign.findById(req.params.id);
+    if (!campaign) res.status(404).send({ message: "No Screen found", data });
+    campaign.thumbnail =
+      "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos" ||
+      req.body.thumbnail;
+    const updatededCampaign = await campaign.save();
+    res.status(200).send(updatededCampaign);
+    res.status(200).send("each screen updated!");
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
   }
 }

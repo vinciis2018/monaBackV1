@@ -3,14 +3,14 @@ import mongoose from "mongoose";
 const campaignSchema = new mongoose.Schema(
   {
     media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
-    mediaURL: { type: String },
+    mediaURL: { type: String, required: true },
+    thumbnail: { type: String, required: true },
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
-    calendar: {
-      startDate: { type: Date },
-      endDate: { type: Date },
-      startTime: { type: Date },
-      endTime: { Type: Date },
-    },
+    campaignName: { type: String, required: true, default: "campaign name" },
+    startDate: { type: Date },
+    endDate: { type: Date },
+    startTime: { type: Date },
+    endTime: { Type: Date },
     master: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -129,7 +129,8 @@ export async function editWallet(req, res) {
       console.log("adding defaultWallet to user");
       user.wallets.concat(user.defaultWallet);
       user.defaultWallet = req.body.walletAdd;
-      await user.save();
+      const updatedUser = await user.save();
+      return res.status(200).send(updatedUser);
     }
     return res.status(200).send(user);
   } catch (error) {

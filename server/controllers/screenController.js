@@ -355,15 +355,15 @@ export async function deleteScreenById(req, res) {
 //add single review to the Screen
 export async function addReview(req, res) {
   try {
+    console.log("add review called ! : ", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findById(screenId);
     if (!screen) res.status(404).send({ message: "Screen Not Found" });
-    console.log("req : ", req.body);
     if (JSON.stringify(req.body) === "{}")
       res.status(401).send({ message: "Please give comment and reting" });
     if (screen.reviews.find((review) => review.name === req.user.name)) {
       return res
-        .status(400)
+        .status(401)
         .send({ message: "You already submitted a review" });
     }
     const review = {

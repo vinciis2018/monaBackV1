@@ -5,6 +5,7 @@ import Media from "../models/mediaModel.js";
 import { generateToken } from "../utils/authUtils.js";
 import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
+import Campaign from "../models/campaignModel.js";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -50,7 +51,7 @@ export async function userSignUp(req, res) {
 
     if (req.body.password === "") {
       sendConfirmationEmail(req.body.email, req.body.name);
-      return res.status(200).send({
+      return res.status(400).send({
         message: "Email sent to your ragistered email.",
       });
     }
@@ -61,7 +62,7 @@ export async function userSignUp(req, res) {
         password: bcrypt.hashSync(req.body.password, 8),
       });
       const createdUser = await user.save();
-      console.log("user created...");
+      console.log("user created... ", createdUser);
 
       return res.status(200).send({
         _id: createdUser._id,
@@ -171,6 +172,20 @@ export async function topMasters(req, res) {
     .limit(3);
   res.status(200).send(topMasters);
 }
+//getUserCampaigns
+export async function getUserCampaigns(req, res) {
+  try {
+    console.log("getUserScreens called!");
+    console.log("req.params.id : ", req.params.id);
+    const ally = req.params.id;
+    const myCampaigns = await Campaign.find({ ally });
+    if (!myCampaigns) res.status(404).send({ message: "Campaign not found" });
+    console.log("myCampaigns : ", myCampaigns);
+    return res.status(200).send(myCampaigns);
+  } catch (error) {
+    res.status(500).send({ message: `User router error ${error.message}` });
+  }
+}
 
 //top barnds
 export async function topBrand(req, res) {
@@ -202,6 +217,7 @@ export async function getUserMedias(req, res) {
   try {
     console.log("getUsermedias called!");
     const mymedias = await Media.find({ uploader: req.params.id });
+    console.log("mymedias : ", mymedias);
     if (mymedias) return res.status(200).send(mymedias);
     else return res.status(401).send({ message: "medias not found" });
   } catch (error) {

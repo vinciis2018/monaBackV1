@@ -1,9 +1,12 @@
 import express from "express";
 import {
   addNewCampaign,
+  getCampaignAndMediaListByScreenId,
+  getCampaignDetail,
   getCampaignList,
   getCampaignListByScreenId,
   getCampaignListByScreenName,
+  updateCampaignById,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -17,8 +20,13 @@ campaignRouter.post("/create", isAuth, addNewCampaign);
 campaignRouter.get("/:id/screen", getCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);
 campaignRouter.get("/all", getCampaignList);
-
+campaignRouter.get("/:id", getCampaignDetail);
+campaignRouter.get(
+  "/:id/screen/campaignAndMedia",
+  getCampaignAndMediaListByScreenId
+);
 //put request
+campaignRouter.put("/:id", updateCampaignById);
 
 //delete request
 
