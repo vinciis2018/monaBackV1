@@ -12,11 +12,11 @@ export async function addNewScreen(req, res) {
     const user = await User.findOne({
       _id: req.body._id,
     });
-    if (!user)
-      res.status(404).send({ message: "User Not Found! DO login again" });
+    if (!user) {
+      return res.status(404).send({ message: "User Not Found! DO login again" });
+    }
     const calenderId = new mongoose.Types.ObjectId();
     const pinId = new mongoose.Types.ObjectId();
-    const videoId = new mongoose.Types.ObjectId();
     const screenId = new mongoose.Types.ObjectId();
 
     // create new calender for this new screen
@@ -73,13 +73,13 @@ export async function addNewScreen(req, res) {
       size: {
         length: 10 || req.body.screenLength,
         width: 5 || req.body.screenWidth,
-        measurementUnit: req.body.measurementUnit,
+        measurementUnit: "" || req.body.measurementUnit,
       },
 
-      scWorth: req.body.scWorth,
-      slotsTimePeriod: req.body.slotsTimePeriod,
-      rentPerSlot: req.body.rentPerSlot,
-      rentOffInPercent: req.body.rentOffInPercent, //v
+      scWorth: 0 || req.body.scWorth,
+      slotsTimePeriod: 0 || req.body.slotsTimePeriod,
+      rentPerSlot: 0 || req.body.rentPerSlot,
+      rentOffInPercent: 0 || req.body.rentOffInPercent, //v
 
       campaigns: [],
       allies: [],
@@ -95,11 +95,14 @@ export async function addNewScreen(req, res) {
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
     });
-    console.log(screen._id);
     const createdScreen = await screen.save();
+    console.log("DSDS");
 
     await user.screens.push(screen);
+    console.log("user");
+
     await user.save();
+    console.log("screen", screen._id);
 
     return res.status(200).send({
       message: "Screen Created",
@@ -108,7 +111,7 @@ export async function addNewScreen(req, res) {
       calender: calenderAdded,
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return res.status(500).send(error);
   }
 }
@@ -130,6 +133,7 @@ export async function getTopCampaigns(req, res) {
 //get 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
+    console.log(req);
     const pageSize = 6;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
@@ -181,8 +185,8 @@ export async function getScreensList(req, res) {
       .sort(sortPlea)
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-
-    res
+    // console.log(screens.length);
+    return res
       .status(200)
       .send({ screens, page, pages: Math.ceil(countDocuments / pageSize) });
   } catch (error) {

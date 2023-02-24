@@ -175,7 +175,7 @@ export async function topMasters(req, res) {
 //getUserCampaigns
 export async function getUserCampaigns(req, res) {
   try {
-    console.log("getUserScreens called!");
+    console.log("getUserCampaigns called!");
     console.log("req.params.id : ", req.params.id);
     const ally = req.params.id;
     const myCampaigns = await Campaign.find({ ally });
@@ -204,7 +204,7 @@ export async function getUserScreens(req, res) {
     console.log("req.params.id : ", req.params.id);
     const master = req.params.id;
     const myScreens = await Screen.find({ master });
-    console.log("myScreens : ", myScreens);
+    console.log("myScreens : ", myScreens.lenght);
     if (myScreens) return res.status(200).send(myScreens);
     return res.status(404).send({ message: "Screens not found" });
   } catch (error) {
