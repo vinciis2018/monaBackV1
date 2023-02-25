@@ -15,6 +15,7 @@ const screenSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     image: { type: String, required: true },
+    screenCode: {type: String, unique: true, default: "" },
     locationPin: { type: mongoose.Schema.Types.ObjectId, ref: "Pin" } || {
       type: String,
     },

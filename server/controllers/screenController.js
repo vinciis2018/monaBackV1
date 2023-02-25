@@ -94,6 +94,7 @@ export async function addNewScreen(req, res) {
       screenHighlights: ["blinds", "vinciis"],
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
+      screenCode: "" || req.body.screenCode,
     });
     const createdScreen = await screen.save();
     console.log("DSDS");
@@ -257,6 +258,7 @@ export async function updateScreenById(req, res) {
       screen.image = req.body.image || screen.image;
       screen.category = req.body.screenCategory || screen.category;
       screen.screenType = req.body.screenType || screen.screenType;
+      screen.screenCode = req.body.syncCode || screen.screenCode;
 
       screen.scWorth = req.body.screenWorth || screen.scWorth;
       screen.slotsTimePeriod =
