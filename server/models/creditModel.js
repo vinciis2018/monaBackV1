@@ -4,8 +4,9 @@ const creditSchema = new mongoose.Schema(
   {
     name: { type: String, default: "AdCredit" },
     ticker: { type: String, default: "MONAT" },
-    owner: { type: mongoose.Types.ObjectId, required: true },
-    balances: { type: Map, of: Number },
+    owner: { type: String, required: true },
+    // balances: { type: Map, of: Number },
+    balances: {},
     registeredGames: [mongoose.Types.ObjectId],
     deregisteredGames: [mongoose.Types.ObjectId],
     incentives: [mongoose.Types.ObjectId],

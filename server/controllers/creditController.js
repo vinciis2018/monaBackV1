@@ -3,16 +3,47 @@ import checkError from "../helpers/checkError.js";
 import CustomError from "../helpers/customError.js";
 import CreditLog, { MethodEnum } from "../models/creditLogModel.js";
 import Credit from "../models/creditModel.js";
+import Wallet from "../models/walletModel.js";
 
 export async function walletDetailHandler(req, res, next) {
   try {
-    const wallet = await Credit.findOne({ owner: req.user._id });
+    // const wallet = await Credit.findOne({ owner: req.user._id });
+    const adCredits = await Credit.findOne({
+      owner: 'jn1prgQsmlicd1w66SOVcMG4GYODjx7zkBNIAzGR3WQ'
+    });
+
+    console.log(req.user.defaultWallet)
+    if (!adCredits) {
+      const createAdCredits = new Credit({
+        _id: new mongoose.Types.ObjectId(),
+        owner: 'jn1prgQsmlicd1w66SOVcMG4GYODjx7zkBNIAzGR3WQ',
+        balances: {
+          'jn1prgQsmlicd1w66SOVcMG4GYODjx7zkBNIAzGR3WQ': 990000000,
+        },
+
+      })
+      console.log(createAdCredits);
+      createAdCredits.save();
+    }
+    const balances = adCredits.balances
+    const userBalance = balances[req.user.defaultWallet]
+
+    if (!userBalance) {
+      adCredits.balances[req.user.defaultWallet] = 0
+      adCredits.save();
+    }
+
+    const wallet = await Wallet.findOne({
+      walletAddAr: req.user.defaultWallet
+    });
+
     if (!wallet) {
       throw new CustomError("Bad Request", 404, "No such wallet found");
     }
-    res.send({ walletId: wallet._id, balances: wallet.balances });
+    return res.status(200).send({ walletId: wallet._id, balances: adCredits.balances[req.user.defaultWallet] });
   } catch (err) {
-    checkError(err, res);
+    console.log(err)
+    return res.status(404).send(err);
   }
 }
 

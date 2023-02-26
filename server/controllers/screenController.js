@@ -134,7 +134,7 @@ export async function getTopCampaigns(req, res) {
 //get 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
-    console.log(req);
+    // console.log(req);
     const pageSize = 6;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
