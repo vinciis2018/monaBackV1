@@ -23,7 +23,7 @@ export async function addNewCampaign(req, res) {
       media: mediaId,
       thumbnail: req.body.thumbnail || media.thumbnail,
       campaignName: req.body.campaignName || "campaign Name",
-      mediaURL: media.media,
+      video: media.media,
       ally: user._id,
       master: screen.master,
       isSlotBooked: false,

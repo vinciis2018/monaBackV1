@@ -487,7 +487,7 @@ export async function getScreenPlayList(req, res) {
       return res.status(401).send({ message: "Campaigns not found" });
 
     //create a new array of video url
-    const videos = screenCampaign.map((campaign) => campaign.mediaURL);
+    const videos = screenCampaign.map((campaign) => campaign.video);
     console.log("getScreenPlayList videos : ", videos);
     if (videos.length > 0) {
       if (index === videos.length) {
