@@ -6,6 +6,88 @@ import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Campaign from "../models/campaignModel.js";
 
+
+// for android APk
+export async function syncScreenCodeForApk(req, res) {
+  try {
+    const syncCode = req.params.syncCode;
+    console.log(syncCode);
+    const screen = await Screen.findOne({ screenCode: syncCode });
+    console.log(screen);
+    const screenVideos = await Campaign.find({ screen: screen._id });
+    if (screenVideos) {
+      const paidVideos = screenVideos.filter((video) => {
+        video.paidForSlots === true
+        return video
+      });
+      const myScreenVideos = [...paidVideos];
+      return res.status(200).send({myScreenVideos, screen});
+    } else {
+      return res.status(402).send("screen videos not found")
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+}
+
+export async function getScreenDetailsForApk(req, res) {
+  try {
+    const screenName = req.params.name;
+    console.log(screenName);
+
+    const screen = await Screen.findOne({name: screenName});
+    console.log(screen._id);
+
+    if(screen) {
+      const screenVideos = await Campaign.find({ screen: screen._id });
+      // const paidVideos = screenVideos.filter((video) => {
+      //   video.paidForSlots === true
+      //   return video;
+      // });
+
+      const myScreenVideos = [...screenVideos];
+      return res.status(200).send(myScreenVideos);
+    } else {
+      return res.status(401).send({ message: "Videos not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+}
+
+export async function checkScreenPlaylistForApk(req, res) {
+  try {
+    const screenName = req.params.name;
+    const time = req.params.time;
+    const currentVideo = req.params.currentVideo;
+    const deviceInfo = req.query.deviceInfo;
+    const playData = {
+      deviceInfo: deviceInfo,
+      playTime: time,
+      playVideo: currentVideo,
+    }
+
+    const screen = await Screen.findOne({name: screenName});
+    screen.lastActive = time;
+    screen.lastPlayed = currentVideo;
+    screen.playingDetails.push(playData);
+    await screen.save();
+    const screenVideos = await Campaign.find({ screen: screen._id });
+    const paidVideos = screenVideos.filter((video) => {
+      video.paidForSlots === true
+      return video;
+    });
+
+    const myScreenVideos = [...paidVideos];
+    return res.status(200).send(myScreenVideos);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+}
+
 //add new screen
 export async function addNewScreen(req, res) {
   try {

@@ -9,6 +9,9 @@ import {
   getScreensList,
   getTopCampaigns,
   updateScreenById,
+  syncScreenCodeForApk,
+  getScreenDetailsForApk,
+  checkScreenPlaylistForApk,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 
@@ -32,5 +35,12 @@ screenRouter.put("/:id", isAuth, updateScreenById); //tested
 //delete request
 
 screenRouter.delete("/:id", isAuth, deleteScreenById); //tested
+
+
+// android apk related
+screenRouter.get("/syncCode/:syncCode", syncScreenCodeForApk);
+screenRouter.get("/:name/screenName", getScreenDetailsForApk);
+screenRouter.get("/:name/screenName/:time/:currentVideo", checkScreenPlaylistForApk);
+
 
 export default screenRouter;
