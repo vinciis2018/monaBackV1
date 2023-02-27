@@ -70,6 +70,8 @@ const screenSchema = new mongoose.Schema(
     screenHighlights: [{ type: String }],
     startTime: { type: String },
     endTime: { type: String },
+    lastPlayed: { type: String },
+    lastActive: { type: Date }, 
   },
   {
     timestamps: true,

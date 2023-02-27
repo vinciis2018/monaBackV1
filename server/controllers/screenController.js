@@ -5,6 +5,7 @@ import Pin from "../models/pinModel.js";
 import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Campaign from "../models/campaignModel.js";
+import ScreenLogs from "../models/screenLogsModel.js";
 
 
 // for android APk
@@ -72,11 +73,14 @@ export async function checkScreenPlaylistForApk(req, res) {
     const screen = await Screen.findOne({name: screenName});
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
-    screen.playingDetails.push(playData);
+
+    const screenLogs = await ScreenLogs.findOne({ screen: screen._id});
+
+    screenLogs.playingDetails.push(playData);
     await screen.save();
     const screenVideos = await Campaign.find({ screen: screen._id });
     const paidVideos = screenVideos.filter((video) => {
-      video.paidForSlots === true
+      // video.paidForSlots === true
       return video;
     });
 
@@ -113,6 +117,11 @@ export async function addNewScreen(req, res) {
     console.log("calender", calender._id);
     const calenderAdded = await calender.save();
 
+    const screenLogsAdd = new ScreenLogs({
+      _id: new mongoose.Types.ObjectId(),
+      screen: screen._id,
+    });
+    await screenLogsAdd.save();
     //create new pin for this new screen
     const pin = new Pin({
       _id: pinId,
@@ -296,7 +305,15 @@ export async function getScreenDetailsByScreenId(req, res) {
     pin.save();
     screen.activeGameContract = calender.activeGameContract;
     screen.save();
-    res.status(200).send(screen);
+    const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
+    if (!screenLogs) {
+      const screenLogsAdd = new ScreenLogs({
+        _id: new mongoose.Types.ObjectId(),
+        screen: screen._id,
+      });
+      await screenLogsAdd.save();
+    }
+    return res.status(200).send(screen);
   } catch (error) {
     return res.status(500).send(``);
   }
