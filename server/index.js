@@ -25,7 +25,12 @@ app.use(bodyParser.json());
 const url = process.env.DB_URL;
 console.log("url : ", url);
 mongoose.set('strictQuery', true);
-mongoose.connect(url);
+mongoose.connect(url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  retryWrites: true,
+  w: "majority"
+});
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -55,15 +60,15 @@ app.get("/", (req, res) => {
   res.send("Server is ready");
 });
 app.use((err, req, res, next) => {
-  console.log(
-    "This error middle ware function called when error oocured : ",
-    err.message
-  );
+  // console.log(
+  //   "This error middle ware function called when error oocured : ",
+  //   err.message
+  // );
   res.status(500).send({ message: err.message });
 });
 
-const port = process.env.PORT;
-const host = process.env.HOST_URL;
+const port = 3333;
+const host = "http://localhost:";
 app.listen(port, async () => {
   console.log(`Server at ${host}${port}`);
 });

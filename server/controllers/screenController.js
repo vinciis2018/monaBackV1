@@ -191,7 +191,7 @@ export async function getScreensList(req, res) {
       .status(200)
       .send({ screens, page, pages: Math.ceil(countDocuments / pageSize) });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return res.status(500).send(`screen router error ${error}`);
   }
 }
