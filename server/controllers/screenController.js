@@ -60,7 +60,7 @@ export async function addNewScreen(req, res) {
       districtCity: "district/citvideoy" || req.body.districtCity, //v
       stateUT: "state/UT" || req.body.stateUT, //v
       country: "country" || req.body.country, //v
-
+      screenCode: "" || req.body.syncCode,
       category: "INDOORS" || req.body.screenCategory,
       screenType: "TOP_HORIZONTAL" || req.body.screenType,
 
