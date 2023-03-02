@@ -44,16 +44,20 @@ const changePassword = async (req, res, user) => {
 
 export async function userSignUp(req, res) {
   try {
+    const requestCameFromURL = req.rawHeaders[req.rawHeaders.length - 3];
     const oldUser = await User.findOne({ email: req.body.email });
     if (oldUser && req.body.password) {
       changePassword(req, res, oldUser);
     }
 
     if (req.body.password === "") {
-      sendConfirmationEmail(req.body.email, req.body.name);
-      return res.status(400).send({
-        message: "Email sent to your ragistered email.",
-      });
+      sendConfirmationEmail(
+        req.body.email,
+        req.body.name,
+        requestCameFromURL,
+        req,
+        res
+      );
     }
     if (!oldUser && req.body.password) {
       const user = new User({

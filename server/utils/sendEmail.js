@@ -1,6 +1,12 @@
 import nodemailer from "nodemailer";
 
-export function sendConfirmationEmail(toEmail, userName) {
+export function sendConfirmationEmail(
+  toEmail,
+  userName,
+  requestCameFromURL,
+  req,
+  res
+) {
   const emailSender = process.env.SENDER_EMAIL;
   const emailPassword = process.env.EMAIL_PASS;
   let transporter = nodemailer.createTransport({
@@ -24,12 +30,24 @@ export function sendConfirmationEmail(toEmail, userName) {
           <p>Thank you for signing up on Monad. Please Click on the link below, to complete
           your signin up process. We will be keeping your email for future updates and
           information. Please visit www.vinciis.in for more details on privacy policy.</p>
-          <a href=http://localhost:3000/create-reset-password/${toEmail}> Click here to complete the signup process</a>
+          <a href=${requestCameFromURL}create-reset-password/${toEmail}> Click here to complete the signup process</a>
           <h3>Advertise as never before...<br>
           Regards<br>
           Monad<br>
           by Vinciis</h3>
           </div>`,
     })
-    .catch((err) => console.log(err));
+    .then((data) => {
+      //console.log("data ------", data);
+      return res.status(400).send({
+        message: "Email sent to your ragistered email.",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(400).send({
+        message:
+          "Email Not sent to your ragistered email. Ckeck your email and resend.",
+      });
+    });
 }
