@@ -15,7 +15,7 @@ const screenSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     image: { type: String, required: true },
-    screenCode: {type: String, unique: true, default: "" },
+    screenCode: { type: String, unique: true, default: "" },
     locationPin: { type: mongoose.Schema.Types.ObjectId, ref: "Pin" } || {
       type: String,
     },
@@ -71,7 +71,7 @@ const screenSchema = new mongoose.Schema(
     startTime: { type: String },
     endTime: { type: String },
     lastPlayed: { type: String },
-    lastActive: { type: Date }, 
+    lastActive: { type: Date },
   },
   {
     timestamps: true,

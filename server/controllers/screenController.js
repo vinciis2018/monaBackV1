@@ -185,7 +185,6 @@ export async function addNewScreen(req, res) {
       screenHighlights: ["blinds", "vinciis"],
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
-      screenCode: "" || req.body.screenCode,
     });
     const createdScreen = await screen.save();
     console.log("DSDS");
