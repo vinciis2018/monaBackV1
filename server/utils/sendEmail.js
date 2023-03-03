@@ -20,6 +20,7 @@ export function sendConfirmationEmail(
   });
 
   console.log("sending email to user");
+  console.log(requestCameFromURL)
   transporter
     .sendMail({
       from: emailSender, // sender address

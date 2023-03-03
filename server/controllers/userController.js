@@ -44,7 +44,7 @@ const changePassword = async (req, res, user) => {
 
 export async function userSignUp(req, res) {
   try {
-    const requestCameFromURL = req.rawHeaders[req.rawHeaders.length - 3];
+    const requestCameFromURL = req.rawHeaders[req.rawHeaders.length - 5];
     const oldUser = await User.findOne({ email: req.body.email });
     if (oldUser && req.body.password) {
       changePassword(req, res, oldUser);
