@@ -7,8 +7,8 @@ export function sendConfirmationEmail(
   req,
   res
 ) {
-  const emailSender = process.env.SENDER_EMAIL;
-  const emailPassword = process.env.EMAIL_PASS;
+  const emailSender = process.env.SENDER_EMAIL || "testgamil4@gmail.com";
+  const emailPassword = process.env.EMAIL_PASS || "wcwzgvbanoydwpmu";
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
