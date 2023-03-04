@@ -44,7 +44,9 @@ const changePassword = async (req, res, user) => {
 
 export async function userSignUp(req, res) {
   try {
-    const requestCameFromURL = req.rawHeaders[req.rawHeaders.length - 3];
+    console.log("request came for user signUp");
+    const requestCameFromURL = `${req.header("Origin")}/`;
+    console.log("requestCameFromURL : ", requestCameFromURL);
     const oldUser = await User.findOne({ email: req.body.email });
     if (oldUser && req.body.password) {
       changePassword(req, res, oldUser);
