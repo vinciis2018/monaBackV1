@@ -20,7 +20,7 @@ export function sendConfirmationEmail(
   });
 
   console.log("sending email to user");
-  console.log(requestCameFromURL)
+  console.log(requestCameFromURL);
   transporter
     .sendMail({
       from: emailSender, // sender address
@@ -31,7 +31,7 @@ export function sendConfirmationEmail(
           <p>Thank you for signing up on Monad. Please Click on the link below, to complete
           your signin up process. We will be keeping your email for future updates and
           information. Please visit www.vinciis.in for more details on privacy policy.</p>
-          <a href=${requestCameFromURL}create-reset-password/${toEmail}> Click here to complete the signup process</a>
+          <a href=${requestCameFromURL}create-reset-password/${toEmail}/${userName}> Click here to complete the signup process</a>
           <h3>Advertise as never before...<br>
           Regards<br>
           Monad<br>
@@ -39,9 +39,9 @@ export function sendConfirmationEmail(
           </div>`,
     })
     .then((data) => {
-      //console.log("data ------", data);
+      console.log("Email has send to your email :", toEmail);
       return res.status(400).send({
-        message: "Email sent to your ragistered email.",
+        message: `Email sent to your ragistered email ${toEmail}`,
       });
     })
     .catch((err) => {
