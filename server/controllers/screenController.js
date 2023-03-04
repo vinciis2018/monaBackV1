@@ -77,6 +77,7 @@ export async function checkScreenPlaylistForApk(req, res) {
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id});
 
     screenLogs.playingDetails.push(playData);
+    await screenLogs.save();
     await screen.save();
     const screenVideos = await Campaign.find({ screen: screen._id });
     const paidVideos = screenVideos.filter((video) => {
