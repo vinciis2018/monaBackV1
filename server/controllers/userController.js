@@ -209,8 +209,8 @@ export async function getUserScreens(req, res) {
     console.log("getUserScreens called!");
     console.log("req.params.id : ", req.params.id);
     const master = req.params.id;
-    const myScreens = await Screen.find({ master });
-    console.log("myScreens : ", myScreens.lenght);
+    const myScreens = await Screen.find({ master: master });
+    console.log("myScreens : ", myScreens.length);
     if (myScreens) return res.status(200).send(myScreens);
     return res.status(404).send({ message: "Screens not found" });
   } catch (error) {
