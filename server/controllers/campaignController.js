@@ -115,32 +115,44 @@ export async function getCampaignList(req, res) {
       return res.status(404).send({ message: "No campaign found" });
     }
   } catch (error) {
-    res.status(500).send({ message: `campaign router error ${error.message}` });
+    return res
+      .status(500)
+      .send({ message: `campaign router error ${error.message}` });
   }
 }
 
 // delete campaign from screen
 export async function deleteCampaign(req, res) {
-  const campaignId = req.params.id;
-  const user = req.body.userInfo;
-  const campaign = await Campaign.findById(campaignId);
+  try {
+    const campaignId = req.params.id;
+    const campaign = await Campaign.findById(campaignId);
 
-  //only screen owner can delete campaign
-  if (campaign && campaign.master === user._id) {
-    // first we will send send money back to ally wallet and then delete campaign
-    if (campaign && campaign.remainingSlots > 0) {
-      sendMoneyBackToAlly({
-        amount: campaign.remainingSlots * campaign.rentPerSlot,
-        walletAddress: campaign.allyWalletAddress,
-      });
+    //only screen owner can delete campaign
+    if (campaign) {
+      // first we will send send money back to ally wallet and then delete campaign
+      if (campaign && campaign.remainingSlots > 0) {
+        sendMoneyBackToAlly({
+          amount: campaign.remainingSlots * campaign.rentPerSlot,
+          walletAddress: campaign.allyWalletAddress,
+        });
+      }
+      let screen = await Screen.findById(campaign.screen);
+      console.log("before deleting campaign from screen  : ", screen);
+      screen.campaigns.remove(campaignId);
+      const updatedeScreen = await screen.save();
+      console.log("after deleting campaign from screen  : ", updatedeScreen);
+      const deletedcampaign = await campaign.remove();
+      console.log("delted campaign : ", deletedcampaign);
+      return res.status(200).send(deletedcampaign);
+    } else {
+      return res
+        .status(400)
+        .send("Unauthorize access for deleting this campaign");
     }
-    const screen = await Screen.findById(campaign.screen);
-    console.log("before deleting campaign from screen  : ", screen);
-    screen.campaigns = screen.campaigns.filter((id) => id !== campaignId);
-    const updatedeScreen = await screen.save();
-    console.log("after deleting campaign from screen  : ", updatedeScreen);
-    const deletedcampaign = await campaign.remove();
-    console.log("delted campaign : ", deleteCampaign);
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
   }
 }
 

@@ -24,12 +24,12 @@ app.use(bodyParser.json());
 
 const url = process.env.DB_URL;
 console.log("url : ", url);
-mongoose.set('strictQuery', true);
+mongoose.set("strictQuery", true);
 mongoose.connect(url, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   retryWrites: true,
-  w: "majority"
+  w: "majority",
 });
 
 app.use(function (req, res, next) {

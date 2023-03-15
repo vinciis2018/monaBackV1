@@ -7,6 +7,7 @@ import {
   getCampaignListByScreenId,
   getCampaignListByScreenName,
   updateCampaignById,
+  deleteCampaign,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -29,5 +30,7 @@ campaignRouter.get(
 campaignRouter.put("/:id", updateCampaignById);
 
 //delete request
+
+campaignRouter.delete("/:id", deleteCampaign);
 
 export default campaignRouter;
