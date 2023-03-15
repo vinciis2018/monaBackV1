@@ -6,6 +6,7 @@ import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
+import Randomstring from 'randomstring';
 
 
 // for android APk
@@ -115,12 +116,12 @@ export async function addNewScreen(req, res) {
       dayDetails: [],
       createdOn: Date.now(),
     });
-    console.log("calender", calender._id);
+    console.log("calender", calenderId);
     const calenderAdded = await calender.save();
 
     const screenLogsAdd = new ScreenLogs({
       _id: new mongoose.Types.ObjectId(),
-      screen: screen._id,
+      screen: screenId,
     });
     await screenLogsAdd.save();
     //create new pin for this new screen
@@ -135,7 +136,7 @@ export async function addNewScreen(req, res) {
       lng: 25.26 || req.body.locationPin.lat,
       lat: 82.98 || req.body.locationPin.lng,
     });
-    console.log("pin", pin._id);
+    console.log("pin", pinId);
     const pinAdded = await pin.save();
 
     //now we are going to create new screen
@@ -152,7 +153,10 @@ export async function addNewScreen(req, res) {
       districtCity: "district/citvideoy" || req.body.districtCity, //v
       stateUT: "state/UT" || req.body.stateUT, //v
       country: "country" || req.body.country, //v
-      screenCode: "" || req.body.syncCode,
+      screenCode: Randomstring.generate({
+        length: 6,
+      }) || req.body.syncCode,
+
       category: "INDOORS" || req.body.screenCategory,
       screenType: "TOP_HORIZONTAL" || req.body.screenType,
 
@@ -187,6 +191,16 @@ export async function addNewScreen(req, res) {
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
     });
+
+    // if (screen.screenCode !== "") {
+    //   const screenSynced = await Screen.findOne({
+    //     screenCode: screen.screenCode,
+    //   });
+      
+    //   if (screenSynced !== null) {
+    //     screen.screenCode
+    //   }
+    // }
     const createdScreen = await screen.save();
     console.log("DSDS");
 
@@ -194,7 +208,6 @@ export async function addNewScreen(req, res) {
     console.log("user");
 
     await user.save();
-    console.log("screen", screen._id);
 
     return res.status(200).send({
       message: "Screen Created",
@@ -204,7 +217,7 @@ export async function addNewScreen(req, res) {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send(error);
+    return res.status(404).send(error);
   }
 }
 
