@@ -12,6 +12,7 @@ import {
   syncScreenCodeForApk,
   getScreenDetailsForApk,
   checkScreenPlaylistForApk,
+  getScreenLogs,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 
@@ -28,7 +29,7 @@ screenRouter.get("/:id", getScreenDetailsByScreenId); //tested
 screenRouter.get("/:id/pin", getPinDetailsByScreenId); //tested
 
 screenRouter.get("/:id/screenmedias/playlist", getScreenPlayList); // not understand what is its purpose ?
-
+screenRouter.get("/:id/screenLogs", getScreenLogs);
 //put request
 screenRouter.put("/:id", isAuth, updateScreenById); //tested
 
@@ -36,11 +37,12 @@ screenRouter.put("/:id", isAuth, updateScreenById); //tested
 
 screenRouter.delete("/:id", isAuth, deleteScreenById); //tested
 
-
 // android apk related
 screenRouter.get("/syncCode/:syncCode", syncScreenCodeForApk);
 screenRouter.get("/:name/screenName", getScreenDetailsForApk);
-screenRouter.get("/:name/screenName/:time/:currentVideo", checkScreenPlaylistForApk);
-
+screenRouter.get(
+  "/:name/screenName/:time/:currentVideo",
+  checkScreenPlaylistForApk
+);
 
 export default screenRouter;

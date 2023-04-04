@@ -17,10 +17,12 @@ export async function addNewCampaign(req, res) {
     const media = await Media.findById(mediaId);
     console.log("media : ", media);
     if (!media) res.status(404).send({ message: "Media Not Found" });
+    const cid = media.media.split("/")[4];
 
     const newCampaign = new Campaign({
       screen: screenId,
       media: mediaId,
+      cid: cid,
       thumbnail: req.body.thumbnail || media.thumbnail,
       campaignName: req.body.campaignName || "campaign Name",
       video: media.media,

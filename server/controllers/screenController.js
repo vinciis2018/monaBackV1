@@ -6,8 +6,7 @@ import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
-import Randomstring from 'randomstring';
-
+import Randomstring from "randomstring";
 
 // for android APk
 export async function syncScreenCodeForApk(req, res) {
@@ -19,13 +18,13 @@ export async function syncScreenCodeForApk(req, res) {
     const screenVideos = await Campaign.find({ screen: screen._id });
     if (screenVideos) {
       const paidVideos = screenVideos.filter((video) => {
-        video.paidForSlots === true
-        return video
+        video.paidForSlots === true;
+        return video;
       });
       const myScreenVideos = [...paidVideos];
-      return res.status(200).send({myScreenVideos, screen});
+      return res.status(200).send({ myScreenVideos, screen });
     } else {
-      return res.status(402).send("screen videos not found")
+      return res.status(402).send("screen videos not found");
     }
   } catch (error) {
     console.log(error);
@@ -38,10 +37,10 @@ export async function getScreenDetailsForApk(req, res) {
     const screenName = req.params.name;
     console.log(screenName);
 
-    const screen = await Screen.findOne({name: screenName});
+    const screen = await Screen.findOne({ name: screenName });
     console.log(screen._id);
 
-    if(screen) {
+    if (screen) {
       const screenVideos = await Campaign.find({ screen: screen._id });
       // const paidVideos = screenVideos.filter((video) => {
       //   video.paidForSlots === true
@@ -69,13 +68,13 @@ export async function checkScreenPlaylistForApk(req, res) {
       deviceInfo: deviceInfo,
       playTime: time,
       playVideo: currentVideo,
-    }
+    };
 
-    const screen = await Screen.findOne({name: screenName});
+    const screen = await Screen.findOne({ name: screenName });
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
 
-    const screenLogs = await ScreenLogs.findOne({ screen: screen._id});
+    const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
 
     screenLogs.playingDetails.push(playData);
     await screenLogs.save();
@@ -101,7 +100,9 @@ export async function addNewScreen(req, res) {
       _id: req.body._id,
     });
     if (!user) {
-      return res.status(404).send({ message: "User Not Found! DO login again" });
+      return res
+        .status(404)
+        .send({ message: "User Not Found! DO login again" });
     }
     const calenderId = new mongoose.Types.ObjectId();
     const pinId = new mongoose.Types.ObjectId();
@@ -153,9 +154,10 @@ export async function addNewScreen(req, res) {
       districtCity: "district/citvideoy" || req.body.districtCity, //v
       stateUT: "state/UT" || req.body.stateUT, //v
       country: "country" || req.body.country, //v
-      screenCode: Randomstring.generate({
-        length: 6,
-      }) || req.body.syncCode,
+      screenCode:
+        Randomstring.generate({
+          length: 6,
+        }) || req.body.syncCode,
 
       category: "INDOORS" || req.body.screenCategory,
       screenType: "TOP_HORIZONTAL" || req.body.screenType,
@@ -196,7 +198,7 @@ export async function addNewScreen(req, res) {
     //   const screenSynced = await Screen.findOne({
     //     screenCode: screen.screenCode,
     //   });
-      
+
     //   if (screenSynced !== null) {
     //     screen.screenCode
     //   }
@@ -572,5 +574,20 @@ export async function addScreenLikeByScreenId(req, res) {
     });
   } catch (error) {
     return res.status(401).send(error.message);
+  }
+}
+
+// get campaign logs by
+export async function getScreenLogs(req, res) {
+  try {
+    console.log("getScreenLogs called! ", req.params.id);
+    const screenId = req.params.id;
+    const screenLog = await ScreenLogs.findOne({ screen: screenId });
+    console.log("screenLogs : ", screenLog);
+    res.status(200).send(screenLog.playingDetails);
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
   }
 }

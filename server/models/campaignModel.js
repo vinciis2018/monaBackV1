@@ -4,6 +4,7 @@ const campaignSchema = new mongoose.Schema(
   {
     media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
     video: { type: String, required: true },
+    cid: { type: String, required: true },
     thumbnail: { type: String, required: true },
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
     campaignName: { type: String, required: true, default: "campaign name" },

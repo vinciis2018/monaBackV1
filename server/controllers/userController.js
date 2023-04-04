@@ -397,6 +397,7 @@ export async function updateUserProfile(req, res) {
 
         pleasMade: updatedUser.pleasMade,
         alliedScreens: updatedUser.alliedScreens,
+        token: generateToken(user),
 
         createdAt: user.createdAt,
       });
