@@ -8,6 +8,7 @@ import {
   getCampaignListByScreenName,
   updateCampaignById,
   deleteCampaign,
+  getAllCampaignListByScreenId,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -19,6 +20,7 @@ campaignRouter.post("/create", isAuth, addNewCampaign);
 
 //get request
 campaignRouter.get("/:id/screen", getCampaignListByScreenId);
+campaignRouter.get("/:id/screen/all", getAllCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);
 campaignRouter.get("/all", getCampaignList);
 campaignRouter.get("/:id", getCampaignDetail);

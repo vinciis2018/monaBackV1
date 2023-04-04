@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  generateMnemonicFormBip39,
   subtractWalletHandler,
   walletDetailHandler,
   walletLogHandler,
@@ -16,7 +17,7 @@ const creditRouter = express.Router();
 
 //this route is for adding amount to monad wallet using payment gateway post("/api/credit/add",body:{amount:#someamount})
 creditRouter.post("/add", isAuth, rechargeWalletHandler);
-
+creditRouter.post("/generateMnemonic/:id", generateMnemonicFormBip39);
 //this route is automatically called by payment gateway
 creditRouter.post("/callback/:userId", rechargeWalletCallbackHandler);
 

@@ -35,10 +35,34 @@ const changePassword = async (req, res, user) => {
       pleasMade: updateUser.pleasMade,
       alliedScreens: updateUser.alliedScreens,
       createdAt: updateUser.createdAt,
+      phone: user.phone,
+      districtCity: user.districtCity,
+      pincode: user.pincode,
+      address: user.address,
+      stateUt: user.stateUt,
+      country: user.country,
       token: generateToken(updateUser),
     });
   } catch (error) {
-    return error;
+    throw new Error(error);
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    console.log("request came for password update");
+    const userId = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(userId);
+    if (bcrypt.compareSync(oldPassword, user.password)) {
+      user.password = bcrypt.hashSync(newPassword, 8);
+      const updatedUser = await user.save();
+      return res.status(201).send("Password Change");
+    } else {
+      return res.status(404).send({ message: "Old Password incorrect!" });
+    }
+  } catch (error) {
+    return res.status(404).send(error);
   }
 };
 
@@ -93,6 +117,12 @@ export async function userSignUp(req, res) {
         pleasMade: createdUser.pleasMade,
         alliedScreens: createdUser.alliedScreens,
         createdAt: createdUser.createdAt,
+        phone: user.phone,
+        districtCity: user.districtCity,
+        pincode: user.pincode,
+        address: user.address,
+        stateUt: user.stateUt,
+        country: user.country,
         token: generateToken(createdUser),
       });
     }
@@ -124,6 +154,9 @@ export async function userSignin(req, res) {
         phone: user.phone,
         districtCity: user.districtCity,
         pincode: user.pincode,
+        address: user.address,
+        stateUt: user.stateUt,
+        country: user.country,
 
         defaultWallet: user.defaultWallet,
         wallets: user.wallets,
@@ -218,13 +251,57 @@ export async function getUserScreens(req, res) {
   }
 }
 
+// delete all of  medias for user deleteAllMedias
+export async function deleteAllMedias(req, res) {
+  try {
+    console.log("user id : ", req.params.id);
+    console.log("deleteAllMedias called!: ");
+    const user = await User.findById(req.params.id);
+    console.log(user);
+    if (!user) {
+      return res.status(401).send({
+        message: "User not Found",
+      });
+    }
+    const deletedMedia = await Media.deleteMany({ uploader: req.params.id });
+    const updatedUser = await User.update(
+      { uploader: req.params.id },
+      { $set: { medias: [] } },
+      { multi: true }
+    );
+    console.log("after delete all media of user : ", deletedMedia);
+    console.log("media of user : ", updatedUser);
+    return res.status(200).send({
+      message: "All media Deleted of user",
+      medias: deletedMedia,
+    });
+  } catch (error) {
+    return res.status(404).send(error);
+  }
+}
+
+export async function deleteUserWallet(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    const updatedUser = await user.update(
+      { $set: { wallets: [] } },
+      { multi: true }
+    );
+    const deletedWallet = Wallet.remove({ user: req.params.id });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
 // get user medias
 export async function getUserMedias(req, res) {
   try {
     console.log("getUsermedias called!");
     const mymedias = await Media.find({ uploader: req.params.id });
-    console.log("mymedias : ", mymedias);
-    if (mymedias) return res.status(200).send(mymedias);
+    // console.log("mymedias : ", mymedias);
+    if (mymedias.length > 0) return res.status(200).send(mymedias);
     else return res.status(401).send({ message: "medias not found" });
   } catch (error) {
     res.status(500).send({ message: `User router error ${error.message}` });

@@ -33,6 +33,7 @@ const campaignSchema = new mongoose.Schema(
     districtCity: { type: String, required: true }, //v
     stateUT: { type: String, required: true }, //v
     country: { type: String, required: true }, //v
+    status: { type: String, required: true, default: "Active" },
   },
   {
     timestamps: true,

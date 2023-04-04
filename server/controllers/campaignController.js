@@ -76,7 +76,26 @@ export async function xxx(req, res) {
 export async function getCampaignListByScreenId(req, res) {
   try {
     const screenId = req.params.id;
-    const campaignList = await Campaign.find({ screen: screenId });
+    const campaignList = await Campaign.find({
+      $and: [{ screen: { $eq: screenId } }, { status: { $eq: "Active" } }],
+    });
+    if (!campaignList)
+      return res.status(401).send({ message: "campaign not found" });
+
+    return res.status(200).send(campaignList);
+  } catch (error) {
+    return res
+      .status(401)
+      .send({ message: `campaign router error, ${error.message}` });
+  }
+}
+
+export async function getAllCampaignListByScreenId(req, res) {
+  try {
+    const screenId = req.params.id;
+    const campaignList = await Campaign.find({
+      screen: screenId,
+    }).sort({ status: 1 });
     if (!campaignList)
       return res.status(401).send({ message: "campaign not found" });
 
@@ -108,7 +127,7 @@ export async function getCampaignListByScreenName(req, res) {
 // get all campaign list
 export async function getCampaignList(req, res) {
   try {
-    const allCampaign = await Campaign.find({});
+    const allCampaign = await Campaign.find({ status: { $eq: "Active" } });
     if (allCampaign) {
       return res.status(200).send(allCampaign);
     } else {
@@ -130,20 +149,17 @@ export async function deleteCampaign(req, res) {
     //only screen owner can delete campaign
     if (campaign) {
       // first we will send send money back to ally wallet and then delete campaign
-      if (campaign && campaign.remainingSlots > 0) {
+      if (campaign.remainingSlots > 0) {
         sendMoneyBackToAlly({
           amount: campaign.remainingSlots * campaign.rentPerSlot,
           walletAddress: campaign.allyWalletAddress,
         });
       }
-      let screen = await Screen.findById(campaign.screen);
-      console.log("before deleting campaign from screen  : ", screen);
-      screen.campaigns.remove(campaignId);
-      const updatedeScreen = await screen.save();
-      console.log("after deleting campaign from screen  : ", updatedeScreen);
-      const deletedcampaign = await campaign.remove();
-      console.log("delted campaign : ", deletedcampaign);
-      return res.status(200).send(deletedcampaign);
+      // console.log("before Campaign : ", campaign);
+      campaign.status = "Deleted";
+      const updatedCampaign = await campaign.save();
+      // console.log("Updated Campaign : ", updatedCampaign);
+      return res.status(200).send(updatedCampaign);
     } else {
       return res
         .status(400)

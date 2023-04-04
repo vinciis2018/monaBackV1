@@ -14,6 +14,8 @@ import {
   userSignin,
   userSignUp,
   getUserCampaigns,
+  deleteAllMedias,
+  updatePassword,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -36,8 +38,10 @@ userRouter.get("/:id/:wallet/myCampaign", isAuth, getUserCampaigns); // tested
 //put request
 userRouter.put("/profile", isAuth, updateUserProfile);
 userRouter.put("/:id", isAuth, isItanimulli, updateUser);
+userRouter.put("/:id/updatePassword", updatePassword);
 
 //detele request
 userRouter.delete("/:id", isAuth, isItanimulli, deleteUser);
+userRouter.delete("/:id/medias", deleteAllMedias);
 
 export default userRouter;
