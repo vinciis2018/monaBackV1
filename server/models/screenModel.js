@@ -11,6 +11,30 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+const additionalDataSchema = new mongoose.Schema({
+  averageDailyFootfall: { type: Number },
+  footfallClassification: {
+    sexRatio: {
+      male: { type: Number },
+      female: { type: Number}
+    },
+    employmentStatus: [{ type: String }],
+    averagePurchasePower: {
+      start: { type: Number },
+      end: { type: Number },
+    },
+    regularAudiencePercentage: { type: String },
+    maritalStatus: [{ type: String }],
+    workType: [{ type: String }],
+    kidsFriendly: { type: String },
+    averageAgeGroup: {
+      averageStartAge: { type: Number },
+      averageEndAge: { type: Number },
+    },
+    crowdMobilityType: [{ type: String }]
+  },
+});
+
 const screenSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
@@ -37,6 +61,7 @@ const screenSchema = new mongoose.Schema(
     size: {
       length: { type: Number },
       width: { type: Number },
+      diagonal: { type: Number },
       measurementUnit: { type: String, default: "PX" },
     },
 
@@ -72,6 +97,8 @@ const screenSchema = new mongoose.Schema(
     endTime: { type: String },
     lastPlayed: { type: String },
     lastActive: { type: Date },
+
+    additionalData: {additionalDataSchema}
   },
   {
     timestamps: true,
