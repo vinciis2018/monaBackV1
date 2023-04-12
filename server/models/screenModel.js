@@ -23,7 +23,7 @@ const additionalDataSchema = new mongoose.Schema({
       start: { type: Number },
       end: { type: Number },
     },
-    regularAudiencePercentage: { type: String },
+    regularAudiencePercentage: { type: Number },
     maritalStatus: [{ type: String }],
     workType: [{ type: String }],
     kidsFriendly: { type: String },
@@ -50,6 +50,7 @@ const screenSchema = new mongoose.Schema(
     districtCity: { type: String, required: true },
     stateUT: { type: String, required: true },
     country: { type: String, required: true },
+    stationCode: { type: String, default: "" },
 
     category: { type: String, required: true },
     screenType: { type: String, required: true },
