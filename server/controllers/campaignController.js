@@ -150,6 +150,8 @@ export async function deleteCampaign(req, res) {
 
     //only screen owner can delete campaign
     if (campaign) {
+      const screen = await Screen.findById(campaign.screen);
+
       // first we will send send money back to ally wallet and then delete campaign
       if (campaign.remainingSlots > 0) {
         sendMoneyBackToAlly({
@@ -159,8 +161,14 @@ export async function deleteCampaign(req, res) {
       }
       // console.log("before Campaign : ", campaign);
       campaign.status = "Deleted";
+      console.log("before deleting campaign from screen : ", screen.campaigns);
+
+      const updatedScreen = await Screen.updateOne(
+        { _id: campaign.screen },
+        { $pull: { campaigns: campaignId } }
+      );
       const updatedCampaign = await campaign.save();
-      // console.log("Updated Campaign : ", updatedCampaign);
+      console.log("After deleting campaign from screen : ", updatedScreen);
       return res.status(200).send(updatedCampaign);
     } else {
       return res
