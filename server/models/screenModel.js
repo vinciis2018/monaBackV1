@@ -16,7 +16,7 @@ const additionalDataSchema = new mongoose.Schema({
   footfallClassification: {
     sexRatio: {
       male: { type: Number },
-      female: { type: Number}
+      female: { type: Number },
     },
     employmentStatus: [{ type: String }],
     averagePurchasePower: {
@@ -31,7 +31,7 @@ const additionalDataSchema = new mongoose.Schema({
       averageStartAge: { type: Number },
       averageEndAge: { type: Number },
     },
-    crowdMobilityType: [{ type: String }]
+    crowdMobilityType: [{ type: String }],
   },
 });
 
@@ -99,7 +99,7 @@ const screenSchema = new mongoose.Schema(
     lastPlayed: { type: String },
     lastActive: { type: Date },
 
-    additionalData: {additionalDataSchema}
+    additionalData: additionalDataSchema,
   },
   {
     timestamps: true,

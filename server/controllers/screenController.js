@@ -192,6 +192,29 @@ export async function addNewScreen(req, res) {
       screenHighlights: ["blinds", "vinciis"],
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
+      additionalData: {
+        averageDailyFootfall: 0,
+        footfallClassification: {
+          sexRatio: {
+            male: 0,
+            female: 0,
+          },
+          averagePurchasePower: {
+            start: 0,
+            end: 0,
+          },
+          regularAudiencePercentage: 0,
+          employmentStatus: ["Salried Employees"],
+          maritalStatus: ["Unmarried"],
+          workType: ["Office"],
+          kidsFriendly: "yes",
+          crowdMobilityType: ["Walking"],
+          averageAgeGroup: {
+            averageStartAge: 17,
+            averageEndAge: 60,
+          },
+        },
+      },
     });
 
     // if (screen.screenCode !== "") {
@@ -204,7 +227,7 @@ export async function addNewScreen(req, res) {
     //   }
     // }
     const createdScreen = await screen.save();
-    console.log("DSDS");
+    console.log("createdScreen : ", createdScreen);
 
     await user.screens.push(screen);
     console.log("user");
@@ -418,6 +441,7 @@ export async function updateScreenById(req, res) {
 
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
+      screen.additionalData = req.body.additionalData || screen.additionalData;
       pin.image = req.body.image || screen.image;
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
