@@ -17,10 +17,12 @@ export async function syncScreenCodeForApk(req, res) {
     console.log(screen);
     const screenVideos = await Campaign.find({ screen: screen._id });
     if (screenVideos) {
-      const paidVideos = screenVideos.filter((video) => {
-        video.paidForSlots === true;
-        return video;
-      });
+      const paidVideos = screenVideos.filter((video) => (
+        video.status === "Active"
+        // console.log(video.status)
+        // return video;
+      ));
+      console.log(paidVideos.length)
       const myScreenVideos = [...paidVideos];
       return res.status(200).send({ myScreenVideos, screen });
     } else {
@@ -42,12 +44,12 @@ export async function getScreenDetailsForApk(req, res) {
 
     if (screen) {
       const screenVideos = await Campaign.find({ screen: screen._id });
-      // const paidVideos = screenVideos.filter((video) => {
-      //   video.paidForSlots === true
-      //   return video;
-      // });
+      const paidVideos = screenVideos.filter((video) => (
+        video.status === "Active"
+        // return video;
+      ));
 
-      const myScreenVideos = [...screenVideos];
+      const myScreenVideos = [...paidVideos];
       return res.status(200).send(myScreenVideos);
     } else {
       return res.status(401).send({ message: "Videos not found" });
@@ -69,21 +71,20 @@ export async function checkScreenPlaylistForApk(req, res) {
       playTime: time,
       playVideo: currentVideo,
     };
-
+    console.log(playData);
     const screen = await Screen.findOne({ name: screenName });
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
 
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
-
     screenLogs.playingDetails.push(playData);
     await screenLogs.save();
     await screen.save();
     const screenVideos = await Campaign.find({ screen: screen._id });
-    const paidVideos = screenVideos.filter((video) => {
-      // video.paidForSlots === true
-      return video;
-    });
+    const paidVideos = screenVideos.filter((video) => (
+      video.status === "Active"
+      // return video;
+    ));
 
     const myScreenVideos = [...paidVideos];
     return res.status(200).send(myScreenVideos);
