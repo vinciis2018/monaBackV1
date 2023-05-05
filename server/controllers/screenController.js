@@ -7,15 +7,43 @@ import mongoose from "mongoose";
 import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
 import Randomstring from "randomstring";
+import Plea from "../models/pleaModel.js";
 
 // for android APk
+
+const getActiveCampaignList = async (screenId) => {
+  try {
+    // const updatedCampaigns = await Campaign.updateMany(
+    //   {},
+    //   {
+    //     $set: {
+    //       isPause: false,
+    //       isDeleted: false,
+    //     },
+    //   }
+    // );
+    // console.log("updatedCampaigns : ", updatedCampaigns);
+    const screenVideos = await Campaign.find({
+      screen: screenId,
+      isPause: false,
+      remainingSlots: { $gte: 1 },
+      isDeleted: false,
+      // paidForSlot: true,
+    });
+    console.log("getActiveCampaignList : ", screenVideos?.length);
+    return Promise.resolve(screenVideos);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
 export async function syncScreenCodeForApk(req, res) {
   try {
     const syncCode = req.params.syncCode;
     console.log(syncCode);
     const screen = await Screen.findOne({ screenCode: syncCode });
     console.log(screen);
-    const screenVideos = await Campaign.find({ screen: screen._id });
+    const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
       const paidVideos = screenVideos.filter((video) => {
         video.paidForSlots === true;
@@ -41,12 +69,7 @@ export async function getScreenDetailsForApk(req, res) {
     console.log(screen._id);
 
     if (screen) {
-      const screenVideos = await Campaign.find({ screen: screen._id });
-      // const paidVideos = screenVideos.filter((video) => {
-      //   video.paidForSlots === true
-      //   return video;
-      // });
-
+      const screenVideos = await getActiveCampaignList(screen._id);
       const myScreenVideos = [...screenVideos];
       return res.status(200).send(myScreenVideos);
     } else {
@@ -74,18 +97,34 @@ export async function checkScreenPlaylistForApk(req, res) {
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
 
+    const campaign = await Campaign.findOne({
+      cid: currentVideo.split(".")[0],
+      screen: screen._id,
+    });
+    console.log("campaign  found  checkScreenPlaylistForApk: ", campaign);
+    //we are checking, remainingSlots was 1 then change campaign status "Completed" and
+    //remove this campaign from screen campaign list
+    if (campaign.remainingSlots === 1) {
+      console.log(
+        "Its time to change campaign status because remainint slot 1 "
+      );
+      campaign.status = "Completed";
+      // removing this campaign from screen.campaigns
+      const updatedScreen = await Screen.updateOne(
+        { _id: campaign.screen },
+        { $pull: { campaigns: campaign._id } }
+      );
+    }
+    campaign.remainingSlots = campaign.remainingSlots - 1;
+
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
 
     screenLogs.playingDetails.push(playData);
     await screenLogs.save();
     await screen.save();
-    const screenVideos = await Campaign.find({ screen: screen._id });
-    const paidVideos = screenVideos.filter((video) => {
-      // video.paidForSlots === true
-      return video;
-    });
-
-    const myScreenVideos = [...paidVideos];
+    await campaign.save();
+    const screenVideos = await getActiveCampaignList(screen._id);
+    const myScreenVideos = [...screenVideos];
     return res.status(200).send(myScreenVideos);
   } catch (error) {
     console.log(error);
@@ -259,11 +298,45 @@ export async function getTopCampaigns(req, res) {
     return res.status(500).send(`screen router error ${error}`);
   }
 }
+// filter screen by name, stateUT, screenAddress, country, districtCity
+export async function getFilteredScreenList(req, res) {
+  try {
+    const searchString = req.params.text.trim();
+    console.log("search string : ", searchString);
+
+    const nameFilter = { name: { $regex: searchString, $options: "i" } };
+    const screenAddressFilter = {
+      screenAddress: { $regex: searchString, $options: "i" },
+    };
+    const districtCityFilter = {
+      districtCity: { $regex: searchString, $options: "i" },
+    };
+    const stateUTFilter = { stateUT: { $regex: searchString, $options: "i" } };
+    const countryFilter = { country: { $regex: searchString, $options: "i" } };
+    const category = { category: { $regex: searchString, $options: "i" } };
+
+    const screens = await Screen.find({
+      $or: [
+        nameFilter,
+        screenAddressFilter,
+        districtCityFilter,
+        stateUTFilter,
+        countryFilter,
+        category,
+      ],
+    });
+    console.log("records founds : ", screens.length);
+    console.log("screens list after filter : ", screens);
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({ message: `Screen router error ${error}` });
+  }
+}
 
 //get 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
-    // console.log(req);
+    console.log("getScreensList req.query.pageNumber : ", req.query.pageNumber);
     const pageSize = 6;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
@@ -351,6 +424,7 @@ export async function getScreenDetailsByScreenId(req, res) {
       });
       await screenLogsAdd.save();
     }
+    console.log("screen.campaigns : ", screen.campaigns);
     return res.status(200).send(screen);
   } catch (error) {
     return res.status(500).send(``);
@@ -609,6 +683,140 @@ export async function getScreenLogs(req, res) {
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
     console.log("screenLogs : ", screenLog);
     res.status(200).send(screenLog.playingDetails);
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+// requesting plea from allay
+export async function addAllyPlea(req, res) {
+  try {
+    console.log("addAllyPlea called!");
+    const screen = await Screen.findById(req.params.id);
+    const user = await User.findOne({
+      _id: req.user._id,
+      // defaultWallet: req.user.defaultWallet
+    });
+    const plea = await Plea.findOne({
+      screen: screen._id,
+      from: user._id,
+      reject: false,
+    });
+
+    console.log("Plea", plea);
+    if (!plea) {
+      const plea = new Plea({
+        _id: new mongoose.Types.ObjectId(),
+        from: user._id,
+        to: screen.master,
+        screen: screen,
+        pleaType: "SCREEN_ALLY_PLEA",
+        content: `I would like to request an Ally plea for this ${screen.name} screen`,
+        status: false,
+        reject: false,
+        blackList: false,
+        remarks: `${user.name} has requested an Ally plea for ${screen.name} screen`,
+      });
+      await plea.save();
+      console.log("before pusing plea on scren  : ", screen);
+      screen.pleas[plea] ? screen.pleas.push(plea) : (screen.pleas = plea);
+      console.log("After pusing plea on scren  : ", screen);
+      console.log("before pusing plea on user  : ", user);
+      user.pleasMade[plea]
+        ? user.pleasMade.push(plea)
+        : (user.pleasMade = plea);
+      console.log("After pusing plea on user  : ", user);
+      await screen.save();
+      await user.save();
+      return res
+        .status(200)
+        .send({ message: "Ally access plead for screen", plea });
+    } else {
+      return res
+        .status(400)
+        .send({ message: "Plea already made, please contact moderators" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Screen router error ${error.message}` });
+  }
+}
+
+// give ally plea
+export async function giveAccessToAllyPlea(req, res) {
+  try {
+    console.log(req.params.id);
+    const plea = await Plea.findOne({ _id: req.params.id });
+    console.log(plea);
+    const screen = await Screen.findOne({ _id: plea.screen });
+    const master = await User.findOne({
+      _id: plea.to,
+      // defaultWallet: plea.to
+    });
+    const user = await User.findOne({
+      _id: plea.from,
+      // defaultWallet: plea.from
+    });
+
+    const remark = `${user.name} user has been given an Ally access for ${screen.name} screen from ${master.name} user`;
+    // console.log(screen.allies.filter((ally) => ally === user.defaultWallet))
+    console.log(user.alliedScreens);
+    if (
+      screen.allies.filter((ally) => ally === user._id).length === 0 &&
+      user.alliedScreens.filter((screen) => screen === screen._id).length === 0
+    ) {
+      console.log("granting ally access");
+      (plea.status = true), plea.remarks.push(remark);
+      screen.allies.push(user._id);
+      user.alliedScreens.push(screen);
+
+      await screen.save();
+      await user.save();
+      await plea.save();
+      console.log("try {granted access");
+
+      return res.status(200).send(plea);
+    } else {
+      await plea.remove();
+      return res.status(400).send({ message: "ally exist" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+// reject allyPlea
+export async function rejectAllayPlea(req, res) {
+  try {
+    const plea = await Plea.findById(req.params.id);
+    const screen = await Screen.findById(plea.screen);
+    const master = await User.findOne({
+      _id: plea.to,
+      // defaultWallet: plea.to
+    });
+    const user = await User.findOne({
+      _id: plea.from,
+      // defaultWallet: plea.from
+    });
+    const remark = `${user.name} user has been rejected an Ally access for ${screen.name} screen from ${master.name} user`;
+    if (screen.allies.filter((ally) => ally === user._id).length !== 0) {
+      console.log("1");
+      screen.allies[useuserr._id].remove();
+      user.alliedScreens[screen._id].remove();
+      await screen.save();
+      await user.save();
+    }
+
+    (plea.status = false), (plea.reject = true), plea.remarks.push(remark);
+    await plea.save();
+    console.log("plea rejected in screen router");
+
+    return res.status(200).send(plea);
   } catch (error) {
     return res
       .status(500)

@@ -131,6 +131,35 @@ export async function userSignUp(req, res) {
   }
 }
 
+export async function getUserInfoById(req, res) {
+  try {
+    console.log("getUserInfoById called!");
+    const user = await User.findOne(
+      { _id: req.params.id },
+      {
+        name: 1,
+        email: 1,
+        phone: 1,
+        address: 1,
+        districtCity: 1,
+        pincode: 1,
+        stateUt: 1,
+        country: 1,
+      }
+    );
+    if (user) {
+      // user.defaultWallet = req.params.walletAddress || user.defaultWallet;
+      return res.status(200).send(user);
+    } else {
+      return res.status(404).send({ message: "User not found" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `User router error ${error.message}` });
+  }
+}
+
 export async function userSignin(req, res) {
   try {
     const user = await User.findOne({ email: req.body.email });

@@ -30,11 +30,23 @@ const campaignSchema = new mongoose.Schema(
     totalAmount: { type: Number, default: 0 },
     isSlotBooked: { type: Boolean, default: false },
     paidForSlot: { type: Boolean, default: false },
+    isPause: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     screenAddress: { type: String }, //v
     districtCity: { type: String, required: true }, //v
     stateUT: { type: String, required: true }, //v
     country: { type: String, required: true }, //v
-    status: { type: String, required: true, default: "Active" },
+    status: { type: String, required: true, default: "Pending" },
+    /**
+     * Status will change accorging to this condition
+     * paidForSlot === false -> Pending
+     * remainingSlots > 0 && paidForSlot  -> Running(Active)
+     * isPause === true => Pause
+     * remainingSlots == 0 && paidForSlot => Completed
+     * isDeleted => Deleted
+     *
+     *
+     */
   },
   {
     timestamps: true,

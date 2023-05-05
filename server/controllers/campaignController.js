@@ -79,7 +79,10 @@ export async function getCampaignListByScreenId(req, res) {
   try {
     const screenId = req.params.id;
     const campaignList = await Campaign.find({
-      $and: [{ screen: { $eq: screenId } }, { status: { $eq: "Active" } }],
+      $and: [
+        { screen: { $eq: screenId } },
+        { $or: [{ status: { $eq: "Active" } }, { status: { $eq: "Pause" } }] },
+      ],
     });
     if (!campaignList)
       return res.status(401).send({ message: "campaign not found" });
@@ -142,17 +145,22 @@ export async function getCampaignList(req, res) {
   }
 }
 
-// delete campaign from screen
-export async function deleteCampaign(req, res) {
+// change campaign status (Deleted, Pause , Resume)from screen
+export async function changeCampaignStatus(req, res) {
   try {
+    console.log("changeCampaignStatus called! ");
     const campaignId = req.params.id;
+    const campaignStatus = req.params.status;
     const campaign = await Campaign.findById(campaignId);
-
     //only screen owner can delete campaign
-    if (campaign) {
-      const screen = await Screen.findById(campaign.screen);
+    if (!campaign)
+      return res
+        .status(400)
+        .send("Unauthorize access for deleting this campaign");
 
-      // first we will send send money back to ally wallet and then delete campaign
+    if (campaignStatus === "Deleted") {
+      const screen = await Screen.findById(campaign.screen);
+      // first we will send sdeleteCampaignend money back to ally wallet and then delete campaign
       if (campaign.remainingSlots > 0) {
         sendMoneyBackToAlly({
           amount: campaign.remainingSlots * campaign.rentPerSlot,
@@ -169,7 +177,32 @@ export async function deleteCampaign(req, res) {
       );
       const updatedCampaign = await campaign.save();
       console.log("After deleting campaign from screen : ", updatedScreen);
+
       return res.status(200).send(updatedCampaign);
+    } else if (campaignStatus === "Pause") {
+      if (campaign.isPause) {
+        res
+          .status(400)
+          .send({ message: `Already paused ${campaign.name} campaign` });
+      } else {
+        campaign.isPause = true;
+        campaign.status = "Pause";
+        const updatedCampaign = await campaign.save();
+        console.log("status chnage to pause :", updatedCampaign);
+        res.status(200).send({ message: "Campaign Paused " });
+      }
+    } else if (campaignStatus === "Resume") {
+      if (campaign.isPause) {
+        campaign.isPause = false;
+        campaign.status = "Active";
+        const updatedCampaign = await campaign.save();
+        console.log("status chnage to resume :", updatedCampaign);
+        res.status(200).send({ message: "Campaign Resume " });
+      } else {
+        res
+          .status(400)
+          .send({ message: `Already resumed ${campaign.name} campaign` });
+      }
     } else {
       return res
         .status(400)
@@ -245,9 +278,36 @@ export async function updateCampaignById(req, res) {
       "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos" ||
       req.body.thumbnail;
     const updatededCampaign = await campaign.save();
-    res.status(200).send(updatededCampaign);
-    res.status(200).send("each screen updated!");
+    return res.status(200).send(updatededCampaign);
   } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+export async function getFilteredCampaignListBydateRange(req, res) {
+  try {
+    console.log("filterCampaignByDateRange called! : ");
+    console.log("Start date : ", req.params.startValue);
+    console.log("endDate date : ", req.params.endValue);
+    console.log("screen master  : ", req.params.userId);
+    console.log("screen id  : ", req.params.screenId);
+
+    const campaigns = await Campaign.find({
+      startDate: {
+        $gte: req.params.startValue,
+        $lt: req.params.endValue,
+      },
+      master: req.params.userId,
+      screen: req.params.screenId,
+    });
+
+    console.log("filterCampaignByDateRange : ", campaigns?.length);
+
+    return res.status(200).send(campaigns);
+  } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .send({ message: `Campaign router error ${error.message}` });

@@ -7,8 +7,9 @@ import {
   getCampaignListByScreenId,
   getCampaignListByScreenName,
   updateCampaignById,
-  deleteCampaign,
+  changeCampaignStatus,
   getAllCampaignListByScreenId,
+  getFilteredCampaignListBydateRange,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -28,11 +29,15 @@ campaignRouter.get(
   "/:id/screen/campaignAndMedia",
   getCampaignAndMediaListByScreenId
 );
+campaignRouter.get(
+  "/filterCampaignByDate/:startValue/:endValue/:userId/:screenId",
+  getFilteredCampaignListBydateRange
+);
 //put request
 campaignRouter.put("/:id", updateCampaignById);
 
 //delete request
 
-campaignRouter.delete("/:id", deleteCampaign);
+campaignRouter.delete("/:id/:status", isAuth, changeCampaignStatus);
 
 export default campaignRouter;
