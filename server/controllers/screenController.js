@@ -45,13 +45,7 @@ export async function syncScreenCodeForApk(req, res) {
     console.log(screen);
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
-      const paidVideos = screenVideos.filter(
-        (video) => video.status === "Active"
-        // console.log(video.status)
-        // return video;
-      );
-      console.log(paidVideos.length);
-      const myScreenVideos = [...paidVideos];
+      const myScreenVideos = [...screenVideos];
       return res.status(200).send({ myScreenVideos, screen });
     } else {
       return res.status(402).send("screen videos not found");
