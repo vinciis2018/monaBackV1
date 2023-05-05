@@ -45,10 +45,12 @@ export async function syncScreenCodeForApk(req, res) {
     console.log(screen);
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
-      const paidVideos = screenVideos.filter((video) => {
-        video.paidForSlots === true;
-        return video;
-      });
+      const paidVideos = screenVideos.filter(
+        (video) => video.status === "Active"
+        // console.log(video.status)
+        // return video;
+      );
+      console.log(paidVideos.length);
       const myScreenVideos = [...paidVideos];
       return res.status(200).send({ myScreenVideos, screen });
     } else {
@@ -92,7 +94,7 @@ export async function checkScreenPlaylistForApk(req, res) {
       playTime: time,
       playVideo: currentVideo,
     };
-
+    console.log(playData);
     const screen = await Screen.findOne({ name: screenName });
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
@@ -116,12 +118,11 @@ export async function checkScreenPlaylistForApk(req, res) {
       );
     }
     campaign.remainingSlots = campaign.remainingSlots - 1;
-
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
-
     screenLogs.playingDetails.push(playData);
     await screenLogs.save();
     await screen.save();
+
     await campaign.save();
     const screenVideos = await getActiveCampaignList(screen._id);
     const myScreenVideos = [...screenVideos];

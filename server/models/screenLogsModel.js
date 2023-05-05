@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const playingDataSchema = new mongoose.Schema(
   {
-    deviceInfo: { type: String },
+    deviceInfo: {},
     playTime: { type: Date },
     playVideo: { type: String },
   }, {
