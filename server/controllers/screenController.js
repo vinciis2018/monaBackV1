@@ -25,9 +25,10 @@ const getActiveCampaignList = async (screenId) => {
     // console.log("updatedCampaigns : ", updatedCampaigns);
     const screenVideos = await Campaign.find({
       screen: screenId,
-      isPause: false,
-      remainingSlots: { $gte: 1 },
-      isDeleted: false,
+      status: "Active",
+      // isPause: false,
+      // remainingSlots: { $gte: 1 },
+      // isDeleted: false,
       // paidForSlot: true,
     });
     console.log("getActiveCampaignList : ", screenVideos?.length);
@@ -92,32 +93,32 @@ export async function checkScreenPlaylistForApk(req, res) {
     const screen = await Screen.findOne({ name: screenName });
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
-
-    const campaign = await Campaign.findOne({
-      cid: currentVideo.split(".")[0],
-      screen: screen._id,
-    });
-    console.log("campaign  found  checkScreenPlaylistForApk: ", campaign);
-    //we are checking, remainingSlots was 1 then change campaign status "Completed" and
-    //remove this campaign from screen campaign list
-    if (campaign.remainingSlots === 1) {
-      console.log(
-        "Its time to change campaign status because remainint slot 1 "
-      );
-      campaign.status = "Completed";
-      // removing this campaign from screen.campaigns
-      const updatedScreen = await Screen.updateOne(
-        { _id: campaign.screen },
-        { $pull: { campaigns: campaign._id } }
-      );
-    }
-    campaign.remainingSlots = campaign.remainingSlots - 1;
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
     screenLogs.playingDetails.push(playData);
     await screenLogs.save();
     await screen.save();
 
-    await campaign.save();
+    // const campaign = await Campaign.findOne({
+    //   cid: currentVideo.split(".")[0],
+    //   screen: screen._id,
+    // });
+    // console.log("campaign  found  checkScreenPlaylistForApk: ", campaign);
+    // //we are checking, remainingSlots was 1 then change campaign status "Completed" and
+    // //remove this campaign from screen campaign list
+    // if (campaign.remainingSlots === 1) {
+    //   console.log(
+    //     "Its time to change campaign status because remainint slot 1 "
+    //   );
+    //   campaign.status = "Completed";
+    //   // removing this campaign from screen.campaigns
+    //   const updatedScreen = await Screen.updateOne(
+    //     { _id: campaign.screen },
+    //     { $pull: { campaigns: campaign._id } }
+    //   );
+    // }
+    // campaign.remainingSlots = campaign.remainingSlots - 1;
+    // await campaign.save();
+
     const screenVideos = await getActiveCampaignList(screen._id);
     const myScreenVideos = [...screenVideos];
     return res.status(200).send(myScreenVideos);
