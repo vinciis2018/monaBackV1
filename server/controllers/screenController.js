@@ -46,8 +46,7 @@ export async function syncScreenCodeForApk(req, res) {
     console.log(screen);
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
-      const myScreenVideos = [...screenVideos];
-      return res.status(200).send({ myScreenVideos, screen });
+      return res.status(200).send({ myScreenVideos: screenVideos, screen });
     } else {
       return res.status(402).send("screen videos not found");
     }
@@ -67,8 +66,7 @@ export async function getScreenDetailsForApk(req, res) {
 
     if (screen) {
       const screenVideos = await getActiveCampaignList(screen._id);
-      const myScreenVideos = [...screenVideos];
-      return res.status(200).send(myScreenVideos);
+      return res.status(200).send(screenVideos);
     } else {
       return res.status(401).send({ message: "Videos not found" });
     }
@@ -120,8 +118,7 @@ export async function checkScreenPlaylistForApk(req, res) {
     // await campaign.save();
 
     const screenVideos = await getActiveCampaignList(screen._id);
-    const myScreenVideos = [...screenVideos];
-    return res.status(200).send(myScreenVideos);
+    return res.status(200).send(screenVideos);
   } catch (error) {
     console.log(error);
     return res.status(500).send(error);
