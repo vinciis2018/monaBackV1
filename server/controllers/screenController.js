@@ -393,11 +393,6 @@ export async function getFilteredScreenListByAudiance(req, res) {
   }
 }
 
-export async function getScreenListByAudiance(req, res) {
-  console.log("getScreenListByAudiance caleled");
-  res.status(200).send({ message: "hellp vishal" });
-}
-
 // filter screen by name, stateUT, screenAddress, country, districtCity
 export async function getFilteredScreenList(req, res) {
   try {

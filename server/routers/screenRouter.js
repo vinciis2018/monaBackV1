@@ -18,7 +18,6 @@ import {
   rejectAllayPlea,
   getFilteredScreenList,
   getFilteredScreenListByAudiance,
-  getScreenListByAudiance,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 
