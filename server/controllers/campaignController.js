@@ -30,24 +30,24 @@ export async function addNewCampaign(req, res) {
       master: screen.master,
       isSlotBooked: false,
       paidForSlot: false,
-      totalSlotBooked: req.body.totalSlotBooked,
-      remainingSlots: req.body.totalSlotBooked,
+      totalSlotBooked: req.body.totalSlotBooked || 0,
+      remainingSlots: req.body.totalSlotBooked || 0,
       rentPerSlot: screen.rentPerSlot,
       totalAmount: req.body.totalSlotBooked * screen.rentPerSlot,
       vault: req.body.totalSlotBooked * screen.rentPerSlot,
       allyWalletAddress: user.defaultWallet,
 
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
-
+      startDate: req.body.startDate || new Date(),
+      endDate: req.body.endDate || new Date(),
+      startTime: req.body.startTime || new Date(),
+      endTime: req.body.endTime || new Date(),
+      isDefaultCampaign: req.body.isDefaultCampaign,
+      status: "Active",
       screenAddress: screen.screenAddress,
       districtCity: screen.districtCity,
       stateUT: screen.stateUT,
       country: screen.country,
     });
-    //console.log("new campaign  : ", newCampaign);
     const campaign = await newCampaign.save();
     console.log("new campaign  : ", campaign);
     screen.campaigns.push(campaign._id);
@@ -196,7 +196,7 @@ export async function changeCampaignStatus(req, res) {
         campaign.isPause = false;
         campaign.status = "Active";
         const updatedCampaign = await campaign.save();
-        console.log("status chnage to resume :", updatedCampaign);
+        console.log("status chnage to resume :", updatedCampaign.status);
         res.status(200).send({ message: "Campaign Resume " });
       } else {
         res
@@ -258,7 +258,6 @@ export async function getCampaignAndMediaListByScreenId(req, res) {
           });
         }
       }
-      console.log("data : ", data);
       res.status(200).send(data);
     } else {
       return res.status(404).send({ message: "No Screen found", data });

@@ -17,33 +17,39 @@ import {
   giveAccessToAllyPlea,
   rejectAllayPlea,
   getFilteredScreenList,
+  getFilteredScreenListByAudiance,
+  getScreenListByAudiance,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 
 const screenRouter = express.Router();
 
 //post request
-screenRouter.post("/", isAuth, addNewScreen); //tested
-screenRouter.post("/:id/reviews", isAuth, addReview); // tested
+screenRouter.post("/", isAuth, addNewScreen);
+screenRouter.post("/:id/reviews", isAuth, addReview);
 screenRouter.post("/:id/allyPlea/ally", isAuth, addAllyPlea);
 
 //get request
-screenRouter.get("/top-medias", getTopCampaigns); //tested
-screenRouter.get("/", getScreensList); // tested
-screenRouter.get("/:id", getScreenDetailsByScreenId); //tested
-screenRouter.get("/:id/pin", getPinDetailsByScreenId); //tested
+screenRouter.get("/top-medias", getTopCampaigns);
+screenRouter.get("/", getScreensList);
+screenRouter.get("/:id", getScreenDetailsByScreenId);
+screenRouter.get("/:id/pin", getPinDetailsByScreenId);
 
 screenRouter.get("/:id/screenmedias/playlist", getScreenPlayList); // not understand what is its purpose ?
 screenRouter.get("/:id/screenLogs", getScreenLogs);
 screenRouter.get("/getFilterScreenList/:text", getFilteredScreenList);
+screenRouter.get(
+  "/getFilteredScreenListByAudiance/:averageDailyFootfall/:averagePurchasePower/:averageAgeGroup/:employmentStatus/:kidsFriendly",
+  getFilteredScreenListByAudiance
+);
 //put request
-screenRouter.put("/:id", isAuth, updateScreenById); //tested
+screenRouter.put("/:id", isAuth, updateScreenById);
 screenRouter.put("/:id/allyPlea/master", giveAccessToAllyPlea);
 screenRouter.put("/:id/allyPlea/reject", rejectAllayPlea);
 
 //delete request
 
-screenRouter.delete("/:id", isAuth, deleteScreenById); //tested
+screenRouter.delete("/:id", isAuth, deleteScreenById);
 
 // android apk related
 screenRouter.get("/syncCode/:syncCode", syncScreenCodeForApk);

@@ -247,8 +247,8 @@ export async function getUserCampaigns(req, res) {
     console.log("req.params.id : ", req.params.id);
     const ally = req.params.id;
     const myCampaigns = await Campaign.find({ ally });
+    console.log("myCampaigns : ", myCampaigns?.length);
     if (!myCampaigns) res.status(404).send({ message: "Campaign not found" });
-    console.log("myCampaigns : ", myCampaigns);
     return res.status(200).send(myCampaigns);
   } catch (error) {
     res.status(500).send({ message: `User router error ${error.message}` });

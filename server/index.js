@@ -25,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const url = process.env.DB_URL;
-console.log("url : ", url);
 mongoose.set("strictQuery", true);
 mongoose.connect(url, {
   useNewUrlParser: true,
@@ -35,6 +34,7 @@ mongoose.connect(url, {
 });
 
 app.use(function (req, res, next) {
+  console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
@@ -64,10 +64,6 @@ app.get("/", (req, res) => {
   res.send("Server is ready");
 });
 app.use((err, req, res, next) => {
-  // console.log(
-  //   "This error middle ware function called when error oocured : ",
-  //   err.message
-  // );
   res.status(500).send({ message: err.message });
 });
 

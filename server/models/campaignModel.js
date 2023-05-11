@@ -29,6 +29,7 @@ const campaignSchema = new mongoose.Schema(
     rentPerSlot: { type: Number, default: 0 },
     totalAmount: { type: Number, default: 0 },
     isSlotBooked: { type: Boolean, default: false },
+    isDefaultCampaign: { type: Boolean, default: false }, // screen.master === campaign.ally
     paidForSlot: { type: Boolean, default: false },
     isPause: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },

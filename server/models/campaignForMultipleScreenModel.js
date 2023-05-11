@@ -17,6 +17,11 @@ const campaignForMultipleScreenSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     }, // campaign creator
+    startDate: { type: Date },
+    endDate: { type: Date },
+    startTime: { type: Date },
+    endTime: { Type: Date },
+    totalSlotBooked: { type: Number, default: 0 },
   },
   {
     timestamps: true,

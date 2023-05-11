@@ -291,6 +291,113 @@ export async function getTopCampaigns(req, res) {
     return res.status(500).send(`screen router error ${error}`);
   }
 }
+// filter screens by audiance data
+export async function getFilteredScreenListByAudiance(req, res) {
+  try {
+    console.log("getFilteredScreenListByAudiance called!");
+    const averagePurchasePower = JSON.parse(req.params.averagePurchasePower);
+    const averageAgeGroup = JSON.parse(req.params.averageAgeGroup);
+    const averageDailyFootfall = JSON.parse(req.params.averageDailyFootfall);
+    const employmentStatus = JSON.parse(req.params.employmentStatus);
+    const kidsFriendly = req.params.kidsFriendly;
+
+    console.log("employmentStatus : ", typeof employmentStatus);
+
+    const averageDailyFootfallFilter =
+      averageDailyFootfall?.length > 1
+        ? {
+            "additionalData.averageDailyFootfall": {
+              $lte: averageDailyFootfall[1],
+              $gte: averageDailyFootfall[0],
+            },
+          }
+        : {};
+    const averageDailyFootfallGreaterThen =
+      averageDailyFootfall?.length > 1
+        ? {
+            "additionalData.averageDailyFootfall": {
+              $gte: averageDailyFootfall[0],
+            },
+          }
+        : {};
+    const averagePurchasePowerGreaterThen =
+      averagePurchasePower?.length > 1
+        ? {
+            "additionalData.footfallClassification.averagePurchasePower.start":
+              {
+                $gte: averagePurchasePower[0],
+              },
+          }
+        : {};
+    const averagePurchasePowerLessThen =
+      averagePurchasePower?.length > 1
+        ? {
+            "additionalData.footfallClassification.averagePurchasePower.end": {
+              $lte: averagePurchasePower[1],
+            },
+          }
+        : {};
+    const averageAgeGroupGreaterThen =
+      averageAgeGroup?.length > 1
+        ? {
+            "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
+              {
+                $gte: averageAgeGroup[0],
+              },
+          }
+        : {};
+    const averageAgeGroupLessThen =
+      averageAgeGroup?.length > 1
+        ? {
+            "additionalData.footfallClassification.averageAgeGroup.eaverageEndAgend":
+              {
+                $lte: averageAgeGroup[1],
+              },
+          }
+        : {};
+    const employmentStatusFilter =
+      employmentStatus?.length > 0
+        ? {
+            "additionalData.footfallClassification.employmentStatus": {
+              $all: [...employmentStatus],
+            },
+          }
+        : {};
+    const kidsFriendlyFilter = {
+      "additionalData.footfallClassification.kidsFriendly": kidsFriendly,
+    };
+    console.log("kidsFriendly : ", {
+      ...averageDailyFootfallFilter,
+      ...averagePurchasePowerGreaterThen,
+      ...averagePurchasePowerLessThen,
+      ...averageAgeGroupGreaterThen,
+      ...averageAgeGroupLessThen,
+      ...employmentStatusFilter,
+      ...kidsFriendlyFilter,
+    });
+
+    const screens = await Screen.find({
+      ...averageDailyFootfallFilter,
+      ...averagePurchasePowerGreaterThen,
+      ...averagePurchasePowerLessThen,
+      ...averageAgeGroupGreaterThen,
+      ...averageAgeGroupLessThen,
+      ...employmentStatusFilter,
+      ...kidsFriendlyFilter,
+    });
+    console.log("records founds : ", screens.length);
+    return res.status(200).send(screens);
+  } catch (error) {
+    console.log("err------- : ", error);
+    return res.status(500).send({ message: `Screen router error ${error}` });
+  }
+}
+
+export async function getScreenListByAudiance(req, res) {
+  console.log("getScreenListByAudiance caleled");
+  res.status(200).send({ message: "hellp vishal" });
+}
+
 // filter screen by name, stateUT, screenAddress, country, districtCity
 export async function getFilteredScreenList(req, res) {
   try {
@@ -319,7 +426,6 @@ export async function getFilteredScreenList(req, res) {
       ],
     });
     console.log("records founds : ", screens.length);
-    console.log("screens list after filter : ", screens);
     return res.status(200).send(screens);
   } catch (error) {
     return res.status(500).send({ message: `Screen router error ${error}` });
@@ -417,7 +523,6 @@ export async function getScreenDetailsByScreenId(req, res) {
       });
       await screenLogsAdd.save();
     }
-    console.log("screen.campaigns : ", screen.campaigns);
     return res.status(200).send(screen);
   } catch (error) {
     return res.status(500).send(``);

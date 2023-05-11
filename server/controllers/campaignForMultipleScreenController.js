@@ -13,42 +13,27 @@ async function addCampaignPlea({ screenId, user: userInfo, campaign }) {
       _id: userInfo._id,
     });
 
-    // for same campaign and same screen
-    const oldPlea = await Plea.findOne({
-      screen: screen._id,
+    const plea = new Plea({
+      _id: new mongoose.Types.ObjectId(),
       from: user._id,
+      to: screen.master,
+      screen: screen._id,
+      pleaType: "CAMPAIGN_ALLY_PLEA",
+      content: `I would like to request an Campaign plea for this ${screen.name} screen`,
+      status: false,
       reject: false,
+      blackList: false,
+      remarks: `${user.name} has requested an Campaign plea for ${screen.name} screen`,
       video: campaign.video,
+      campaignForMultipleScreen: campaign._id,
     });
-    if (!oldPlea) {
-      const plea = new Plea({
-        _id: new mongoose.Types.ObjectId(),
-        from: user._id,
-        to: screen.master,
-        screen: screen._id,
-        pleaType: "CAMPAIGN_ALLY_PLEA",
-        content: `I would like to request an Campaign plea for this ${screen.name} screen`,
-        status: false,
-        reject: false,
-        blackList: false,
-        remarks: `${user.name} has requested an Campaign plea for ${screen.name} screen`,
-        video: campaign.video,
-        campaignForMultipleScreen: campaign._id,
-      });
-      const savedPlea = await plea.save();
-      screen.pleas.push(plea);
-      user.pleasMade.push(plea);
-      await screen.save();
-      await user.save();
-      // console.log("After pusing plea on scren  : ", screen);
-      // console.log("After pusing plea on user  : ", user);
-      return Promise.resolve();
-    } else {
-      console.log("you are sending same  vretuestideo retuest for same screen");
-      return Promise.resolve(
-        "you are sending same  vretuestideo retuest for same screen"
-      );
-    }
+    const savedPlea = await plea.save();
+    screen.pleas.push(plea);
+    user.pleasMade.push(plea);
+    await screen.save();
+    await user.save();
+
+    return Promise.resolve();
   } catch (error) {
     return Promise.reject(error);
   }
@@ -66,15 +51,22 @@ export async function addNewCampaignForMultipleScreen(req, res) {
 
     const newCampaign = new CampaignForMultipleScreen({
       video: media.media,
+      media: media._id,
       cid: cid,
       thumbnail: req.body.thumbnail || media.thumbnail,
       campaignScreens: [],
       campaignRequestScreens: req.body.screens,
       campaignName: req.body.campaignName || "campaign Name",
       ally: user._id,
+      totalSlotBooked: req.body.totalSlotBooked || 0,
+      startDate: req.body.startDate || new Date(),
+      endDate: req.body.endDate || new Date(),
+      startTime: req.body.startTime || new Date(),
+      endTime: req.body.endTime || new Date(),
     });
     const campaign = await newCampaign.save();
-    // updating screen
+    console.log("addNewCampaignForMultipleScreen : ", campaign);
+    // Creating new ples request for each screen
     for (let screenId of req.body.screens) {
       await addCampaignPlea({ screenId, user, campaign });
     }
