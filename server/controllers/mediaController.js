@@ -65,15 +65,12 @@ req.body = {
 // doubt we r sending only  title= ?, advert , thumbnail  from UI
 export async function addNewMedia(req, res) {
   try {
-    console.log("add new media called!");
-    console.log("userInfo : ", req.body.userInfo);
     const mediaUser = await User.findOne({
       _id: req.body.userInfo._id,
       // defaultWallet: req.body.campaign.defaultWallet
     });
 
     if (mediaUser) {
-      console.log("req.body.campaign.advert : ", req.body.campaign);
       const media = new Media({
         title: req.body.title || "Title here",
         description: req.body.description || "It is media description",
@@ -98,9 +95,6 @@ export async function addNewMedia(req, res) {
 
       mediaUser.medias.push(newmedia._id);
       await mediaUser.save();
-
-      console.log("newmedia : ", newmedia);
-      console.log("media user ", mediaUser);
 
       return res.status(201).send(newmedia);
     } else {

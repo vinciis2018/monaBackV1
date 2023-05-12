@@ -9,13 +9,10 @@ export async function addNewCampaign(req, res) {
     const user = req.body.user; // ally
     const screenId = req.body.screenId;
     const mediaId = req.body.mediaId;
-    console.log("media id : ", mediaId);
 
     const screen = await Screen.findById(screenId);
-    console.log("screen  : ", screen);
     if (!screen) res.status(404).send({ message: "Screen Not Found" });
     const media = await Media.findById(mediaId);
-    console.log("media : ", media);
     if (!media) res.status(404).send({ message: "Media Not Found" });
     const cid = media.media.split("/")[4];
 
@@ -49,11 +46,10 @@ export async function addNewCampaign(req, res) {
       country: screen.country,
     });
     const campaign = await newCampaign.save();
-    console.log("new campaign  : ", campaign);
+    console.log("new campaign created: ", campaign);
     screen.campaigns.push(campaign._id);
     await screen.save();
 
-    console.log("Media updated!");
     res.status(201).send({
       message: "Campaign Created successfull",
       campaign,
@@ -167,7 +163,6 @@ export async function changeCampaignStatus(req, res) {
           walletAddress: campaign.allyWalletAddress,
         });
       }
-      // console.log("before Campaign : ", campaign);
       campaign.status = "Deleted";
       console.log("before deleting campaign from screen : ", screen.campaigns);
 
@@ -237,7 +232,6 @@ export async function getCampaignAndMediaListByScreenId(req, res) {
   try {
     const screenId = req.params.id;
     const screen = await Screen.findById(screenId);
-    console.log(" screen : ", screen);
     if (!screen) return res.status(404).send({ message: "No Screen found" });
     let data = [];
     //let data = [{media : {}, campaign : {}},{media : {}, campaign : {}}];
@@ -249,8 +243,6 @@ export async function getCampaignAndMediaListByScreenId(req, res) {
         if (campaign) {
           media = await Media.findById(campaign.media);
         }
-        console.log("campaign : ", campaign);
-        console.log("media : ", media);
         if (campaign && media) {
           data.push({
             media,
@@ -287,11 +279,11 @@ export async function updateCampaignById(req, res) {
 
 export async function getFilteredCampaignListBydateRange(req, res) {
   try {
-    console.log("filterCampaignByDateRange called! : ");
-    console.log("Start date : ", req.params.startValue);
-    console.log("endDate date : ", req.params.endValue);
-    console.log("screen master  : ", req.params.userId);
-    console.log("screen id  : ", req.params.screenId);
+    // console.log("filterCampaignByDateRange called! : ");
+    // console.log("Start date : ", req.params.startValue);
+    // console.log("endDate date : ", req.params.endValue);
+    // console.log("screen master  : ", req.params.userId);
+    // console.log("screen id  : ", req.params.screenId);
 
     const campaigns = await Campaign.find({
       startDate: {
@@ -306,7 +298,6 @@ export async function getFilteredCampaignListBydateRange(req, res) {
 
     return res.status(200).send(campaigns);
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ message: `Campaign router error ${error.message}` });

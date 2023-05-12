@@ -9,7 +9,6 @@ import Campaign from "../models/campaignModel.js";
 
 const changePassword = async (req, res, user) => {
   try {
-    console.log("request came for password change");
     user.password = bcrypt.hashSync(req.body.password, 8);
     const updateUser = await user.save();
     return res.status(200).send({
@@ -50,7 +49,6 @@ const changePassword = async (req, res, user) => {
 
 export const updatePassword = async (req, res) => {
   try {
-    console.log("request came for password update");
     const userId = req.params.id;
     const { oldPassword, newPassword } = req.body;
     const user = await User.findById(userId);
@@ -68,9 +66,7 @@ export const updatePassword = async (req, res) => {
 
 export async function userSignUp(req, res) {
   try {
-    console.log("request came for user signUp");
     const requestCameFromURL = `${req.header("Origin")}/`;
-    console.log("requestCameFromURL : ", requestCameFromURL);
     const oldUser = await User.findOne({ email: req.body.email });
     if (oldUser && req.body.password) {
       changePassword(req, res, oldUser);
@@ -92,7 +88,6 @@ export async function userSignUp(req, res) {
         password: bcrypt.hashSync(req.body.password, 8),
       });
       const createdUser = await user.save();
-      console.log("user created... ", createdUser);
 
       return res.status(200).send({
         _id: createdUser._id,
@@ -133,7 +128,6 @@ export async function userSignUp(req, res) {
 
 export async function getUserInfoById(req, res) {
   try {
-    console.log("getUserInfoById called!");
     const user = await User.findOne(
       { _id: req.params.id },
       {
@@ -169,7 +163,6 @@ export async function userSignin(req, res) {
         .send({ message: "New user, please sign up to continue" });
     }
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
-      console.log("password matched");
       return res.status(200).send({
         _id: user._id,
         name: user.name,
@@ -243,11 +236,8 @@ export async function topMasters(req, res) {
 //getUserCampaigns
 export async function getUserCampaigns(req, res) {
   try {
-    console.log("getUserCampaigns called!");
-    console.log("req.params.id : ", req.params.id);
     const ally = req.params.id;
     const myCampaigns = await Campaign.find({ ally });
-    console.log("myCampaigns : ", myCampaigns?.length);
     if (!myCampaigns) res.status(404).send({ message: "Campaign not found" });
     return res.status(200).send(myCampaigns);
   } catch (error) {
@@ -268,11 +258,8 @@ export async function topBrand(req, res) {
 // get screenList of a user
 export async function getUserScreens(req, res) {
   try {
-    console.log("getUserScreens called!");
-    console.log("req.params.id : ", req.params.id);
     const master = req.params.id;
     const myScreens = await Screen.find({ master: master });
-    console.log("myScreens : ", myScreens.length);
     if (myScreens) return res.status(200).send(myScreens);
     return res.status(404).send({ message: "Screens not found" });
   } catch (error) {
@@ -283,10 +270,7 @@ export async function getUserScreens(req, res) {
 // delete all of  medias for user deleteAllMedias
 export async function deleteAllMedias(req, res) {
   try {
-    console.log("user id : ", req.params.id);
-    console.log("deleteAllMedias called!: ");
     const user = await User.findById(req.params.id);
-    console.log(user);
     if (!user) {
       return res.status(401).send({
         message: "User not Found",
@@ -298,8 +282,6 @@ export async function deleteAllMedias(req, res) {
       { $set: { medias: [] } },
       { multi: true }
     );
-    console.log("after delete all media of user : ", deletedMedia);
-    console.log("media of user : ", updatedUser);
     return res.status(200).send({
       message: "All media Deleted of user",
       medias: deletedMedia,
@@ -327,9 +309,7 @@ export async function deleteUserWallet(req, res) {
 // get user medias
 export async function getUserMedias(req, res) {
   try {
-    console.log("getUsermedias called!");
     const mymedias = await Media.find({ uploader: req.params.id });
-    // console.log("mymedias : ", mymedias);
     if (mymedias.length > 0) return res.status(200).send(mymedias);
     else return res.status(401).send({ message: "medias not found" });
   } catch (error) {

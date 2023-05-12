@@ -34,7 +34,7 @@ mongoose.connect(url, {
 });
 
 app.use(function (req, res, next) {
-  console.log("request : ", req.url);
+  // console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();

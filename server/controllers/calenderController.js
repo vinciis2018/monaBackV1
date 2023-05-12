@@ -18,9 +18,7 @@ export async function getAllSlots(req, res) {
         !slot.slotTimeStart ||
         slot.dataAttached.video === null
       ) {
-        console.log(slot);
         slot.remove();
-        console.log("done in slot details");
       }
     });
     await calender.save();
@@ -28,9 +26,7 @@ export async function getAllSlots(req, res) {
     calender.dayDetails.map((day) => {
       day.slotsBooked.map((slot) => {
         if (slot.isSlotBooked === false) {
-          console.log(slot);
           day.remove();
-          console.log("done in day details");
         }
       });
     });
@@ -64,9 +60,9 @@ export async function addSlotEnquiry(req, res) {
     var givenDateIndex = calender.slotDetails.findIndex(
       (slotDetail) => slotDetail.slotTimeStart === req.body.dateHere
     );
-    console.log(givenDateIndex);
-    console.log(givenDateIndex - 1);
-    console.log(givenDateIndex + 1);
+    // console.log(givenDateIndex);
+    // console.log(givenDateIndex - 1);
+    // console.log(givenDateIndex + 1);
 
     if (slotAsked) {
       var preceedingSlotAsked = calender.slotDetails[givenDateIndex - 1];
@@ -79,7 +75,7 @@ export async function addSlotEnquiry(req, res) {
         succeedingSlotAsked,
         slotAsked,
       };
-      console.log("yup", viewSlots);
+      // console.log("yup", viewSlots);
 
       return res.status(202).send({
         message: "slot is already booked",
@@ -95,7 +91,7 @@ export async function addSlotEnquiry(req, res) {
 
       calender.slotDetails.push(slot);
       await calender.save();
-      console.log("calender saved", calender.slotDetails);
+      // console.log("calender saved", calender.slotDetails);
 
       return res.status(200).send({
         message: "slot booked",
@@ -113,7 +109,7 @@ export async function addSlotEnquiry(req, res) {
 
 export async function getDayDetails(req, res) {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const screen = await Screen.findOne({
       _id: req.params.id,
     });
@@ -127,11 +123,6 @@ export async function getDayDetails(req, res) {
     const startDate = new Date(req.body.daySlotToBook.startDateHere);
     let slotsAvailable;
 
-    console.log(
-      calender.dayDetails.filter(
-        (day) => day.date.toString() === startDate.toString()
-      ).length
-    );
     if (
       calender.dayDetails.filter(
         (day) => day.date.toString() === startDate.toString()
@@ -147,7 +138,6 @@ export async function getDayDetails(req, res) {
         numberOfSlots: numberOfSlots,
         campaignDetails: campaignDetails,
       });
-      console.log(daySlot);
       calender.dayDetails.push(daySlot);
       await calender.save();
       slotsAvailable =
@@ -156,7 +146,6 @@ export async function getDayDetails(req, res) {
           .map((slots) => slots.numberOfSlots)
           .reduce((numberOfSlots, index) => numberOfSlots + index);
 
-      console.log(calender.dayDetails);
       return res.status(200).send({
         message: "booked day slot",
         calender: calender,
@@ -167,7 +156,6 @@ export async function getDayDetails(req, res) {
       const daySlot = calender.dayDetails.filter(
         (day) => day.date.toString() === startDate.toString()
       )[0];
-      console.log("done here", daySlot);
       if (daySlot.slotsBooked.length === 0) {
         slotsAvailable = (24 * 60 * 60) / screen.slotsTimePeriod;
       } else {
@@ -200,18 +188,12 @@ export async function bookCalendarSlot(req, res) {
       _id: screenId,
     });
 
-    console.log("screen");
-
     const masterUser = await User.findOne({ _id: screen.master });
-    console.log("masterUser");
     const masterWallet = await Wallet.findOne({
       walletAddAr: masterUser.defaultWallet,
     });
-    console.log("masterWallet");
     // const userWallet = await Wallet.findOne({ _id: req.user._id });
-    // console.log("userWallet");
     const calender = await Calender.findOne({ screen: screenId });
-    console.log("calender slots");
     const slot = {
       slotTimeStart: req.body.dateHere,
       isSlotBooked: true,
@@ -243,7 +225,6 @@ export async function bookCalendarSlot(req, res) {
       return a1 - b1;
     });
     await calender.save();
-    console.log(calender);
 
     return res.status(200).send({
       message: "slot booked",
@@ -262,7 +243,6 @@ export async function bookCalendarSlot(req, res) {
 // book calender day wise slot
 export async function bookCalendarSlotDayWise(req, res) {
   try {
-    console.log(req.body);
     const dayId = req.params.dayId;
     const screenId = req.params.id;
 
@@ -270,16 +250,13 @@ export async function bookCalendarSlotDayWise(req, res) {
       _id: screenId,
     });
 
-    console.log("screen");
     const calender = await Calender.findOne({ screen: screenId });
-    console.log("calender", calender);
 
     const day = calender.dayDetails.filter(
       (day) =>
         new Date(day.date).toDateString() ===
         new Date(req.body.startDateHere).toDateString()
     )[0];
-    console.log("slot", day);
 
     day.slotsBooked.push({
       numberOfSlots: req.body.slotsPerDay,
@@ -301,7 +278,7 @@ export async function bookCalendarSlotDayWise(req, res) {
       var b1 = new Date(b.date);
       return a1 - b1;
     });
-    console.log(calender.dayDetails);
+    // console.log(calender.dayDetails);
 
     await calender.save();
 

@@ -22,7 +22,6 @@ const getActiveCampaignList = async (screenId) => {
     //     },
     //   }
     // );
-    // console.log("updatedCampaigns : ", updatedCampaigns);
     const screenVideos = await Campaign.find({
       screen: screenId,
       status: "Active",
@@ -31,7 +30,6 @@ const getActiveCampaignList = async (screenId) => {
       // isDeleted: false,
       // paidForSlot: true,
     });
-    console.log("getActiveCampaignList : ", screenVideos?.length);
     return Promise.resolve(screenVideos);
   } catch (error) {
     return Promise.reject(error);
@@ -41,9 +39,7 @@ const getActiveCampaignList = async (screenId) => {
 export async function syncScreenCodeForApk(req, res) {
   try {
     const syncCode = req.params.syncCode;
-    console.log(syncCode);
     const screen = await Screen.findOne({ screenCode: syncCode });
-    console.log(screen);
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
       return res.status(200).send({ myScreenVideos: screenVideos, screen });
@@ -51,7 +47,6 @@ export async function syncScreenCodeForApk(req, res) {
       return res.status(402).send("screen videos not found");
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).send(error);
   }
 }
@@ -59,10 +54,8 @@ export async function syncScreenCodeForApk(req, res) {
 export async function getScreenDetailsForApk(req, res) {
   try {
     const screenName = req.params.name;
-    console.log(screenName);
 
     const screen = await Screen.findOne({ name: screenName });
-    console.log(screen._id);
 
     if (screen) {
       const screenVideos = await getActiveCampaignList(screen._id);
@@ -71,7 +64,6 @@ export async function getScreenDetailsForApk(req, res) {
       return res.status(401).send({ message: "Videos not found" });
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).send(error);
   }
 }
@@ -87,7 +79,6 @@ export async function checkScreenPlaylistForApk(req, res) {
       playTime: time,
       playVideo: currentVideo,
     };
-    console.log(playData);
     const screen = await Screen.findOne({ name: screenName });
     screen.lastActive = time;
     screen.lastPlayed = currentVideo;
@@ -120,7 +111,6 @@ export async function checkScreenPlaylistForApk(req, res) {
     const screenVideos = await getActiveCampaignList(screen._id);
     return res.status(200).send(screenVideos);
   } catch (error) {
-    console.log(error);
     return res.status(500).send(error);
   }
 }
@@ -149,7 +139,6 @@ export async function addNewScreen(req, res) {
       dayDetails: [],
       createdOn: Date.now(),
     });
-    console.log("calender", calenderId);
     const calenderAdded = await calender.save();
 
     const screenLogsAdd = new ScreenLogs({
@@ -169,7 +158,6 @@ export async function addNewScreen(req, res) {
       lng: 25.26 || req.body.locationPin.lat,
       lat: 82.98 || req.body.locationPin.lng,
     });
-    console.log("pin", pinId);
     const pinAdded = await pin.save();
 
     //now we are going to create new screen
@@ -259,11 +247,8 @@ export async function addNewScreen(req, res) {
     //   }
     // }
     const createdScreen = await screen.save();
-    console.log("createdScreen : ", createdScreen);
 
     await user.screens.push(screen);
-    console.log("user");
-
     await user.save();
 
     return res.status(200).send({
@@ -273,7 +258,6 @@ export async function addNewScreen(req, res) {
       calender: calenderAdded,
     });
   } catch (error) {
-    console.log(error);
     return res.status(404).send(error);
   }
 }
@@ -294,14 +278,11 @@ export async function getTopCampaigns(req, res) {
 // filter screens by audiance data
 export async function getFilteredScreenListByAudiance(req, res) {
   try {
-    console.log("getFilteredScreenListByAudiance called!");
     const averagePurchasePower = JSON.parse(req.params.averagePurchasePower);
     const averageAgeGroup = JSON.parse(req.params.averageAgeGroup);
     const averageDailyFootfall = JSON.parse(req.params.averageDailyFootfall);
     const employmentStatus = JSON.parse(req.params.employmentStatus);
     const kidsFriendly = req.params.kidsFriendly;
-
-    console.log("employmentStatus : ", typeof employmentStatus);
 
     const averageDailyFootfallFilter =
       averageDailyFootfall?.length > 1
@@ -388,7 +369,6 @@ export async function getFilteredScreenListByAudiance(req, res) {
     console.log("records founds : ", screens.length);
     return res.status(200).send(screens);
   } catch (error) {
-    console.log("err------- : ", error);
     return res.status(500).send({ message: `Screen router error ${error}` });
   }
 }
@@ -430,7 +410,6 @@ export async function getFilteredScreenList(req, res) {
 //get 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
-    console.log("getScreensList req.query.pageNumber : ", req.query.pageNumber);
     const pageSize = 6;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
@@ -482,12 +461,10 @@ export async function getScreensList(req, res) {
       .sort(sortPlea)
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-    // console.log(screens.length);
     return res
       .status(200)
       .send({ screens, page, pages: Math.ceil(countDocuments / pageSize) });
   } catch (error) {
-    console.log(error);
     return res.status(500).send(`screen router error ${error}`);
   }
 }
@@ -541,8 +518,6 @@ export async function getPinDetailsByScreenId(req, res) {
 //update screen by screen Id Note :  here we are  updating screen detail as wellas pin details also
 export async function updateScreenById(req, res) {
   try {
-    console.log("updateScreenById called!");
-    console.log("req.body : ", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findOne({ _id: screenId });
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
@@ -578,10 +553,9 @@ export async function updateScreenById(req, res) {
         req.body.stateUT !== screen.districtCity ||
         req.body.country !== screen.country
       ) {
-        console.log("changing campaiign addredd too!");
+        // console.log("changing campaiign addredd too!");
         screen.campaigns.map(async (_id) => {
           const campaign = await Campaign.findById({ _id });
-          console.log("video : 33", campaign);
           campaign.screenAddress =
             req.body.screenAddress || campaign.screenAddress; //v
           campaign.districtCity =
@@ -641,9 +615,7 @@ export async function deleteScreenById(req, res) {
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
 
     const screenPin = screen.locationPin;
-    console.log("screenPin");
     const screenCalender = screen.calender;
-    console.log("screenCalender");
     //deleting all medias/capaign from video collection which running on this screen
     screen.campaigns.map((_id) => {
       Campaign.findByIdAndRemove(_id);
@@ -666,7 +638,6 @@ export async function deleteScreenById(req, res) {
 //add single review to the Screen
 export async function addReview(req, res) {
   try {
-    console.log("add review called ! : ", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findById(screenId);
     if (!screen) res.status(404).send({ message: "Screen Not Found" });
@@ -711,7 +682,6 @@ export async function getScreenPlayList(req, res) {
 
     //create a new array of video url
     const videos = screenCampaign.map((campaign) => campaign.video);
-    console.log("getScreenPlayList videos : ", videos);
     if (videos.length > 0) {
       if (index === videos.length) {
         index = 1;
@@ -719,7 +689,6 @@ export async function getScreenPlayList(req, res) {
         index = index + 1;
       }
       eventVideo = campaignsIdList.map((video) => video.video)[index - 1];
-      console.log("eventVideo : ", eachVideo);
     }
     return res.status(200).send(eventVideo);
   } catch (error) {
@@ -739,14 +708,11 @@ export async function addScreenLikeByScreenId(req, res) {
     });
     const calender = await Calender.findOne({ screen: screenId });
     const wallet = await Wallet.findOne({ walletAddAr: user.defaultWallet });
-    console.log("found it all");
 
     const walletAddress = wallet.walletAddAr;
     const gameContract = calender.activeGameContract;
-    console.log(gameContract);
 
     if (!gameState.stakes.likeEP || !gameState.stakes.likeEP[walletAddress]) {
-      console.log("liking in gameState");
       const reqScreenGamePlayData = {
         req,
         screen,
@@ -754,9 +720,7 @@ export async function addScreenLikeByScreenId(req, res) {
         interaction,
       };
       const Wdash = await screenWorth(screenParams);
-      console.log(Wdash);
       const Rdash = await screenSlotRent(screenParams);
-      console.log(Rdash);
     }
 
     return res.status(200).send({
@@ -771,10 +735,8 @@ export async function addScreenLikeByScreenId(req, res) {
 // get campaign logs by
 export async function getScreenLogs(req, res) {
   try {
-    console.log("getScreenLogs called! ", req.params.id);
     const screenId = req.params.id;
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    console.log("screenLogs : ", screenLog);
     res.status(200).send(screenLog.playingDetails);
   } catch (error) {
     return res
@@ -786,7 +748,6 @@ export async function getScreenLogs(req, res) {
 // requesting plea from allay
 export async function addAllyPlea(req, res) {
   try {
-    console.log("addAllyPlea called!");
     const screen = await Screen.findById(req.params.id);
     const user = await User.findOne({
       _id: req.user._id,
@@ -798,7 +759,6 @@ export async function addAllyPlea(req, res) {
       reject: false,
     });
 
-    console.log("Plea", plea);
     if (!plea) {
       const plea = new Plea({
         _id: new mongoose.Types.ObjectId(),
@@ -841,9 +801,7 @@ export async function addAllyPlea(req, res) {
 // give ally plea
 export async function giveAccessToAllyPlea(req, res) {
   try {
-    console.log(req.params.id);
     const plea = await Plea.findOne({ _id: req.params.id });
-    console.log(plea);
     const screen = await Screen.findOne({ _id: plea.screen });
     const master = await User.findOne({
       _id: plea.to,
@@ -855,13 +813,10 @@ export async function giveAccessToAllyPlea(req, res) {
     });
 
     const remark = `${user.name} user has been given an Ally access for ${screen.name} screen from ${master.name} user`;
-    // console.log(screen.allies.filter((ally) => ally === user.defaultWallet))
-    console.log(user.alliedScreens);
     if (
       screen.allies.filter((ally) => ally === user._id).length === 0 &&
       user.alliedScreens.filter((screen) => screen === screen._id).length === 0
     ) {
-      console.log("granting ally access");
       (plea.status = true), plea.remarks.push(remark);
       screen.allies.push(user._id);
       user.alliedScreens.push(screen);
@@ -869,7 +824,7 @@ export async function giveAccessToAllyPlea(req, res) {
       await screen.save();
       await user.save();
       await plea.save();
-      console.log("try {granted access");
+      console.log("granting ally access");
 
       return res.status(200).send(plea);
     } else {
@@ -898,7 +853,6 @@ export async function rejectAllayPlea(req, res) {
     });
     const remark = `${user.name} user has been rejected an Ally access for ${screen.name} screen from ${master.name} user`;
     if (screen.allies.filter((ally) => ally === user._id).length !== 0) {
-      console.log("1");
       screen.allies[useuserr._id].remove();
       user.alliedScreens[screen._id].remove();
       await screen.save();

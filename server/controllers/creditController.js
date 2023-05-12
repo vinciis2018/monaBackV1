@@ -24,7 +24,6 @@ export async function walletDetailHandler(req, res, next) {
           jn1prgQsmlicd1w66SOVcMG4GYODjx7zkBNIAzGR3WQ: 990000000,
         },
       });
-      console.log(createAdCredits);
       createAdCredits.save();
     }
     const balances = adCredits.balances;
@@ -47,7 +46,6 @@ export async function walletDetailHandler(req, res, next) {
       balances: adCredits.balances[req.user.defaultWallet],
     });
   } catch (err) {
-    console.log(err);
     return res.status(404).send(err);
   }
 }
@@ -93,7 +91,6 @@ export async function subtractWalletHandler(req, res, next) {
       throw new CustomError("Bad Request", 404, "No such wallet found");
     }
     let balances = Object.fromEntries(wallet.balances);
-    console.log("balances", balances, address);
     if (balances[address] != undefined) {
       if (balances[address] > amount) {
         balances[address] -= amount;
@@ -134,15 +131,12 @@ const createWallet = async (body, user, req, res) => {
       walletAddAr: body.walletAddress,
     });
     await createdWallet.save();
-    console.log("createdWallet");
 
     await user.wallets.push(createdWallet.walletAddAr);
     if (!user.defaultWallet) {
       user.defaultWallet = createdWallet.walletAddAr;
-      console.log("defaultWallet");
     }
     const updatedUser = await user.save();
-    console.log("user saved in db", updatedUser);
 
     return res.status(201).send({
       message: "new wallet created",
@@ -163,14 +157,9 @@ export async function generateMnemonicFormBip39(req, res) {
   try {
     const Solana = new SolWeb3.Connection(SolWeb3.clusterApiUrl("devnet"));
     let mnemonics = generateMnemonic();
-    console.log(mnemonics);
     const seed = await mnemonicToSeed(mnemonics);
-    console.log(seed);
     let a = new Uint8Array(seed.toJSON().data.slice(0, 32));
-    console.log(a);
     var kp = SolWeb3.Keypair.fromSeed(a);
-    console.log(kp);
-    console.log(kp.publicKey.toBase58());
     console.log({
       jwk: a,
       mnemonics: mnemonics,
@@ -180,7 +169,6 @@ export async function generateMnemonicFormBip39(req, res) {
     const userId = req.params.id;
     const user = await User.findOne({ _id: userId });
 
-    console.log("user : ", user);
     if (user && !user.defaultWallet) {
       createWallet(
         {
@@ -194,14 +182,8 @@ export async function generateMnemonicFormBip39(req, res) {
         res
       );
     } else {
-      console.log("wallet already exists");
       return res.status(400).send({ message: "wallet already exist" });
     }
-    // return res.status(201).send({
-    //   jwk: a,
-    //   mnemonics: mnemonics,
-    //   walletAddress: kp.publicKey.toBase58(),
-    // });
   } catch (error) {
     return res
       .status(500)
