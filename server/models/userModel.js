@@ -24,32 +24,13 @@ const userSchema = new mongoose.Schema(
     isViewer: { type: Boolean, default: true, required: true },
 
     isMaster: { type: Boolean, default: false, required: true },
-    master: {
-      name: String,
-      logo: String,
-      description: String,
-      rating: { type: Number, default: 0, required: true },
-      numReviews: { type: Number, default: 0, required: true },
-    },
+    master: [{ type: mongoose.Schema.Types.ObjectId, ref: "Master" }],
 
     isAlly: { type: Boolean, default: false, required: true },
-    ally: {
-      name: String,
-      logo: String,
-      description: String,
-      perHrHiring: { type: Number },
-      rating: { type: Number, default: 0, required: true },
-      numReviews: { type: Number, default: 0, required: true },
-    },
+    ally: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ally" }],
 
     isBrand: { type: Boolean, default: false, required: true },
-    brand: {
-      name: String,
-      logo: String,
-      description: String,
-      rating: { type: Number, default: 0, required: true },
-      numReviews: { type: Number, default: 0, required: true },
-    },
+    brand: [{ type: mongoose.Schema.Types.ObjectId, ref: "Brand" }],
 
     defaultWallet: { type: String },
 

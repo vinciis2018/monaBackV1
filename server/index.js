@@ -16,6 +16,8 @@ import calenderRouter from "./routers/calenderRouter.js";
 import campaignRouter from "./routers/campaignRouter.js";
 import pleaRouter from "./routers/pleaRouter.js";
 import campaignForMultipleScreenRouter from "./routers/campaignForMultipleScreenRouter.js";
+import rewardRouter from "./routers/rewardRouter.js";
+import brandRouter from "./routers/brandRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -52,6 +54,8 @@ app.use("/api/calender", calenderRouter);
 app.use("/api/campaign", campaignRouter);
 app.use("/api/pleas", pleaRouter);
 app.use("/api/campaignForMultipleScreens", campaignForMultipleScreenRouter);
+app.use("/api/rewardPrograms", rewardRouter);
+app.use("/api/brands", brandRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));

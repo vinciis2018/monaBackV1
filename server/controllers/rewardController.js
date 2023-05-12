@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import RewardProgram from "../models/rewardModel.js";
+import RewardOffer from "../models/rewardModel.js";
 
 
 export async function getAllRewards(req, res) {
@@ -13,44 +13,43 @@ export async function getAllRewards(req, res) {
   }
 }
 
-export async function createRewardProgram(req, res) {
+export async function createRewardOffer(req, res) {
   try {
-    // brand creates a reward program, which mints reward coupons from user interaction
+    // brand creates a reward offer, which mints reward coupons from user interaction
      const rewardId = new mongoose.Types.ObjectId();
 
-     const rewardProgram = new RewardProgram({
+     const rewardOffer = new RewardOffer({
       _id: rewardId,
-      programCreator: req.body.user,
-      programName: "Sample Reward" + Date.now() || req.body.programName,
-      brand: "Brand00000",
-      brandName: "Brand Name",
+      offerCreator: req.body.user,
+      offerName: "Sample Reward" + Date.now() || req.body.offerName,
+      brand: req.user.brand,
       quantity: 0 || req.body.quantity,
-      rewardProgramType: {
-        type: "" || req.body.rewardProgramType,
+      rewardOfferType: {
+        type: "" || req.body.rewardOfferType,
       }, 
       ratings: 0,
       reviews: [],
-      programInfo: {},
+      offerInfo: {},
       createdOn: Date.now(),
     });
 
-    const createdRewardProgram = await rewardProgram.save();
-    return res.status(200).send(createdRewardProgram);
+    const createdRewardOffer = await rewardOffer.save();
+    return res.status(200).send(createdRewardOffer);
   } catch (error) {
-    return res.status(500).send({ message: `Reward controller error at createRewardProgram ${error.message}` });
+    return res.status(500).send({ message: `Reward controller error at createRewardOffer ${error.message}` });
   }
 }
 
 
-export async function editRewardProgram(req, res) {
+export async function editRewardOffer(req, res) {
   try {
-    const rewardProgram = await RewardProgram.findById(req.params.id);
-    // console.log(rewardProgram);
-    rewardProgram.programName = req.body.name || rewardProgram.programName;
-    rewardProgram.quantity = req.body.quantity || rewardProgram.quantity;
-    rewardProgram.rewardProgramType.type = req.body.rewardProgramType || rewardProgram.rewardProgramType.type;
+    const rewardOffer = await RewardOffer.findById(req.params.id);
+    // console.log(rewardOffer);
+    rewardOffer.offerName = req.body.name || rewardOffer.offerName;
+    rewardOffer.quantity = req.body.quantity || rewardOffer.quantity;
+    rewardOffer.rewardOfferType.type = req.body.rewardOfferType || rewardOffer.rewardOfferType.type;
 
-    if (req.body.rewardProgramType === "coupon") {
+    if (req.body.rewardOfferType === "coupon") {
       const rewardCoupon = {
         couponType: req.body.rewardCouponType,
         validity: {
@@ -65,13 +64,13 @@ export async function editRewardProgram(req, res) {
           freeItemQuantity: req.body.freeItemQuantity,
         }
       }
-      if (rewardProgram.rewardProgramType.cardReward !== null) {
-        rewardProgram.rewardProgramType.cardReward = null;
+      if (rewardOffer.rewardOfferType.cardReward !== null) {
+        rewardOffer.rewardOfferType.cardReward = null;
       }
-      rewardProgram.rewardProgramType.couponReward = rewardCoupon;
+      rewardOffer.rewardOfferType.couponReward = rewardCoupon;
     }
 
-    if (req.body.rewardProgramType === "card") {
+    if (req.body.rewardOfferType === "card") {
       const rewardCard = {
         cardType: req.body.rewardCardType,
         validity: {
@@ -81,36 +80,36 @@ export async function editRewardProgram(req, res) {
         cardMilestones: req.body.milestone,
         cardM
       };
-      if (rewardProgram.rewardProgramType.couponReward !== null) {
-        rewardProgram.rewardProgramType.couponReward = null;
+      if (rewardOffer.rewardOfferType.couponReward !== null) {
+        rewardOffer.rewardOfferType.couponReward = null;
       }
-      rewardProgram.rewardProgramType.cardReward = rewardCard;
+      rewardOffer.rewardOfferType.cardReward = rewardCard;
     }
 
-    const updatedRewardProgram = await rewardProgram.save();
+    const updatedRewardOffer = await rewardOffer.save();
 
-    return res.status(200).send(updatedRewardProgram);
+    return res.status(200).send(updatedRewardOffer);
 
   } catch (error) {
-    return res.status(500).send({ message: `Reward controller error at editRewardProgram ${error.message}` });
+    return res.status(500).send({ message: `Reward controller error at editRewardOffer ${error.message}` });
   }
 }
 
-export async function myCreatedRewardPrograms(req, res) {
+export async function myCreatedRewardOffers(req, res) {
   try {
-    const myRewardPrograms = await RewardProgram.find({ programCreator: req.params.id});
-    // console.log([...myRewardPrograms]);
-    return res.status(200).send([...myRewardPrograms]);
+    const myRewardOffers = await RewardOffer.find({ offerCreator: req.params.id});
+    // console.log([...myRewardOffers]);
+    return res.status(200).send([...myRewardOffers]);
   } catch (error) {
-    return res.status(500).send({ message: `Reward controller error at myCreatedRewardPrograms ${error.message}` });
+    return res.status(500).send({ message: `Reward controller error at myCreatedRewardOffers ${error.message}` });
   }
 }
 
-export async function getRewardProgramDetails(req, res) {
+export async function getRewardOfferDetails(req, res) {
   try {
-    const rewardProgram = await RewardProgram.findOne({ _id: req.params.id })
-    return res.status(200).send(rewardProgram);
+    const rewardOffer = await RewardOffer.findOne({ _id: req.params.id })
+    return res.status(200).send(rewardOffer);
   } catch (error) {
-    return res.status(500).send({ message: `Reward controller error at getRewardProgramDetails ${error.message}` });
+    return res.status(500).send({ message: `Reward controller error at getRewardOfferDetails ${error.message}` });
   }
 }

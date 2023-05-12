@@ -13,8 +13,11 @@ const reviewSchema = new mongoose.Schema(
 
 const allySchema= new mongoose.Schema(
   {
+    allyName: { type: String },
+    allyDetails: {},
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
+    rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
+    additionalInfo: {},
     ratings: { type: Number },
     reviews: [reviewSchema],
 

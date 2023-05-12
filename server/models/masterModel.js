@@ -13,8 +13,11 @@ const reviewSchema = new mongoose.Schema(
 
 const masterSchema= new mongoose.Schema(
   {
+    masterName: { type: String },
+    masterDetails: {},
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    screens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
+    rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
+    additionalInfo: {},
     ratings: { type: Number },
     reviews: [reviewSchema],
 

@@ -20,6 +20,7 @@ const changePassword = async (req, res, user) => {
       isMaster: updateUser.isMaster,
       isAlly: updateUser.isAlly,
       isBrand: updateUser.isBrand,
+      brand: updateUser.brand,
       isViewer: updateUser.isViewer,
       defaultWallet: updateUser.defaultWallet,
       wallets: updateUser.wallets,
@@ -98,6 +99,7 @@ export async function userSignUp(req, res) {
         isMaster: createdUser.isMaster,
         isAlly: createdUser.isAlly,
         isBrand: createdUser.isBrand,
+        brand: createdUser.brand,
         isViewer: createdUser.isViewer,
         defaultWallet: createdUser.defaultWallet,
         wallets: createdUser.wallets,
@@ -172,6 +174,7 @@ export async function userSignin(req, res) {
         isMaster: user.isMaster,
         isAlly: user.isAlly,
         isBrand: user.isBrand,
+        brand: user.brand,
         isViewer: user.isViewer,
         phone: user.phone,
         districtCity: user.districtCity,
@@ -350,27 +353,6 @@ export async function updateUserProfile(req, res) {
       user.stateUt = req.body.stateUt || user.stateUt;
       user.country = req.body.country || user.country;
 
-      if (user.isMaster) {
-        user.master.name = req.body.masterName || user.master.name;
-        user.master.logo = req.body.masterLogo || user.master.logo;
-        user.master.description =
-          req.body.masterDescription || user.master.description;
-      }
-      if (user.isAlly) {
-        user.ally.name = req.body.allyName || user.ally.name;
-        user.ally.logo = req.body.allyLogo || user.ally.logo;
-        user.ally.description =
-          req.body.allyDescription || user.ally.description;
-        user.ally.perHrHiring =
-          req.body.allyPerHrHiring || user.ally.perHrHiring;
-      }
-      if (user.isBrand) {
-        user.brand.name = req.body.brandName || user.brand.name;
-        user.brand.logo = req.body.brandLogo || user.brand.logo;
-        user.brand.description =
-          req.body.brandDescription || user.brand.description;
-      }
-
       if (req.body.password) {
         user.password = bcrypt.hashSync(req.body.password, 8);
       }
@@ -391,6 +373,7 @@ export async function updateUserProfile(req, res) {
         isMaster: user.isMaster,
         isAlly: user.isAlly,
         isBrand: user.isBrand,
+        brand: user.brand,
 
         defaultWallet: updatedUser.defaultWallet,
         wallets: updatedUser.wallets,

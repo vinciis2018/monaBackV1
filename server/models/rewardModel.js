@@ -69,28 +69,28 @@ const cardRewardSchema = new mongoose.Schema(
   }
 );
 
-// Reward Program
-const rewardProgramSchema = new mongoose.Schema(
+// Reward Offer
+const rewardOfferSchema = new mongoose.Schema(
   {
-    programName: { type: String },
+    offerName: { type: String },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
     brandName: { type: String },
-    programCreator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    offerCreator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     // nfts: [{ type: String, default: ""}],
     quantity: { type: Number },
-    rewardProgramType: {
+    rewardOfferType: {
       type: { type: String, default: "" }, // card / coupon
       cardReward: cardRewardSchema,
       couponReward: couponRewardSchema,
       additonalInfo: {},
     },
     campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
-    rewardProgramPartners: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    rewardOfferPartners: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     ratings: { type: Number },
     reviews: [reviewSchema],
     createdOn:  { type: String, default: Date.now() },
     additionalInfo: {},
-    programInfo: {
+    offerInfo: {
       mediaFiles: [{ type: String }],
       graphicText: [{ type: String }],
       fontStyle: [{ type: String }],
@@ -104,6 +104,6 @@ const rewardProgramSchema = new mongoose.Schema(
   }
 );
 
-const RewardProgram = mongoose.model("RewardProgram", rewardProgramSchema);
+const RewardOffer = mongoose.model("RewardOffer", rewardOfferSchema);
 
-export default RewardProgram;
+export default RewardOffer;

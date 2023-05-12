@@ -1,17 +1,17 @@
 import express from "express";
 import {
-  createRewardProgram,
-  myCreatedRewardPrograms,
-  getRewardProgramDetails,
-  editRewardProgram,
+  createRewardOffer,
+  myCreatedRewardOffers,
+  getRewardOfferDetails,
+  editRewardOffer,
 } from "../controllers/rewardController.js";
 import { isAuth } from "../utils/authUtils.js";
 
 const rewardRouter = express.Router();
 
 //post request
-rewardRouter.post("/createReward", isAuth, createRewardProgram); //tested
-rewardRouter.get("/myCreatedRewards/:id", myCreatedRewardPrograms);
-rewardRouter.get("/reward/:id", getRewardProgramDetails);
-rewardRouter.put("/reward/:id", isAuth, editRewardProgram);
+rewardRouter.post("/createReward", isAuth, createRewardOffer); //tested
+rewardRouter.get("/myCreatedRewards/:id", myCreatedRewardOffers);
+rewardRouter.get("/reward/:id", getRewardOfferDetails);
+rewardRouter.put("/reward/:id", isAuth, editRewardOffer);
 export default rewardRouter;

@@ -24,10 +24,10 @@ export const generateToken = (user) => {
 
 // to authenticate user
 export const isAuth = (req, res, next) => {
-  const authorization = req.headers.authorization;
+  const authorization = req.headers.authorization || req.body.headers.authorization;
   if (authorization) {
     const token = authorization.slice(7, authorization.length); //Bearer XXXXXXXX... (removes Bearer_ and gives token XXXXXXXXX...)
-    //console.log("isAuth : ", token);
+    // console.log("isAuth : ", token);
     jwt.verify(
       token,
       process.env.ACCESS_TOKEN_JWT_SECRET || "mysecretkey",
