@@ -15,7 +15,6 @@ export async function getAllPins(req, res) {
 //get single pindetails by pinId
 export async function getPinDetailsByPinId(req, res) {
   try {
-    console.log("getPinDetailsByPinId called!");
     const pin = await Pin.findById(req.params.id);
     if (!pin) return res.status(404).send("No Pin Found!");
     const jsonData = {
@@ -45,9 +44,7 @@ export async function getPinDetailsByPinId(req, res) {
 // get all pins in GeoJson
 export async function getAllPinsGeoJson(req, res) {
   try {
-    console.log("getAllPinsGeoJson called!");
     const allPins = await Pin.find();
-    //console.log("app pins : ", allPins);
     if (!allPins) return res.status(404).send(error);
     const jsonData = {
       features: allPins.map((pin) => {
@@ -102,7 +99,6 @@ export async function addNewPin(req, res) {
     newPin.activeGame = screen.activeGameContract;
 
     const pinAdded = await newPin.save();
-    console.log(pinAdded);
     return res.status(200).send(pinAdded);
   } catch (error) {
     res.status(500).send({ message: `Pin router error ${error.message}` });
@@ -119,10 +115,8 @@ export async function updatePinByPinId(req, res) {
       pin.lat = req.body.lat || pin.lat;
       pin.lng = req.body.lng || pin.lng;
       await pin.save();
-      console.log(pin);
       return res.status(200).send(pin);
     } catch (error) {
-      console.log(error);
       return res.status(400).send(error);
     }
   } catch (error) {

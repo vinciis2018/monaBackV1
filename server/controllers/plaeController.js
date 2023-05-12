@@ -7,7 +7,6 @@ import Media from "../models/mediaModel.js";
 
 export async function getPleaRequestListByUserID(req, res) {
   try {
-    console.log("getPleaRequestListByUserID called!");
     const screenOwnerUserId = req.params.id;
     const pleas = await Plea.find({ to: screenOwnerUserId });
     return res.status(200).send(pleas);
@@ -37,11 +36,8 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
     const campaignForMultipleScreen = await CampaignForMultipleScreen.findById(
       plea.campaignForMultipleScreen
     );
-    console.log("campaignForMultipleScreen  ", campaignForMultipleScreen);
 
     const screen = await Screen.findOne({ _id: plea.screen });
-    console.log("screen  ", screen);
-
     const master = await User.findOne({
       _id: plea.to,
       // defaultWallet: plea.to
@@ -92,9 +88,12 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
       stateUT: screen.stateUT,
       country: screen.country,
     });
-    console.log("new campaign  99: ", newCampaign);
+
     const campaign = await newCampaign.save();
-    console.log("new campaign  : ", campaign);
+    console.log(
+      "new campaign created after accepting ally request: ",
+      campaign
+    );
     screen.campaigns.push(campaign._id);
     await screen.save();
     await plea.save();
@@ -117,10 +116,8 @@ export async function rejectCampaignAllyPlea(req, res) {
     const campaignForMultipleScreen = await CampaignForMultipleScreen.findById(
       plea.campaignForMultipleScreen
     );
-    console.log("plea  ", plea);
 
     const screen = await Screen.findOne({ _id: plea.screen });
-    console.log("screen  ", screen);
 
     const master = await User.findOne({
       _id: plea.to,
@@ -146,7 +143,6 @@ export async function rejectCampaignAllyPlea(req, res) {
     await plea.save();
     campaignForMultipleScreen.rejectedScreens.push(plea.screen);
     await campaignForMultipleScreen.save();
-    console.log("rejected ally access");
     return res
       .status(200)
       .send({ message: "successfull given permition", plea });

@@ -42,11 +42,10 @@ async function callbackHandler(req, res, handlerFunction) {
   let session;
   try {
     let responseData = req.body;
-    console.log(responseData);
     session = await mongoose.startSession();
     session.startTransaction();
 
-    console.log("paymentRecieop", responseData);
+    // console.log("paymentRecieop", responseData);
     var checksumhash = responseData.CHECKSUMHASH;
     var result = verifychecksum(
       responseData,
@@ -91,7 +90,7 @@ async function callbackHandler(req, res, handlerFunction) {
 
           post_res.on("end", async function () {
             let result = JSON.parse(response);
-            console.log("result", result);
+            // console.log("result", result);
             if (result.STATUS === "TXN_SUCCESS") {
               //store in db
               const order = await handlerFunction(
@@ -116,7 +115,7 @@ async function callbackHandler(req, res, handlerFunction) {
     } else {
       session.commitTransaction();
       res.redirect(`${process.env.WEB_URL}/failure`);
-      console.log("Checksum Mismatched");
+      // console.log("Checksum Mismatched");
     }
   } catch (err) {
     //@ts-ignore
@@ -127,7 +126,6 @@ async function callbackHandler(req, res, handlerFunction) {
 
 export async function rechargeWalletHandler(req, res) {
   try {
-    console.log("body", req.body);
     if (req.body.amount < 20) {
       throw new CustomError(
         "Bad request",
@@ -147,7 +145,6 @@ export async function rechargeWalletHandler(req, res) {
 }
 
 export async function rechargeWalletCallbackHandler(req, res) {
-  console.log("request", req.body);
   await callbackHandler(req, res, rechargeWalletSuccessHandler);
 }
 

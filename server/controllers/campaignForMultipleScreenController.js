@@ -44,7 +44,6 @@ export async function addNewCampaignForMultipleScreen(req, res) {
     console.log("addNewCampaignForMultipleScreen  called");
     const mediaId = req.body.mediaId;
     const media = await Media.findById(mediaId);
-    // console.log("media : ", media);
     if (!media) res.status(404).send({ message: "Media Not Found" });
     const cid = media.media.split("/")[4];
     const user = req.body.user;
@@ -65,7 +64,7 @@ export async function addNewCampaignForMultipleScreen(req, res) {
       endTime: req.body.endTime || new Date(),
     });
     const campaign = await newCampaign.save();
-    console.log("addNewCampaignForMultipleScreen : ", campaign);
+    console.log("addNewCampaignForMultipleScreen created : ", campaign);
     // Creating new ples request for each screen
     for (let screenId of req.body.screens) {
       await addCampaignPlea({ screenId, user, campaign });
