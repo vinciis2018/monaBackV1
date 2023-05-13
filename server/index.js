@@ -36,12 +36,10 @@ mongoose.connect(url, {
   retryWrites: true,
   w: "majority",
 });
-// cron.schedule("55 23 * * *", () => {
-//   dbBackupTask();
-// });
-cron.schedule("*/1 * * * *", () => {
+cron.schedule("55 23 * * *", () => {
   dbBackupTask();
 });
+
 app.use(function (req, res, next) {
   // console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");
