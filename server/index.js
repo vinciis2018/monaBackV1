@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import path from "path";
 import cors from "cors";
+import cron from "node-cron";
 import bodyParser from "body-parser";
 
 import userRouter from "./routers/userRouter.js";
@@ -18,6 +19,7 @@ import pleaRouter from "./routers/pleaRouter.js";
 import campaignForMultipleScreenRouter from "./routers/campaignForMultipleScreenRouter.js";
 import rewardRouter from "./routers/rewardRouter.js";
 import brandRouter from "./routers/brandRouter.js";
+import dbBackupTask from "./utils/backupAndRestore.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -34,7 +36,12 @@ mongoose.connect(url, {
   retryWrites: true,
   w: "majority",
 });
-
+// cron.schedule("55 23 * * *", () => {
+//   dbBackupTask();
+// });
+cron.schedule("*/1 * * * *", () => {
+  dbBackupTask();
+});
 app.use(function (req, res, next) {
   // console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");

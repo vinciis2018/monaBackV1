@@ -39,7 +39,11 @@ const getActiveCampaignList = async (screenId) => {
 export async function syncScreenCodeForApk(req, res) {
   try {
     const syncCode = req.params.syncCode;
+    console.log("syncCode : ", syncCode);
+
     const screen = await Screen.findOne({ screenCode: syncCode });
+    console.log("screen with synccode : ", screen);
+
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
       return res.status(200).send({ myScreenVideos: screenVideos, screen });
@@ -47,6 +51,7 @@ export async function syncScreenCodeForApk(req, res) {
       return res.status(402).send("screen videos not found");
     }
   } catch (error) {
+    console.log("syncScreenCodeForApk error", error);
     return res.status(500).send(error);
   }
 }
@@ -54,8 +59,10 @@ export async function syncScreenCodeForApk(req, res) {
 export async function getScreenDetailsForApk(req, res) {
   try {
     const screenName = req.params.name;
+    console.log("getScreenDetailsForApk screenName : ", screenName);
 
     const screen = await Screen.findOne({ name: screenName });
+    console.log("screen with name : ", screen);
 
     if (screen) {
       const screenVideos = await getActiveCampaignList(screen._id);
@@ -64,6 +71,7 @@ export async function getScreenDetailsForApk(req, res) {
       return res.status(401).send({ message: "Videos not found" });
     }
   } catch (error) {
+    console.log("getScreenDetailsForApk error", error);
     return res.status(500).send(error);
   }
 }
@@ -84,6 +92,7 @@ export async function checkScreenPlaylistForApk(req, res) {
     screen.lastPlayed = currentVideo;
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
     screenLogs.playingDetails.push(playData);
+    console.log("playData : ", playData);
     await screenLogs.save();
     await screen.save();
 
