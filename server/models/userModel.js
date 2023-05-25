@@ -59,6 +59,18 @@ const userSchema = new mongoose.Schema(
     myMedia: [{ type: String }], // here we store cid when we create media
 
     alliedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
+    rewardCoupons: [
+      {
+        couponRewardId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "CouponRewardOffer",
+        },
+        userCouponid: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "CouponRewardOffer",
+        },
+      },
+    ],
   },
   {
     timestamps: true,

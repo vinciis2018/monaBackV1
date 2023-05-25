@@ -20,6 +20,8 @@ import campaignForMultipleScreenRouter from "./routers/campaignForMultipleScreen
 import rewardRouter from "./routers/rewardRouter.js";
 import brandRouter from "./routers/brandRouter.js";
 import dbBackupTask from "./utils/backupAndRestore.js";
+import couponRewardOfferRouter from "./routers/couponRewardOffeRouter.js";
+import cardRewardOfferRouter from "./routers/cardRewaedOfferRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -41,7 +43,7 @@ cron.schedule("55 23 * * *", () => {
 });
 
 app.use(function (req, res, next) {
-  // console.log("request : ", req.url);
+  console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
@@ -61,6 +63,8 @@ app.use("/api/pleas", pleaRouter);
 app.use("/api/campaignForMultipleScreens", campaignForMultipleScreenRouter);
 app.use("/api/rewardPrograms", rewardRouter);
 app.use("/api/brands", brandRouter);
+app.use("/api/couponReward", couponRewardOfferRouter);
+app.use("/api/cardReward", cardRewardOfferRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));

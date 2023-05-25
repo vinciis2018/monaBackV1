@@ -38,6 +38,10 @@ const campaignSchema = new mongoose.Schema(
     stateUT: { type: String, required: true }, //v
     country: { type: String, required: true }, //v
     status: { type: String, required: true, default: "Pending" },
+    couponRewads: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "CouponRewardOffer" },
+    ],
+
     /**
      * Status will change accorging to this condition
      * paidForSlot === false -> Pending

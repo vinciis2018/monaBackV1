@@ -127,6 +127,22 @@ export async function userSignUp(req, res) {
     return res.status(404).send(error);
   }
 }
+export async function filterUserListByName(req, res) {
+  try {
+    const searchString = String(req.params.name);
+    console.log("name to filter : ", searchString);
+    const users = await User.find({
+      name: { $regex: searchString, $options: "i" },
+    });
+    console.log("users founds : ", users);
+
+    return res.status(200).send(users);
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `User router error ${error.message}` });
+  }
+}
 
 export async function getUserInfoById(req, res) {
   try {

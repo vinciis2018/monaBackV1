@@ -11,65 +11,63 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-const couponRewardSchema = new mongoose.Schema(
-  {
-    redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    couponType: { type: String }, // discount / free
-    couponItem: { type: String },
-    redeemFrequency: { type: Number },
-    couponInfo: {
-      // discount
-      type: { type: String }, // percent / rupee
-      value: { type: String },
+const couponRewardSchema = new mongoose.Schema({
+  redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  couponType: { type: String }, // discount / free
+  couponItem: { type: String },
+  redeemFrequency: { type: Number },
+  couponInfo: {
+    // discount
+    type: { type: String }, // percent / rupee
+    value: { type: String },
 
-      // free
-      freeItemQuantity: { type: Number },
-    }, 
-    validity: {
-      to: { type: String },
-      from: { type: String },
-    },
+    // free
+    freeItemQuantity: { type: Number },
+  },
+  validity: {
+    to: { type: String },
+    from: { type: String },
+  },
+  description: { type: String },
+  additionalInfo: {},
+  graphicInfo: {
+    mediaFiles: [{ type: String }],
+    graphicText: [{ type: String }],
+    fontStyle: [{ type: String }],
+    backgroundColors: [{ type: String }],
     description: { type: String },
     additionalInfo: {},
-    graphicInfo: {
-      mediaFiles: [{ type: String }],
-      graphicText: [{ type: String }],
-      fontStyle: [{ type: String }],
-      backgroundColors: [{ type: String }],
-      description: { type: String },
-      additionalInfo: {},
-    }
-  }
-);
+  },
+});
 
-const cardRewardSchema = new mongoose.Schema(
-  {
-    redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    cardType: { type: String }, // loyalty
-    cardPoints: { type: Number }, // loyalty points
-    cardMilestones: [{ type: Number }],
-    cardMilestonesReward: [{
+const cardRewardSchema = new mongoose.Schema({
+  redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  cardType: { type: String }, // loyalty
+  cardPoints: { type: Number }, // loyalty points
+  // cardMilestones: [{ type: Number }],
+  cardMilestonesReward: [
+    {
       couponReward: couponRewardSchema,
-      milestonePoint: { type: String }, 
-    }],
-    validity: {
-      to: { type: String },
-      from: { type: String },
+      milestonePoint: { type: String }, // it should to number
     },
+  ],
+  validity: {
+    to: { type: String },
+    from: { type: String },
+  },
+  description: { type: String },
+  additionalInfo: {},
+  graphicInfo: {
+    mediaFiles: [{ type: String }],
+    graphicText: [{ type: String }],
+    fontStyle: [{ type: String }],
+    backgroundColors: [{ type: String }],
     description: { type: String },
     additionalInfo: {},
-    graphicInfo: {
-      mediaFiles: [{ type: String }],
-      graphicText: [{ type: String }],
-      fontStyle: [{ type: String }],
-      backgroundColors: [{ type: String }],
-      description: { type: String },
-      additionalInfo: {},
-    }
-  }
-);
+  },
+});
 
-// Reward Offer
+// Reward Offer schema
 const rewardOfferSchema = new mongoose.Schema(
   {
     offerName: { type: String },
@@ -85,10 +83,12 @@ const rewardOfferSchema = new mongoose.Schema(
       additonalInfo: {},
     },
     campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
-    rewardOfferPartners: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    rewardOfferPartners: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ],
     ratings: { type: Number },
     reviews: [reviewSchema],
-    createdOn:  { type: String, default: Date.now() },
+    createdOn: { type: String, default: Date.now() },
     additionalInfo: {},
     offerInfo: {
       mediaFiles: [{ type: String }],

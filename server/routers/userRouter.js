@@ -17,6 +17,7 @@ import {
   deleteAllMedias,
   updatePassword,
   getUserInfoById,
+  filterUserListByName,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -32,6 +33,7 @@ userRouter.get("/top-masters", topMasters);
 userRouter.get("/top-allies", topAllies);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
+userRouter.get("/filterUser/:name", filterUserListByName);
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
 userRouter.get("/:id/:wallet/myScreens", isAuth, getUserScreens); // tested
 userRouter.get("/:id/:wallet/myMedias", isAuth, getUserMedias);
