@@ -6,6 +6,7 @@ import { generateToken } from "../utils/authUtils.js";
 import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
 import Campaign from "../models/campaignModel.js";
+import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -465,5 +466,37 @@ export async function updateUser(req, res) {
     });
   } catch (error) {
     return res.status(404).send(error);
+  }
+}
+
+export async function getUserCouponList(req, res) {
+  try {
+    const userCouponList = [];
+    const user = await User.findById(req.params.userId);
+    console.log("user?.rewardCoupons  : ", user?.rewardCoupons);
+    for (let coupon of user?.rewardCoupons) {
+      console.log("user coupon : ", coupon);
+      const singleCoupon = await CouponRewardOffer.findById(
+        coupon?.couponRewardId
+      );
+      // for (let userCoupon of singleCoupon?.rewardCoupons) {
+      //   console.log(
+      //     "userCoupon._id , coupon.userCouponid : ",
+      //     user._id,
+      //     userCoupon.redeemer
+      //   );
+      // }
+      // const userCoupon = singleCoupon?.rewardCoupons.find(
+      //   (singleUserCoupon) => singleUserCoupon.redeemer == user._id
+      // );
+      //console.log("userCoupon : ", userCoupon);
+      userCouponList.push(singleCoupon);
+    }
+    console.log("User coupon list : ", userCouponList);
+    return res.status(200).send(userCouponList);
+  } catch (error) {
+    return res.status(500).send({
+      message: `User router error in getUserCouponList${error.message}`,
+    });
   }
 }

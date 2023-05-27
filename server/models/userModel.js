@@ -61,14 +61,8 @@ const userSchema = new mongoose.Schema(
     alliedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
     rewardCoupons: [
       {
-        couponRewardId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "CouponRewardOffer",
-        },
-        userCouponid: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "CouponRewardOffer",
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CouponRewardOffer",
       },
     ],
   },
