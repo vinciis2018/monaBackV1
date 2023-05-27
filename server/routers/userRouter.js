@@ -18,6 +18,7 @@ import {
   updatePassword,
   getUserInfoById,
   filterUserListByName,
+  getUserCouponList,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -34,6 +35,7 @@ userRouter.get("/top-allies", topAllies);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
 userRouter.get("/filterUser/:name", filterUserListByName);
+userRouter.get("/getUserCouponList/:userId", getUserCouponList);
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
 userRouter.get("/:id/:wallet/myScreens", isAuth, getUserScreens); // tested
 userRouter.get("/:id/:wallet/myMedias", isAuth, getUserMedias);

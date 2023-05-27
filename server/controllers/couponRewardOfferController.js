@@ -176,21 +176,24 @@ export async function addRedmeerToCoupon(req, res) {
     //   { $push: { rewardCoupons: data } }
     // );
     const updatedCoupon = await coupon.save();
-    console.log("updatedCoupon : ", updatedCoupon);
+    // console.log("updatedCoupon : ", updatedCoupon);
     // saving coupon and user coupon details to user also to find all user coupon list easily
-    user.rewardCoupons.push({
-      couponRewardId: couponId,
-      userCouponid: singleCouponId,
-    });
-    const updateduser = await user.save();
-    console.log("user : ", updateduser);
+
+    const updateUser = await User.updateOne(
+      { _id: user._id },
+      {
+        $push: { rewardCoupons: coupon._id },
+      }
+    );
+    // console.log("updated user : ", updateUser);
     return res.status(200).send({
       couponReward: coupon,
       userCouponDetails: data,
     });
   } catch (error) {
+    // console.log("Error : ", error);
     return res.status(500).send({
-      message: `Coupon Reward controller error at createNewCouponRewardOffer ${error.message}`,
+      message: `Coupon Reward controller error at addRedmeerToCoupon ${error.message}`,
     });
   }
 }
