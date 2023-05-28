@@ -6,6 +6,7 @@ import {
   editCouponRewardOffer,
   getCouponRewadOfferDetailsForBrand,
   getCouponRewardOfferListForBrand,
+  getRewardOfferPartnerList,
 } from "../controllers/couponRewardOfferController.js";
 import { isAuth } from "../utils/authUtils.js";
 const couponRewardOfferRouter = express.Router();
@@ -29,6 +30,10 @@ couponRewardOfferRouter.get(
 couponRewardOfferRouter.get(
   "/couponRewardOfferDetailForBrand/:id",
   getCouponRewadOfferDetailsForBrand
+);
+couponRewardOfferRouter.get(
+  "/rewardOfferPartnerList/:couponId",
+  getRewardOfferPartnerList
 );
 
 export default couponRewardOfferRouter;

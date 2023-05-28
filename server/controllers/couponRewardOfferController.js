@@ -198,6 +198,47 @@ export async function addRedmeerToCoupon(req, res) {
   }
 }
 
+export async function getRewardOfferPartnerList(req, res) {
+  try {
+    const rewardOfferPartnerList = [];
+    const couponId = req.params?.couponId;
+    const coupon = await CouponRewardOffer.findById(couponId);
+    if (!coupon) {
+      return res.status(400).send({
+        message: "No coupon found with this couponId",
+      });
+    }
+    // itrating coupon?.rewardOfferPartners to get details of each reward offer partner
+    for (let userId of coupon?.rewardOfferPartners) {
+      const user = await User.findById(userId, {
+        name: 1,
+        email: 1,
+        phone: 1,
+        avatar: 1,
+        address: 1,
+        districtCity: 1,
+        stateUt: 1,
+        isItanimulli: 1,
+        isViewer: 1,
+        isMaster: 1,
+        master: 1,
+        isAlly: 1,
+        ally: 1,
+        isBrand: 1,
+        brand: 1,
+        defaultWallet: 1,
+      });
+      rewardOfferPartnerList.push(user);
+    }
+    console.log("rewardOfferPartnerList : ", rewardOfferPartnerList);
+    return res.status(200).send(rewardOfferPartnerList);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Coupon Reward controller error at getRewardOfferPartnerList ${error.message}`,
+    });
+  }
+}
+
 export async function xxxx(req, res) {
   try {
   } catch (error) {

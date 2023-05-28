@@ -51,7 +51,7 @@ export async function editCardRewardOffer(req, res) {
     return res.status(200).send(updatedCardRewad);
   } catch (error) {
     return res.status(500).send({
-      message: `Card Reward controller error at createNewCardRewardOffer ${error.message}`,
+      message: `Card Reward controller error at editCardRewardOffer ${error.message}`,
     });
   }
 }
@@ -69,7 +69,7 @@ export async function getCardRewardOfferListForBrand(req, res) {
       .send([...myRewardOffers]);
   } catch (error) {
     return res.status(500).send({
-      message: `Card Reward controller error at createNewCardRewardOffer ${error.message}`,
+      message: `Card Reward controller error at getCardRewardOfferListForBrand ${error.message}`,
     });
   }
 }
@@ -79,7 +79,7 @@ export async function getCardRewadOfferDetailsForBrand(req, res) {
     return res.status(200).send(rewardOffer);
   } catch (error) {
     return res.status(500).send({
-      message: `Card Reward controller error at createNewCardRewardOffer ${error.message}`,
+      message: `Card Reward controller error at getCardRewadOfferDetailsForBrand ${error.message}`,
     });
   }
 }
