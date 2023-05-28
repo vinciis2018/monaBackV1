@@ -162,6 +162,7 @@ export async function addRedmeerToCoupon(req, res) {
       });
     }
     const couponCode = generateRandonNumberOfLengthN(8);
+    // console.log("couponcode", couponCode);
     const singleCouponId = new mongoose.Types.ObjectId();
     // single user coupon data
     const data = {

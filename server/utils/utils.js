@@ -1,14 +1,21 @@
+import Randomstring from "randomstring";
+
 export function generateRandonNumberOfLengthN(n) {
-  var add = 1,
-    max = 12 - add; // 12 is the min safe number Math.random() can generate without it starting to pad the end with zeros.
+  return Randomstring.generate({
+    length: 8,
+  });
+  // var add = 1,
+  //   max = 12 - add; // 12 is the min safe number Math.random() can generate without it starting to pad the end with zeros.
 
-  if (n > max) {
-    return generate(max) + generate(n - max);
-  }
+  // if (n > max) {
+  //   return generate(max) + generate(n - max);
+  // }
 
-  max = Math.pow(10, n + add);
-  var min = max / 10; // Math.pow(10, n) basically
-  var number = Math.floor(Math.random() * (max - min + 1)) + min;
+  // max = Math.pow(10, n + add);
+  // var min = max / 10; // Math.pow(10, n) basically
+  // var number = Math.floor(Math.random() * (max - min + 1)) + min;
+  // console.log(""+number.substring(add));
+  // return ("" + number).substring(add);
 
-  return ("" + number).substring(add);
 }
+
