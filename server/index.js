@@ -22,6 +22,7 @@ import brandRouter from "./routers/brandRouter.js";
 import dbBackupTask from "./utils/backupAndRestore.js";
 import couponRewardOfferRouter from "./routers/couponRewardOffeRouter.js";
 import cardRewardOfferRouter from "./routers/cardRewaedOfferRouter.js";
+import imageRouter from "./routers/imagesToVideoRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -43,7 +44,7 @@ cron.schedule("55 23 * * *", () => {
 });
 
 app.use(function (req, res, next) {
-  console.log("request : ", req.url);
+  //console.log("request : ", req.url);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
@@ -65,9 +66,14 @@ app.use("/api/rewardPrograms", rewardRouter);
 app.use("/api/brands", brandRouter);
 app.use("/api/couponReward", couponRewardOfferRouter);
 app.use("/api/cardReward", cardRewardOfferRouter);
+app.use("/api/createVideoFromImage", imageRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));
+app.use(
+  "/api/createVideoFromImage",
+  express.static(path.join(__dirname, "./mediaFiles/images"))
+);
 
 app.use(express.static(path.join(__dirname, "/client/build")));
 app.get("*", (req, res) =>

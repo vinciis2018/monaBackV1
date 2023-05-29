@@ -473,13 +473,13 @@ export async function getUserCouponList(req, res) {
   try {
     const userCouponList = [];
     const user = await User.findById(req.params.userId);
-    console.log("user?.rewardCoupons  : ", user?.rewardCoupons);
+    //console.log("user?.rewardCoupons  : ", user?.rewardCoupons);
     for (let couponId of user?.rewardCoupons) {
-      console.log("user couponId : ", couponId);
+      //console.log("user couponId : ", couponId);
       const singleCoupon = await CouponRewardOffer.findById(couponId);
       userCouponList.push(singleCoupon);
     }
-    console.log("User coupon list : ", userCouponList);
+    //console.log("User coupon list : ", userCouponList);
     return res.status(200).send(userCouponList);
   } catch (error) {
     return res.status(500).send({
