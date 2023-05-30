@@ -11,7 +11,11 @@ const __dirname = path.resolve();
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
-const createVideoFromImageaaa = () => {
+const token = process.env.REACT_APP_WEB3_STORAGE_API_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDczQTg1YzJhQTVmNzU1ZTM4MUUxODhmYkI2ZTg3M0E3MEJGRUQ2RjAiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjMxODkwNjgyOTEsIm5hbWUiOiJtb25hX2JldGEifQ.pONwiaib6R_lPL2bop4cTgk5-Z2Otf4723aDJjEYDLY";
+// console.log("token : ", token);
+const storage = new Web3Storage({ token });
+
+const createVideoFromImageHere = () => {
   ffmpeg()
     .input("../mediaFiles/images/frame-001.png")
     .loop("5")
@@ -33,10 +37,10 @@ const createVideoFromImageaaa = () => {
 };
 
 //first save file in local
-const storage = multer.diskStorage({
+const localStorage = multer.diskStorage({
   destination: (req, file, callback) => {
     console.log("file : ", file);
-    console.log("dorectory name : ", req.dirName);
+    console.log("directory name : ", req.dirName);
 
     callback(null, path.join(__dirname, "server", "mediaFiles", req.dirName));
   },
@@ -47,7 +51,7 @@ const storage = multer.diskStorage({
 
 // use to add file in locally
 export const upload = multer({
-  storage: storage,
+  storage: localStorage,
 }).single("photo");
 
 // it use to create folter with randon name
@@ -61,9 +65,12 @@ export const createFolder = (req, res, next) => {
   return;
 };
 
-export const createVideoFromImage = (req, res) => {
+export const createVideoFromImage = (req, res, next) => {
+  let newMedia;
   try {
     console.log("createVideoFromImage : called! : ", req.dirName);
+    console.log("createVideoFromImage : called! : ", `../mediaFiles/${req.dirName}`);
+
     //after successfully uploaded image in folder
     // now create video from image
     ffmpeg()
@@ -73,15 +80,18 @@ export const createVideoFromImage = (req, res) => {
           "server",
           "mediaFiles",
           req.dirName,
-          `frame-001.png`
+          // "G3O95OBr",
+          "frame-001.png"
         )
+        // "../mediaFiles/G3O95OBr/frame-001.png"
       )
       .loop("5")
       .inputOptions("-framerate", "30")
       .videoCodec("libx264")
       .outputOptions("-pix_fmt", "yuv420p")
       .saveToFile(
-        path.join(__dirname, "server", "mediaFiles", req.dirName, "output.mp4")
+        path.join(__dirname, "server", "mediaFiles", req.dirName, "video.mp4")
+      // "../mediaFiles/G3O95OBr/output.mp4"
       )
       .on("progress", (progress) => {
         if (progress.percent) {
@@ -91,16 +101,14 @@ export const createVideoFromImage = (req, res) => {
       .on("end", async () => {
         console.log("FFmpeg has finished");
         // after finnish video create now upload video on web3.storage
-        const token = process.env.REACT_APP_WEB3_STORAGE_API_TOKEN;
-        console.log("token : ", token);
-        const storage = new Web3Storage({ token });
+
         const files = [];
         const videoPath = path.join(
           __dirname,
           "server",
           "mediaFiles",
           req.dirName,
-          "output.mp4"
+          "video.mp4"
         );
 
         const pathFiles = await getFilesFromPath(videoPath);
@@ -109,9 +117,9 @@ export const createVideoFromImage = (req, res) => {
         console.log(`Uploading ${files.length} files`);
         const cid = await storage.put(files);
         console.log("Content added with CID:", cid);
-        let res = await storage.get(cid);
-        console.log("response : ", res);
-        const Videofiles = (await res?.files()) || []; // Web3File[]
+        let resp = await storage.get(cid);
+        // console.log("response : ", resp);
+        const Videofiles = (await resp?.files()) || []; // Web3File[]
         for (const file of Videofiles) {
           //getting cid to create new media
           console.log(`${file.cid} ${file.name} ${file.size}`);
@@ -145,12 +153,24 @@ export const createVideoFromImage = (req, res) => {
               hrsToComplete: req.body.hrsToComplete || 0,
               mediaTags: req.body.advertTags || ["blinds", "vinciis", "koii"],
             });
-            const newmedia = await media.save();
+            newMedia = await media.save();
 
-            mediaUser.medias.push(newmedia._id);
+            mediaUser.medias.push(newMedia._id);
             await mediaUser.save();
+            
+            fs.rm(path.join(__dirname, "server", "mediaFiles", req.dirName), {
+              recursive: true,
+            }, (error) => {
+              if (error) {
+                console.log(error);
+              }
+              else {
+                console.log("Recursive: Directories Deleted!");
+              }
+            });
+          
+            return res.status(201).send(newMedia);
 
-            return res.status(201).send(newmedia);
           }
         }
       })
@@ -159,8 +179,8 @@ export const createVideoFromImage = (req, res) => {
         return res.status(400).send({ message: error });
       });
     // const loopTime = req.body.loopTime;
-  } catch (error) {
-    console.log("error : ", error);
-    return res.status(400).send({ message: error });
+  } catch (err) {
+    console.log("error : ", err);
+    return res.status(400).send({ message: err });
   }
 };
