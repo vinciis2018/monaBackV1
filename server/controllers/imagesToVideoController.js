@@ -69,8 +69,6 @@ export const createVideoFromImage = (req, res, next) => {
   let newMedia;
   try {
     console.log("createVideoFromImage : called! : ", req.dirName);
-    console.log("createVideoFromImage : called! : ", `../mediaFiles/${req.dirName}`);
-
     //after successfully uploaded image in folder
     // now create video from image
     ffmpeg()
@@ -83,7 +81,6 @@ export const createVideoFromImage = (req, res, next) => {
           // "G3O95OBr",
           "frame-001.png"
         )
-        // "../mediaFiles/G3O95OBr/frame-001.png"
       )
       .loop("5")
       .inputOptions("-framerate", "30")
