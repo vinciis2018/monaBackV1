@@ -18,6 +18,7 @@ import {
   rejectAllayPlea,
   getFilteredScreenList,
   getFilteredScreenListByAudiance,
+  getAllScreens,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 
@@ -57,5 +58,7 @@ screenRouter.get(
   "/:name/screenName/:time/:currentVideo",
   checkScreenPlaylistForApk
 );
+
+screenRouter.get("/get/allScreens", getAllScreens);
 
 export default screenRouter;

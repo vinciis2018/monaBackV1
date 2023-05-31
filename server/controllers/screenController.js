@@ -416,6 +416,16 @@ export async function getFilteredScreenList(req, res) {
   }
 }
 
+//  get all screens
+export async function getAllScreens(req, res) {
+  try {
+    const screens = await Screen.find();
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send(`screen router error ${error}`);
+
+  }
+}
 //get 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
