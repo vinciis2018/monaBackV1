@@ -66,7 +66,6 @@ export const createFolder = (req, res, next) => {
 };
 
 export const createVideoFromImage = (req, res, next) => {
-  let newMedia;
   try {
     console.log("createVideoFromImage : called! : ", req.dirName);
     //after successfully uploaded image in folder
@@ -84,7 +83,10 @@ export const createVideoFromImage = (req, res, next) => {
       )
       .loop("5")
       .inputOptions("-framerate", "30")
+      .videoBitrate("1024k")
       .videoCodec("libx264")
+      .size("720x?")
+      .aspect("16:9")
       .outputOptions("-pix_fmt", "yuv420p")
       .saveToFile(
         path.join(__dirname, "server", "mediaFiles", req.dirName, "video.mp4")
@@ -110,7 +112,6 @@ export const createVideoFromImage = (req, res, next) => {
 
         const pathFiles = await getFilesFromPath(videoPath);
         files.push(...pathFiles);
-
         console.log(`Uploading ${files.length} files`);
         const cid = await storage.put(files);
         console.log("Content added with CID:", cid);
@@ -150,7 +151,7 @@ export const createVideoFromImage = (req, res, next) => {
               hrsToComplete: req.body.hrsToComplete || 0,
               mediaTags: req.body.advertTags || ["blinds", "vinciis", "koii"],
             });
-            newMedia = await media.save();
+            const newMedia = await media.save();
 
             mediaUser.medias.push(newMedia._id);
             await mediaUser.save();

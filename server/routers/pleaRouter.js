@@ -5,7 +5,7 @@ import {
   getPleaRequestListByUserID,
   giveAccessToCampaignAllyPlea,
   rejectCampaignAllyPlea,
-} from "../controllers/plaeController.js";
+} from "../controllers/pleaController.js";
 const pleaRouter = express.Router();
 
 //post
