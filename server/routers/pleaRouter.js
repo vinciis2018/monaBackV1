@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  addNewPleaForUserRedeemCouponOffer,
   getPleaRequestListByScreenID,
   getPleaRequestListByUserID,
   giveAccessToCampaignAllyPlea,
@@ -8,6 +9,10 @@ import {
 const pleaRouter = express.Router();
 
 //post
+pleaRouter.post(
+  "/addCouponRedeemPlea/:fromUser/:toUser/:couponId/:couponCode",
+  addNewPleaForUserRedeemCouponOffer
+);
 
 //get
 //-------get all plea request by user id
