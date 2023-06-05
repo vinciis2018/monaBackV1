@@ -16,6 +16,9 @@ const pleaSchema = new mongoose.Schema(
       enum: ["SCREEN_ALLY_PLEA", "CAMPAIGN_ALLY_PLEA", "COUPON_REDEEM_PLEA"],
     },
     couponCode: { type: String },
+    couponId:
+      { type: mongoose.Schema.Types.ObjectId, ref: "CouponRewardOffer" } ||
+      null,
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" } || null,
     content: { type: String },
     status: { type: Boolean, default: false },

@@ -172,10 +172,7 @@ export async function addRedmeerToCoupon(req, res) {
       hasRedeem: false,
     };
     coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
-    // const updatedCoupon = await CouponRewardOffer.updateOne(
-    //   { _id: couponId },
-    //   { $push: { rewardCoupons: data } }
-    // );
+
     const updatedCoupon = await coupon.save();
     // console.log("updatedCoupon : ", updatedCoupon);
     // saving coupon and user coupon details to user also to find all user coupon list easily
@@ -186,7 +183,7 @@ export async function addRedmeerToCoupon(req, res) {
         $push: { rewardCoupons: coupon._id },
       }
     );
-    // console.log("updated user : ", updateUser);
+    console.log("updated user : ", updateUser);
     return res.status(200).send({
       couponReward: coupon,
       userCouponDetails: data,
@@ -236,6 +233,53 @@ export async function getRewardOfferPartnerList(req, res) {
   } catch (error) {
     return res.status(500).send({
       message: `Coupon Reward controller error at getRewardOfferPartnerList ${error.message}`,
+    });
+  }
+}
+
+export async function incrementUserRedeemFrequency(req, res) {
+  try {
+    console.log("incrementUserRedeemFrequency called");
+    const couponId = req.params.couponId;
+    const couponCode = req.params.couponCode;
+    const coupon = await CouponRewardOffer.findById(couponId);
+    console.log("coupon : ", coupon);
+    if (!coupon) {
+      return res.status(400).send({ message: "Coupon Not found!" });
+    }
+    const userCoupon = coupon.rewardCoupons.filter(
+      (data) => data.couponCode === couponCode
+    );
+    console.log("userCoupon : ", userCoupon);
+
+    if (
+      coupon.couponRewardInfo.redeemFrequency > userCoupon[0]?.redeemedFrequency
+    ) {
+      console.log(
+        `you can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0]?.redeemedFrequency}`
+      );
+      const updatedCoupon = await CouponRewardOffer.updateOne(
+        {
+          _id: couponId,
+          "rewardCoupons.couponCode": couponCode,
+        },
+
+        { $inc: { "rewardCoupons.$.redeemedFrequency": 1 } }
+      );
+
+      return res.status(200).send(updatedCoupon);
+    } else {
+      console.log(
+        `you completed your redeemed Frequency can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0]?.redeemedFrequency}`
+      );
+      return res
+        .status(500)
+        .send({ message: "You have completed your redeemed Frequency" });
+    }
+  } catch (error) {
+    console.log("Errror :", error);
+    return res.status(500).send({
+      message: `Coupon Reward controller error at createNewCouponRewardOffer ${error.message}`,
     });
   }
 }

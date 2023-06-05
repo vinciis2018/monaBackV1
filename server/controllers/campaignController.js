@@ -5,7 +5,7 @@ import { sendMoneyBackToAlly } from "../helpers/sendMoney.js";
 
 export async function addNewCampaign(req, res) {
   try {
-    console.log("addNewCampaign called! body : ", req.body);
+    console.log("addNewCampaign called! body : ");
     const user = req.body.user; // ally
     const screenId = req.body.screenId;
     const mediaId = req.body.mediaId;
@@ -46,7 +46,7 @@ export async function addNewCampaign(req, res) {
       country: screen.country,
     });
     const campaign = await newCampaign.save();
-    console.log("new campaign created: ", campaign);
+    console.log("new campaign created successfully!");
     screen.campaigns.push(campaign._id);
     await screen.save();
 

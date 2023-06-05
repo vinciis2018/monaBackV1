@@ -7,6 +7,7 @@ import {
   getCouponRewadOfferDetailsForBrand,
   getCouponRewardOfferListForBrand,
   getRewardOfferPartnerList,
+  incrementUserRedeemFrequency,
 } from "../controllers/couponRewardOfferController.js";
 import { isAuth } from "../utils/authUtils.js";
 const couponRewardOfferRouter = express.Router();
@@ -21,6 +22,10 @@ couponRewardOfferRouter.put(
   addRedmeerToCoupon
 );
 couponRewardOfferRouter.put("/couponReward/:id", isAuth, editCouponRewardOffer);
+couponRewardOfferRouter.put(
+  "/incrementUserRedeemFrequency/:couponId/:couponCode",
+  incrementUserRedeemFrequency
+);
 
 // get
 couponRewardOfferRouter.get(

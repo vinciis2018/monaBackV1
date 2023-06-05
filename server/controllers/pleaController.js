@@ -180,7 +180,7 @@ export async function addNewPleaForUserRedeemCouponOffer(req, res) {
     });
     console.log("oldplea : ", oldPlea);
     if (oldPlea) {
-      return res.status(400).send({
+      return res.status(500).send({
         message: "Plea already made with same coupon code with same user",
       });
     }
@@ -188,6 +188,7 @@ export async function addNewPleaForUserRedeemCouponOffer(req, res) {
       _id: new mongoose.Types.ObjectId(),
       from: fromUser._id,
       to: toUser._id,
+      couponId: coupon._id,
       couponCode: req.params.couponCode,
       pleaType: "COUPON_REDEEM_PLEA",
       content: `I would like to request a coupon plea for this ${req.params.couponCode} couponCode`,
