@@ -1,5 +1,5 @@
 import Screen from "../models/screenModel.js";
-import Media from "../models/mediaModel.js";
+import Wallet from "../models/walletModel.js";
 import Calender from "../models/calenderModel.js";
 import Pin from "../models/pinModel.js";
 import User from "../models/userModel.js";
@@ -756,11 +756,11 @@ export async function getScreenLogs(req, res) {
   try {
     const screenId = req.params.id;
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    res.status(200).send(screenLog.playingDetails);
+    return res.status(200).send(screenLog.playingDetails.reverse().slice(0, 50));
   } catch (error) {
     return res
       .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+      .send({ message: `Screen router error ${error.message}` });
   }
 }
 
