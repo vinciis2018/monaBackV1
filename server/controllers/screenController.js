@@ -173,7 +173,7 @@ export async function addNewScreen(req, res) {
     //now we are going to create new screen
     const screen = new Screen({
       _id: screenId,
-      name: "sample name" + Date.now() || req.body.name,
+      name: "sample screen by" + user.name + Date.now() || req.body.name,
       master: req.body._id,
       masterName: req.body.name,
       image:
