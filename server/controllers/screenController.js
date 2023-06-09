@@ -161,7 +161,8 @@ export async function addNewScreen(req, res) {
       category: "screen",
       screen: screenId,
       image:
-        "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos",
+        // "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos",
+        "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4",
       screenPin: true,
       user: req.body._id,
       lng: 25.26 || req.body.locationPin.lat,
@@ -176,7 +177,7 @@ export async function addNewScreen(req, res) {
       master: req.body._id,
       masterName: req.body.name,
       image:
-        "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos" ||
+        "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4" ||
         req.body.image,
 
       screenAddress: "address" || req.body.screenAddress, //v
@@ -756,6 +757,23 @@ export async function getScreenLogs(req, res) {
   try {
     const screenId = req.params.id;
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
+    console.log("getting screen logs: ", screenLog.playingDetails.length);
+    const query = new Date();
+    // console.log(query);
+
+    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 30);
+    // console.log(overLogs.length);
+    // console.log(overLogs);
+
+    if (overLogs && overLogs.length > 0) {
+      console.log("found overlogs: ", overLogs.length);
+
+      screenLog.playingDetails.filter((pl) => {
+        return ((query - pl.createdAt)/1000/60/60/24 > 30);
+      });
+      await screenLog.save();
+    }
+    console.log("got screen logs: ", screenLog.playingDetails.length);
     return res.status(200).send(screenLog.playingDetails.reverse().slice(0, 50));
   } catch (error) {
     return res
