@@ -1,5 +1,5 @@
 import Screen from "../models/screenModel.js";
-import Media from "../models/mediaModel.js";
+import Wallet from "../models/walletModel.js";
 import Calender from "../models/calenderModel.js";
 import Pin from "../models/pinModel.js";
 import User from "../models/userModel.js";
@@ -161,7 +161,8 @@ export async function addNewScreen(req, res) {
       category: "screen",
       screen: screenId,
       image:
-        "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos",
+        // "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos",
+        "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4",
       screenPin: true,
       user: req.body._id,
       lng: 25.26 || req.body.locationPin.lat,
@@ -172,11 +173,11 @@ export async function addNewScreen(req, res) {
     //now we are going to create new screen
     const screen = new Screen({
       _id: screenId,
-      name: "sample name" + Date.now() || req.body.name,
+      name: "sample screen by" + user.name + Date.now() || req.body.name,
       master: req.body._id,
       masterName: req.body.name,
       image:
-        "https://ipfs.io/ipfs/Qmf1mxa1NMYC2LCUoQabntCJubXjDrXtVn4Jsin8F3cdos" ||
+        "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4" ||
         req.body.image,
 
       screenAddress: "address" || req.body.screenAddress, //v
@@ -785,11 +786,28 @@ export async function getScreenLogs(req, res) {
   try {
     const screenId = req.params.id;
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    res.status(200).send(screenLog.playingDetails);
+    console.log("getting screen logs: ", screenLog.playingDetails.length);
+    const query = new Date();
+    // console.log(query);
+
+    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 30);
+    // console.log(overLogs.length);
+    // console.log(overLogs);
+
+    if (overLogs && overLogs.length > 0) {
+      console.log("found overlogs: ", overLogs.length);
+
+      screenLog.playingDetails.filter((pl) => {
+        return ((query - pl.createdAt)/1000/60/60/24 > 30);
+      });
+      await screenLog.save();
+    }
+    console.log("got screen logs: ", screenLog.playingDetails.length);
+    return res.status(200).send(screenLog.playingDetails.reverse().slice(0, 50));
   } catch (error) {
     return res
       .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+      .send({ message: `Screen router error ${error.message}` });
   }
 }
 
