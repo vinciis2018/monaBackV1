@@ -423,7 +423,6 @@ export async function getAllScreens(req, res) {
     return res.status(200).send(screens);
   } catch (error) {
     return res.status(500).send(`screen router error ${error}`);
-
   }
 }
 //get 6 screens details at a time
@@ -468,21 +467,51 @@ export async function getScreensList(req, res) {
       ...costPerSlotFilter,
       ...ratingFilter,
     });
-
-    const screens = await Screen.find({
-      ...masterFilter,
-      ...nameFilter,
-      ...categoryFilter,
-      ...costPerSlotFilter,
-      ...ratingFilter,
-    })
-      .populate("master", "master.name master.logo")
-      .sort(sortPlea)
+    // first find screens is from screen logs
+    const data = await ScreenLogs.aggregate([
+      { $unwind: "$playingDetails" },
+      {
+        $group: {
+          _id: {
+            screen: "$screen",
+          },
+          size: { $sum: 1 },
+        },
+      },
+      { $sort: { size: -1 } },
+    ])
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-    return res
-      .status(200)
-      .send({ screens, page, pages: Math.ceil(countDocuments / pageSize) });
+
+    // now i got top 6 screen id, now it time to get screen details by id and push the data
+    let screens = [];
+
+    for (let eachData of data) {
+      const screenId = eachData._id.screen;
+      const screen = await Screen.findById(screenId);
+      screens.push(screen);
+    }
+
+    // console.log("screensData -------: ", screensData);
+    // console.log("-------- data : ", data);
+
+    // const screens = await Screen.find({
+    //   ...masterFilter,
+    //   ...nameFilter,
+    //   ...categoryFilter,
+    //   ...costPerSlotFilter,
+    //   ...ratingFilter,
+    // })
+    //   .populate("master", "master.name master.logo")
+    //   .sort(sortPlea)
+    //   .skip(pageSize * (page - 1))
+    //   .limit(pageSize);
+
+    return res.status(200).send({
+      screens,
+      page,
+      pages: Math.ceil(countDocuments / pageSize),
+    });
   } catch (error) {
     return res.status(500).send(`screen router error ${error}`);
   }

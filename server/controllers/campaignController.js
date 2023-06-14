@@ -16,6 +16,14 @@ export async function addNewCampaign(req, res) {
     if (!media) res.status(404).send({ message: "Media Not Found" });
     const cid = media.media.split("/")[4];
 
+    //finding campaign exist or not with same cid and same screen
+    const findCampaign = await Campaign.findOne({ cid, screen: screenId });
+    if (findCampaign) {
+      return res.status(400).send({
+        message: "Campaign all ready present with same screen and same video",
+      });
+    }
+
     const newCampaign = new Campaign({
       screen: screenId,
       media: mediaId,
