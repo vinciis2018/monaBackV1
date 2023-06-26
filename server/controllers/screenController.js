@@ -36,6 +36,40 @@ const getActiveCampaignList = async (screenId) => {
   }
 };
 
+const deleteVideoFromplayListWhenTimeUp = async (cid, screenId) => {
+  console.log("cid : screenId   ", cid, screenId);
+  //first find campaign which you want to delete the campaign
+  const campaign = await Campaign.findOne({
+    $and: [
+      { cid: cid },
+      { screen: screenId },
+      { isDefaultCampaign: false },
+      { status: { $ne: "Deleted" } },
+    ],
+  });
+  if (campaign) {
+    console.log("campaign : ", campaign);
+    const dateAndTime = new Date();
+    const campaignEndDateAndTime = new Date(campaign?.endDate);
+    console.log(
+      "dateAndTime : campaignEndDateAndTime  ",
+      dateAndTime,
+      campaignEndDateAndTime
+    );
+    if (dateAndTime >= campaignEndDateAndTime) {
+      console.log("Now Deleteing campaign, its time is up");
+      await Campaign.updateOne(
+        { _id: campaign._id },
+        { $set: { status: "Deleted", isDeleted: true } }
+      );
+    } else {
+      console.log("keep going.........");
+    }
+  } else {
+    console.log("this is defalut campign");
+  }
+};
+
 export async function syncScreenCodeForApk(req, res) {
   try {
     const syncCode = req.params.syncCode;
@@ -95,6 +129,8 @@ export async function checkScreenPlaylistForApk(req, res) {
     console.log("playData : ", playData);
     await screenLogs.save();
     await screen.save();
+
+    deleteVideoFromplayListWhenTimeUp(currentVideo.split(".")[0], screen._id);
 
     // const campaign = await Campaign.findOne({
     //   cid: currentVideo.split(".")[0],
@@ -190,7 +226,7 @@ export async function addNewScreen(req, res) {
         }) || req.body.syncCode,
 
       category: "INDOORS" || req.body.screenCategory,
-      screenType: "TOP_HORIZONTAL" || req.body.screenType,
+      screenType: "LED TV Screen" || req.body.screenType,
 
       rating: 0,
       numReviews: 0,
@@ -199,6 +235,7 @@ export async function addNewScreen(req, res) {
       lng: 25.26 || req.body.locationPin.lat, //v
       lat: 82.98 || req.body.locationPin.lng, //v
       size: {
+        diagonal: 0 || req.body.screenDiagonal,
         length: 10 || req.body.screenLength,
         width: 5 || req.body.screenWidth,
         measurementUnit: "" || req.body.measurementUnit,
@@ -219,7 +256,7 @@ export async function addNewScreen(req, res) {
       allyUploads: [],
       reviews: [],
       screenTags: ["blinds", "vinciis"],
-      screenHighlights: ["blinds", "vinciis"],
+      screenHighlights: ["School", "Colleges"],
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
       additionalData: {
@@ -237,7 +274,7 @@ export async function addNewScreen(req, res) {
           employmentStatus: ["Salried Employees"],
           maritalStatus: ["Unmarried"],
           workType: ["Office"],
-          kidsFriendly: "yes",
+          kidsFriendly: "Yes",
           crowdMobilityType: ["Walking"],
           averageAgeGroup: {
             averageStartAge: 17,
@@ -567,6 +604,7 @@ export async function getPinDetailsByScreenId(req, res) {
 //update screen by screen Id Note :  here we are  updating screen detail as wellas pin details also
 export async function updateScreenById(req, res) {
   try {
+    console.log("updateScreenById called ,", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findOne({ _id: screenId });
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
@@ -584,6 +622,7 @@ export async function updateScreenById(req, res) {
       screen.name = req.body.name || screen.name;
       screen.rentPerSlot = req.body.rentPerSlot || screen.rentPerSlot;
       screen.image = req.body.image || screen.image;
+      screen.images = req.body.images || screen.images;
       screen.category = req.body.screenCategory || screen.category;
       screen.screenType = req.body.screenType || screen.screenType;
       screen.screenCode = req.body.syncCode || screen.screenCode;
@@ -596,24 +635,25 @@ export async function updateScreenById(req, res) {
       screen.size.width = req.body.screenWidth || screen.size.width;
       screen.size.measurementUnit =
         req.body.measurementUnit || screen.size.measurementUnit;
+      screen.size.diagonal = req.body.screenDiagonal || screen.size.diagonal;
       // we need to change address each video when we chnage address of screen //v
-      if (
-        req.body.districtCity !== screen.districtCity ||
-        req.body.stateUT !== screen.districtCity ||
-        req.body.country !== screen.country
-      ) {
-        // console.log("changing campaiign addredd too!");
-        screen.campaigns.map(async (_id) => {
-          const campaign = await Campaign.findById({ _id });
-          campaign.screenAddress =
-            req.body.screenAddress || campaign.screenAddress; //v
-          campaign.districtCity =
-            req.body.districtCity || campaign.districtCity; //v
-          campaign.stateUT = req.body.stateUT || campaign.stateUT; //v
-          campaign.country = req.body.country || campaign.country; //v
-          await campaign.save();
-        });
-      }
+      // if (
+      //   req.body.districtCity !== screen.districtCity ||
+      //   req.body.stateUT !== screen.districtCity ||
+      //   req.body.country !== screen.country
+      // ) {
+      //   // console.log("changing campaiign addredd too!");
+      //   screen.campaigns.map(async (_id) => {
+      //     const campaign = await Campaign.findById({ _id });
+      //     campaign.screenAddress =
+      //       req.body.screenAddress || campaign?.screenAddress; //v
+      //     campaign.districtCity =
+      //       req.body.districtCity || campaign?.districtCity; //v
+      //     campaign.stateUT = req.body.stateUT || campaign?.stateUT; //v
+      //     campaign.country = req.body.country || campaign?.country; //v
+      //     await campaign.save();
+      //   });
+      // }
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
       screen.districtCity = req.body.districtCity || screen.districtCity; //v
       screen.stateUT = req.body.stateUT || screen.stateUT; //v
@@ -659,16 +699,27 @@ export async function updateScreenById(req, res) {
 //delete screen by screen id (i have work on this latter)
 export async function deleteScreenById(req, res) {
   try {
+    console.log("deleteScreenById  : ", req.params.id);
     const screen = await Screen.findById(req.params.id);
 
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
 
     const screenPin = screen.locationPin;
     const screenCalender = screen.calender;
-    //deleting all medias/capaign from video collection which running on this screen
-    screen.campaigns.map((_id) => {
-      Campaign.findByIdAndRemove(_id);
+    //deleting all medias/campaign from video collection which running on this screen
+    const campaigns = await Campaign.find({
+      screen: screen._id,
+      status: "Active",
     });
+    if (campaigns?.length > 0) {
+      console.log(
+        "Some active campaign running on this screen, You cann't deleted this screen"
+      );
+      return res.status(401).send({
+        message:
+          "Some active campaign running on this screen, You cann't deleted this screen",
+      });
+    }
     const deleteScreen = screen.remove();
     const pin = await Pin.findByIdAndRemove(screenPin);
     const calender = await Calender.findByIdAndRemove(screenCalender);
@@ -790,7 +841,9 @@ export async function getScreenLogs(req, res) {
     const query = new Date();
     // console.log(query);
 
-    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 30);
+    const overLogs = screenLog.playingDetails.filter(
+      (pl) => (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30
+    );
     // console.log(overLogs.length);
     // console.log(overLogs);
 
@@ -798,12 +851,14 @@ export async function getScreenLogs(req, res) {
       console.log("found overlogs: ", overLogs.length);
 
       screenLog.playingDetails.filter((pl) => {
-        return ((query - pl.createdAt)/1000/60/60/24 > 30);
+        return (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30;
       });
       await screenLog.save();
     }
     console.log("got screen logs: ", screenLog.playingDetails.length);
-    return res.status(200).send(screenLog.playingDetails.reverse().slice(0, 50));
+    return res
+      .status(200)
+      .send(screenLog.playingDetails.reverse().slice(0, 50));
   } catch (error) {
     return res
       .status(500)
