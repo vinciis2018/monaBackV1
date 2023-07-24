@@ -48,7 +48,6 @@ const deleteVideoFromplayListWhenTimeUp = async (cid, screenId) => {
     ],
   });
   if (campaign) {
-    console.log("campaign : ", campaign);
     const dateAndTime = new Date();
     const campaignEndDateAndTime = new Date(campaign?.endDate);
     console.log(
@@ -201,8 +200,8 @@ export async function addNewScreen(req, res) {
         "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4",
       screenPin: true,
       user: req.body._id,
-      lng: 25.26 || req.body.locationPin.lat,
-      lat: 82.98 || req.body.locationPin.lng,
+      lng: 82.98 || req.body.locationPin.lat,
+      lat: 25.26 || req.body.locationPin.lng,
     });
     const pinAdded = await pin.save();
 
@@ -232,8 +231,8 @@ export async function addNewScreen(req, res) {
       numReviews: 0,
       description: "sample description" || req.body.description,
       locationPin: pinId,
-      lng: 25.26 || req.body.locationPin.lat, //v
-      lat: 82.98 || req.body.locationPin.lng, //v
+      lng: 82.98 || req.body.locationPin.lat,
+      lat: 25.26 || req.body.locationPin.lng,
       size: {
         diagonal: 0 || req.body.screenDiagonal,
         length: 10 || req.body.screenLength,
@@ -394,15 +393,15 @@ export async function getFilteredScreenListByAudiance(req, res) {
     const kidsFriendlyFilter = {
       "additionalData.footfallClassification.kidsFriendly": kidsFriendly,
     };
-    console.log("kidsFriendly : ", {
-      ...averageDailyFootfallFilter,
-      ...averagePurchasePowerGreaterThen,
-      ...averagePurchasePowerLessThen,
-      ...averageAgeGroupGreaterThen,
-      ...averageAgeGroupLessThen,
-      ...employmentStatusFilter,
-      ...kidsFriendlyFilter,
-    });
+    // console.log("kidsFriendly : ", {
+    //   ...averageDailyFootfallFilter,
+    //   ...averagePurchasePowerGreaterThen,
+    //   ...averagePurchasePowerLessThen,
+    //   ...averageAgeGroupGreaterThen,
+    //   ...averageAgeGroupLessThen,
+    //   ...employmentStatusFilter,
+    //   ...kidsFriendlyFilter,
+    // });
 
     const screens = await Screen.find({
       ...averageDailyFootfallFilter,
@@ -424,8 +423,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
 export async function getFilteredScreenList(req, res) {
   try {
     const searchString = req.params.text.trim();
-    console.log("search string : ", searchString);
-
+    const screenHighlights = JSON.parse(req.params.locality);
     const nameFilter = { name: { $regex: searchString, $options: "i" } };
     const screenAddressFilter = {
       screenAddress: { $regex: searchString, $options: "i" },
@@ -437,6 +435,15 @@ export async function getFilteredScreenList(req, res) {
     const countryFilter = { country: { $regex: searchString, $options: "i" } };
     const category = { category: { $regex: searchString, $options: "i" } };
 
+    const highlightsFilter =
+      screenHighlights?.length > 0
+        ? {
+            screenHighlights: {
+              $in: screenHighlights,
+            },
+          }
+        : {};
+
     const screens = await Screen.find({
       $or: [
         nameFilter,
@@ -446,6 +453,7 @@ export async function getFilteredScreenList(req, res) {
         countryFilter,
         category,
       ],
+      ...highlightsFilter,
     });
     console.log("records founds : ", screens.length);
     return res.status(200).send(screens);
@@ -463,7 +471,7 @@ export async function getAllScreens(req, res) {
     return res.status(500).send(`screen router error ${error}`);
   }
 }
-//get 6 screens details at a time
+//get top 6 screens details at a time
 export async function getScreensList(req, res) {
   try {
     const pageSize = 6;
@@ -879,39 +887,43 @@ export async function addAllyPlea(req, res) {
       from: user._id,
       reject: false,
     });
+    // console.log("old plea  : ", plea);
+    if (plea) {
+      console.log("plea not found, creating new plea");
 
-    if (!plea) {
-      const plea = new Plea({
-        _id: new mongoose.Types.ObjectId(),
-        from: user._id,
-        to: screen.master,
-        screen: screen,
-        pleaType: "SCREEN_ALLY_PLEA",
-        content: `I would like to request an Ally plea for this ${screen.name} screen`,
-        status: false,
-        reject: false,
-        blackList: false,
-        remarks: `${user.name} has requested an Ally plea for ${screen.name} screen`,
-      });
-      await plea.save();
-      console.log("before pusing plea on scren  : ", screen);
-      screen.pleas[plea] ? screen.pleas.push(plea) : (screen.pleas = plea);
-      console.log("After pusing plea on scren  : ", screen);
-      console.log("before pusing plea on user  : ", user);
-      user.pleasMade[plea]
-        ? user.pleasMade.push(plea)
-        : (user.pleasMade = plea);
-      console.log("After pusing plea on user  : ", user);
-      await screen.save();
-      await user.save();
-      return res
-        .status(200)
-        .send({ message: "Ally access plead for screen", plea });
-    } else {
       return res
         .status(400)
         .send({ message: "Plea already made, please contact moderators" });
     }
+
+    const newPlea = new Plea({
+      _id: new mongoose.Types.ObjectId(),
+      from: user._id,
+      to: screen.master,
+      screen: screen,
+      pleaType: "SCREEN_ALLY_PLEA",
+      content: `I would like to request an Ally plea for this ${screen.name} screen`,
+      status: false,
+      reject: false,
+      blackList: false,
+      remarks: `${user.name} has requested an Ally plea for ${screen.name} screen`,
+    });
+    await newPlea.save();
+    // console.log("before pusing plea on scren  : ", screen);
+    screen.pleas.push(newPlea);
+    // console.log("After pusing plea on scren  : ", screen);
+    // console.log("before pusing plea on user  : ", user);
+    user.pleasMade.push(newPlea);
+    // console.log("After pusing plea on user  : ", user);
+    await screen.save();
+    await user.save();
+    console.log(
+      "pleas creaded and send plea rewuest to screen owner : ",
+      newPlea
+    );
+    return res
+      .status(200)
+      .send({ message: "Ally access plead for screen", newPlea });
   } catch (error) {
     return res
       .status(500)
@@ -922,7 +934,9 @@ export async function addAllyPlea(req, res) {
 // give ally plea
 export async function giveAccessToAllyPlea(req, res) {
   try {
-    const plea = await Plea.findOne({ _id: req.params.id });
+    const pleaId = req.params.id;
+    const plea = await Plea.findOne({ _id: pleaId });
+    if (!plea) return res.status(404).send("Plea Not found!");
     const screen = await Screen.findOne({ _id: plea.screen });
     const master = await User.findOne({
       _id: plea.to,
@@ -935,10 +949,11 @@ export async function giveAccessToAllyPlea(req, res) {
 
     const remark = `${user.name} user has been given an Ally access for ${screen.name} screen from ${master.name} user`;
     if (
-      screen.allies.filter((ally) => ally === user._id).length === 0 &&
+      screen.allies.filter((ally) => ally === user._id).length === 0 ||
       user.alliedScreens.filter((screen) => screen === screen._id).length === 0
     ) {
-      (plea.status = true), plea.remarks.push(remark);
+      plea.status = true;
+      plea.remarks.push(remark);
       screen.allies.push(user._id);
       user.alliedScreens.push(screen);
 
@@ -949,7 +964,6 @@ export async function giveAccessToAllyPlea(req, res) {
 
       return res.status(200).send(plea);
     } else {
-      await plea.remove();
       return res.status(400).send({ message: "ally exist" });
     }
   } catch (error) {

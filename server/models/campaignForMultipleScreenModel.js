@@ -1,27 +1,38 @@
 import mongoose from "mongoose";
 // campaignForMultipleScreen;
+const additionalInfo = new mongoose.Schema({
+  startDateAndTime: { type: Date },
+  endDateAndTime: { type: Date },
+  totalSlotBooked: { type: Number, default: 0 },
+  totalAmount: { type: Number, default: 0 },
+  screen: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Screen",
+    default: null,
+  },
+});
 const campaignForMultipleScreenSchema = new mongoose.Schema(
   {
-    media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
-    video: { type: String, required: true },
     cid: { type: String, required: true },
-    thumbnail: { type: String, required: true },
-    acceptedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }], // add scren id when screen owner give permition to user
-    campaignRequestScreens: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
-    ],
-    rejectedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }], // add scren id when screen owner reject permition to user
     campaignName: { type: String, required: true, default: "campaign name" },
     ally: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     }, // campaign creator
-    startDate: { type: Date },
-    endDate: { type: Date },
-    startTime: { type: Date },
-    endTime: { Type: Date },
-    totalSlotBooked: { type: Number, default: 0 },
+    additionalInfo: [
+      {
+        startDateAndTime: { type: Date },
+        endDateAndTime: { type: Date },
+        totalSlotBooked: { type: Number, default: 0 },
+        totalAmount: { type: Number, default: 0 },
+        screen: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Screen",
+          default: null,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

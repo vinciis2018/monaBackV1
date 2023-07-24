@@ -69,8 +69,15 @@ export async function addNewMedia(req, res) {
       _id: req.body.userInfo._id,
       // defaultWallet: req.body.campaign.defaultWallet
     });
-
-    if (mediaUser) {
+    const media = await Media.findOne({
+      media: req.body.media,
+      uploader: mediaUser._id,
+    });
+    if (mediaUser && media) {
+      console.log("media all ready predent so no need to creat new!");
+      return res.status(200).send(media);
+    } else if (mediaUser && !media) {
+      console.log("creating new Media!");
       const media = new Media({
         title: req.body.title || "Title here",
         description: req.body.description || "It is media description",

@@ -37,7 +37,7 @@ screenRouter.get("/:id/pin", getPinDetailsByScreenId);
 
 screenRouter.get("/:id/screenmedias/playlist", getScreenPlayList); // not understand what is its purpose ?
 screenRouter.get("/:id/screenLogs", getScreenLogs);
-screenRouter.get("/getFilterScreenList/:text", getFilteredScreenList);
+screenRouter.get("/getFilterScreenList/:text/:locality", getFilteredScreenList);
 screenRouter.get(
   "/getFilteredScreenListByAudiance/:averageDailyFootfall/:averagePurchasePower/:averageAgeGroup/:employmentStatus/:kidsFriendly",
   getFilteredScreenListByAudiance

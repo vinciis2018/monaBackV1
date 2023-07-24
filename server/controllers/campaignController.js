@@ -311,3 +311,30 @@ export async function getFilteredCampaignListBydateRange(req, res) {
       .send({ message: `Campaign router error ${error.message}` });
   }
 }
+
+// get campaign details alogn with all screens with this campaign
+export async function getCampaignDetailWithScreenList(req, res) {
+  try {
+    const cid = req.params.cid;
+    const campaignName = req.params.campaignName;
+    const campaigns = await Campaign.find({ cid, campaignName });
+
+    if (campaigns.length === 0)
+      res.status(404).send({ message: "Campaigns not found" });
+
+    const results = [];
+
+    for (let eachCampaign of campaigns) {
+      const screen = await Screen.findById(eachCampaign.screen);
+      results.push({
+        campaign: eachCampaign,
+        screen: screen,
+      });
+    }
+    return res.status(200).send(results);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Campaign controller error at getCampaignDetailWithScreenList ${error}`,
+    });
+  }
+}

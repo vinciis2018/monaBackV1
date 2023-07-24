@@ -7,6 +7,7 @@ import { sendConfirmationEmail } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
 import Campaign from "../models/campaignModel.js";
 import CouponRewardOffer from "../models/couponRewardOfferModel.js";
+import { ObjectId } from "mongodb";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -256,12 +257,44 @@ export async function topMasters(req, res) {
 //getUserCampaigns
 export async function getUserCampaigns(req, res) {
   try {
-    const ally = req.params.id;
-    const myCampaigns = await Campaign.find({ ally });
-    if (!myCampaigns) res.status(404).send({ message: "Campaign not found" });
+    const allyId = req.params.id;
+    // first find all distinct  cid and campaign name
+    const data = await Campaign.aggregate([
+      { $match: { ally: new ObjectId(allyId) } },
+      {
+        $group: {
+          _id: {
+            cid: "$cid",
+            campaignName: "$campaignName",
+          },
+        },
+      },
+    ]);
+    //  data = [ {
+    //   _id: {
+    //     cid: 'bafybeiaq7rgx742rqazkwja5o5c754ql7qnjjo6wh4r5g5wx5eglkxklba',
+    //     campaignName: 'play card'
+    //   }
+    // },]
+
+    if (data?.length === 0)
+      res.status(404).send({ message: "Campaign not found" });
+
+    const myCampaigns = [];
+
+    for (let singleData of data) {
+      const campaign = await Campaign.findOne({
+        cid: singleData?._id?.cid,
+        campaignName: singleData?._id?.campaignName,
+      });
+      myCampaigns.push(campaign);
+    }
+
     return res.status(200).send(myCampaigns);
   } catch (error) {
-    res.status(500).send({ message: `User router error ${error.message}` });
+    res.status(500).send({
+      message: `User router error in getUserCampaigns ${error.message}`,
+    });
   }
 }
 

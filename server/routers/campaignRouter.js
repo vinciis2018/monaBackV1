@@ -10,6 +10,7 @@ import {
   changeCampaignStatus,
   getAllCampaignListByScreenId,
   getFilteredCampaignListBydateRange,
+  getCampaignDetailWithScreenList,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -25,6 +26,7 @@ campaignRouter.get("/:id/screen/all", getAllCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);
 campaignRouter.get("/all", getCampaignList);
 campaignRouter.get("/:id", getCampaignDetail);
+campaignRouter.get("/:cid/:campaignName", getCampaignDetailWithScreenList);
 campaignRouter.get(
   "/:id/screen/campaignAndMedia",
   getCampaignAndMediaListByScreenId
