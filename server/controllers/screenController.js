@@ -894,30 +894,13 @@ export async function getScreenLogs(req, res) {
     const query = new Date();
     // console.log(query);
 
-<<<<<<< Updated upstream
-    const overLogs = screenLog.playingDetails.filter(
-      (pl) => (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30
-    );
-=======
     const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
->>>>>>> Stashed changes
     // console.log(overLogs.length);
     // console.log(overLogs);
 
     // if (overLogs && overLogs.length > 0) {
     //   console.log("found overlogs: ", overLogs.length);
 
-<<<<<<< Updated upstream
-      screenLog.playingDetails.filter((pl) => {
-        return (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30;
-      });
-      await screenLog.save();
-    }
-    console.log("got screen logs: ", screenLog.playingDetails.length);
-    return res
-      .status(200)
-      .send(screenLog.playingDetails.reverse().slice(0, 50));
-=======
     //   const delLogs = screenLog.playingDetails.filter((pl) => {
     //     return ((query - pl.createdAt)/1000/60/60/24 > 3);
     //   });
@@ -936,7 +919,6 @@ export async function getScreenLogs(req, res) {
     const totalCount = screenLog.playingDetails.length;
     const allLogs = screenLog.playingDetails
     return res.status(200).send({last50, totalCount, allLogs});
->>>>>>> Stashed changes
   } catch (error) {
     return res
       .status(500)
