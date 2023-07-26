@@ -130,172 +130,9 @@ export async function editWallet(req, res) {
       .send({ message: `Wallet router error ${error.message}` });
   }
 }
-export async function arTransfer(reqArTransferWallet) {
-  try {
-    const req = await reqArTransferWallet.req;
-    const arweave = await reqArTransferWallet.arweave;
-    const callerWallet = await Wallet.findOne({
-      walletAddAr: req.body.walletId,
-    });
-    const targetWallet = await Wallet.findOne({
-      walletAddAr: req.body.toWallet,
-    });
-    // const targetUser = await User.findOne({wallets[req.body.toWallet]});
 
-    const caller = callerWallet.walletAddAr;
-
-    // const wallet = JSON.parse(fs.readFileSync(
-    //   path.join(__dirname, "server/wallet_drive", `key_${caller}.json`)
-    // ));
-
-    const wallet = req.body.walletJWK;
-    const tx = await arweave.createTransaction(
-      {
-        target: req.body.toWallet,
-        quantity: arweave.ar.arToWinston(Number(req.body.quantity)),
-      },
-      wallet
-    );
-
-    await arweave.transactions.sign(tx, wallet);
-    await arweave.transactions.post(tx);
-
-    const txId = await tx.id;
-    const result = {
-      txId,
-    };
-
-    await callerWallet.save();
-    await targetWallet.save();
-
-    return result;
-  } catch (err) {
-    return err;
-  }
-}
-
-export async function koiiTransfer(reqKoiiTransferWallet) {
-  const req = reqKoiiTransferWallet.req;
-  try {
-    const walletId = reqKoiiTransferWallet.req.body.walletId;
-
-    const callerWallet = await Wallet.findOne({ walletAddAr: walletId });
-
-    const targetWallet = await Wallet.findOne({
-      walletAddAr: req.body.toWallet,
-    });
-    // const targetUser = await User.findOne({wallets[req.body.toWallet]});
-
-    const koiiLiveContractId = reqKoiiTransferWallet.koiiLiveContractId;
-    const arweave = reqKoiiTransferWallet.arweave;
-
-    // connecting to koii contract
-    const url = "https://mainnet.koii.live/state";
-    const resData = await axios.get(url);
-    // const resData = await myReadContracts.readKoiiContract
-    const koiiData = await resData.data;
-
-    const caller = callerWallet.walletAddAr;
-
-    const input = {
-      function: "transfer",
-      target: req.body.toWallet,
-      qty: Number(req.body.quantity),
-    };
-
-    const state = koiiData;
-
-    // const wallet = JSON.parse(fs.readFileSync(
-    //   path.join(__dirname, "server/wallet_drive", `key_${caller}.json`)
-    // ));
-    const wallet = req.body.walletJWK;
-
-    // const txId = await writeInContract({
-    //   contractId: koiiLiveContractId,
-    //   input: input,
-    //   wallet: wallet
-    // })
-
-    if (txId) {
-      // console.log("start confirmation", txId);
-
-      const result = {
-        txId,
-      };
-
-      // console.log("end confirmation", result);
-
-      await callerWallet.save();
-      await targetWallet.save();
-
-      return result;
-    } else {
-      // console.log("transaction failed");
-      return { message: "Transaction failed" };
-    }
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
-}
-
-export async function ratTransfer(reqRatTransferWallet) {
-  const req = reqRatTransferWallet.reqCommand;
-  const arweave = reqRatTransferWallet.arweave;
-  const ratLiveContractId = reqRatTransferWallet.ratLiveContractId;
-  try {
-    const walletId = req.body.walletId;
-    const callerWallet = await Wallet.findOne({ walletAddAr: walletId });
-    const caller = callerWallet.walletAddAr;
-    // console.log("caller", caller);
-
-    const targetWallet = await Wallet.findOne({
-      walletAddAr: req.body.toWallet,
-    });
-    const target = `${req.body.toWallet.toString()}`;
-    // console.log("toWallet", target);
-
-    const qty = Number(req.body.quantity);
-    const input = {
-      function: "transfer",
-      target: target,
-      qty: qty,
-    };
-
-    // const wallet = JSON.parse(fs.readFileSync(
-    //   path.join(__dirname, "server/wallet_drive", `key_${caller}.json`)
-    // ));
-    const wallet = req.body.walletJWK;
-    // console.log("wallet", wallet);
-
-    // const txId = await writeInContract({
-    //   contractId: ratLiveContractId, input, wallet
-    // });
-
-    if (txId) {
-      const result = {
-        txId,
-      };
-
-      await callerWallet.save();
-
-      await targetWallet.save();
-
-      const resultStatus = await arweave.transactions.getStatus(result.txId);
-      // console.log("resultStatus", resultStatus);
-
-      return result, resultStatus;
-    } else {
-      // console.log("transaction failed");
-      return { message: "Transaction failed" };
-    }
-  } catch (error) {
-    return error;
-  }
-}
-
-// rat details
-export async function ratDetails(req, res) {
+// ad credits details
+export async function getAdCreditsDetails(req, res) {
   try {
     const data = "use in front end";
 
@@ -304,5 +141,15 @@ export async function ratDetails(req, res) {
     return res
       .status(500)
       .send({ message: `Wallet router error ${error.message}` });
+  }
+}
+
+// ad credits logs
+export async function getAdCreditsLogs(req, res) {
+  try {
+    console.log(req.body);
+    return res.status(200).send("get ad credits logs");
+  } catch (error) {
+    return res.status(500).send({ message: `Wallet router error ${error.message}` });
   }
 }

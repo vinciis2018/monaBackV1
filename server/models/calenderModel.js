@@ -29,7 +29,9 @@ const dayDetailsSchema = new mongoose.Schema({
       isSlotBooked: { type: Boolean, default: false },
     },
   ],
-});
+} , { timestamps: true }
+);
+
 
 const calenderSchema = new mongoose.Schema(
   {
