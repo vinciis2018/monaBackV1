@@ -8,6 +8,8 @@ import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
 import Randomstring from "randomstring";
 import Plea from "../models/pleaModel.js";
+import { uploadWeb3File, uploadWeb3Name } from "../helpers/uploadWeb3Storage.js";
+import ScreenData from "../models/screenDataModel.js";
 
 // for android APk
 
@@ -75,7 +77,7 @@ export async function syncScreenCodeForApk(req, res) {
     console.log("syncCode : ", syncCode);
 
     const screen = await Screen.findOne({ screenCode: syncCode });
-    console.log("screen with synccode : ", screen);
+    console.log("screen with synccode : ", screen.name);
 
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
@@ -95,7 +97,7 @@ export async function getScreenDetailsForApk(req, res) {
     console.log("getScreenDetailsForApk screenName : ", screenName);
 
     const screen = await Screen.findOne({ name: screenName });
-    console.log("screen with name : ", screen);
+    console.log("screen last active : ", screen.lastActive);
 
     if (screen) {
       const screenVideos = await getActiveCampaignList(screen._id);
@@ -173,6 +175,7 @@ export async function addNewScreen(req, res) {
     const calenderId = new mongoose.Types.ObjectId();
     const pinId = new mongoose.Types.ObjectId();
     const screenId = new mongoose.Types.ObjectId();
+    const screenDataId = new mongoose.Types.ObjectId();
 
     // create new calender for this new screen
     const calender = new Calender({
@@ -292,6 +295,14 @@ export async function addNewScreen(req, res) {
     //     screen.screenCode
     //   }
     // }
+    
+    const screenData = new ScreenData({
+      _id: screenDataId,
+      screen: screenId,
+      dataType: req.body.screenCategory || "RAILWAYS",
+    })
+    await screenData.save();
+
     const createdScreen = await screen.save();
 
     await user.screens.push(screen);
@@ -302,6 +313,7 @@ export async function addNewScreen(req, res) {
       screen: createdScreen,
       pin: pinAdded,
       calender: calenderAdded,
+      // screenData: createdScreenData,
     });
   } catch (error) {
     return res.status(404).send(error);
@@ -529,6 +541,7 @@ export async function getScreensList(req, res) {
       .skip(pageSize * (page - 1))
       .limit(pageSize);
 
+    console.log
     // now i got top 6 screen id, now it time to get screen details by id and push the data
     let screens = [];
 
@@ -581,14 +594,14 @@ export async function getScreenDetailsByScreenId(req, res) {
     pin.save();
     screen.activeGameContract = calender.activeGameContract;
     screen.save();
-    const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
-    if (!screenLogs) {
-      const screenLogsAdd = new ScreenLogs({
-        _id: new mongoose.Types.ObjectId(),
-        screen: screen._id,
-      });
-      await screenLogsAdd.save();
-    }
+    // const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
+    // if (!screenLogs) {
+    //   const screenLogsAdd = new ScreenLogs({
+    //     _id: new mongoose.Types.ObjectId(),
+    //     screen: screen._id,
+    //   });
+    //   await screenLogsAdd.save();
+    // }
     return res.status(200).send(screen);
   } catch (error) {
     return res.status(500).send(``);
@@ -621,6 +634,8 @@ export async function updateScreenById(req, res) {
     });
     const calender = await Calender.findOne({ screen: screenId });
     const pin = await Pin.findOne({ screen: screenId });
+
+    const screenData = await ScreenData.findOne({ screen: screenId });
 
     const masterScreen = user.screens.filter(
       (screen) => screen._id.toString() === screenId
@@ -684,6 +699,35 @@ export async function updateScreenById(req, res) {
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
       //pin.activeGame = req.body.activeGameContract || screen.activeGameContract
+      screenData.dataType = req.body.screenDataType || screenData.dataType;
+
+      if (screen.category === "RAILWAYS" || req.body.dataType === "RAILWAYS") {
+        const trainDetailsHere = {
+          trainName: req.body.trainName,
+          trainCode: req.body.trainCode,
+          trainDetails: req.body.trainDetails,
+        }
+        screenData.stationName = req.body.stationName || screenData.stationName;
+        screenData.stationCode = req.body.stationCode || screenData.stationCode;
+        const myTrainData = screenData.trains.filter((td) => td.trainName === req.body.trainName)[0];
+        const myTrainCode = screenData.trains.filter((tc) => tc.trainCode === req.body.trainCode).map((mtc) => mtc.trainCode)[0];
+
+        // console.log(myTrainData);
+        // console.log(myTrainCode);
+
+        console.log(req.body.trainName);
+        if (myTrainData && myTrainCode) {
+          // console.log(myTrainData.trainDetails);
+          
+          myTrainData.trainDetails.push(req.body.trainDetails);
+          
+        } else {
+          screenData.trains.push(trainDetailsHere);
+        }
+      }
+      
+      const updatedScreenData = await screenData.save();
+
       const updatedPin = await pin.save();
       const updatedCalender = await calender.save();
       const updatedScreen = await screen.save();
@@ -693,6 +737,7 @@ export async function updateScreenById(req, res) {
         screen: updatedScreen,
         calender: updatedCalender,
         pin: updatedPin,
+        screenData: updatedScreenData,
       });
     } else {
       return res.status(401).send({
@@ -849,24 +894,31 @@ export async function getScreenLogs(req, res) {
     const query = new Date();
     // console.log(query);
 
-    const overLogs = screenLog.playingDetails.filter(
-      (pl) => (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30
-    );
+    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
     // console.log(overLogs.length);
     // console.log(overLogs);
 
-    if (overLogs && overLogs.length > 0) {
-      console.log("found overlogs: ", overLogs.length);
+    // if (overLogs && overLogs.length > 0) {
+    //   console.log("found overlogs: ", overLogs.length);
 
-      screenLog.playingDetails.filter((pl) => {
-        return (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 30;
-      });
-      await screenLog.save();
-    }
+    //   const delLogs = screenLog.playingDetails.filter((pl) => {
+    //     return ((query - pl.createdAt)/1000/60/60/24 > 3);
+    //   });
+
+    //   screenLog.playingDetails = screenLog.playingDetails.pull([...delLogs]);
+    //   await screenLog.save();
+    //   console.log("found: ", screenLog.playingDetails.length);
+
+    // }
+    // const cidData = await uploadWeb3File();
+
+    // await uploadWeb3Name(cidData);
+    
     console.log("got screen logs: ", screenLog.playingDetails.length);
-    return res
-      .status(200)
-      .send(screenLog.playingDetails.reverse().slice(0, 50));
+    const last50  = screenLog.playingDetails.reverse().slice(0, 50);
+    const totalCount = screenLog.playingDetails.length;
+    const allLogs = screenLog.playingDetails
+    return res.status(200).send({last50, totalCount, allLogs});
   } catch (error) {
     return res
       .status(500)

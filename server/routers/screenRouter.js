@@ -21,6 +21,7 @@ import {
   getAllScreens,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
+import { getScreenData, getScreenDataByDate } from "../controllers/screenDataController.js";
 
 const screenRouter = express.Router();
 
@@ -59,6 +60,11 @@ screenRouter.get(
   checkScreenPlaylistForApk
 );
 
+// screendata related
+screenRouter.get("/screenData/:id", getScreenData);
+screenRouter.get("/todayScreenData/:id/pageNumber/:pageNumber", getScreenDataByDate);
+
 screenRouter.get("/get/allScreens", getAllScreens);
+
 
 export default screenRouter;

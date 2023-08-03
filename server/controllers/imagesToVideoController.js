@@ -88,8 +88,8 @@ export const createVideoFromImage = (req, res, next) => {
       .inputOptions("-framerate", "30")
       .videoBitrate("1024k")
       .videoCodec("libx264")
-      .size("720x?")
-      .aspect("16:9")
+      .size("720x?") // get size from the image uploaded
+      .aspect("16:9") // get aspect ratio from the image uploaded
       .outputOptions("-pix_fmt", "yuv420p")
       .saveToFile(
         path.join(__dirname, "server", "mediaFiles", req.dirName, "video.mp4")
