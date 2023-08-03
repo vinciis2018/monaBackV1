@@ -23,6 +23,7 @@ import dbBackupTask from "./utils/backupAndRestore.js";
 import couponRewardOfferRouter from "./routers/couponRewardOffeRouter.js";
 import cardRewardOfferRouter from "./routers/cardRewaedOfferRouter.js";
 import imageRouter from "./routers/imagesToVideoRouter.js";
+import couponRouter from "./routers/couponRouter.js";
 
 const app = express();
 app.use(express.json({ extended: true }));
@@ -67,6 +68,7 @@ app.use("/api/brands", brandRouter);
 app.use("/api/couponReward", couponRewardOfferRouter);
 app.use("/api/cardReward", cardRewardOfferRouter);
 app.use("/api/createVideoFromImage", imageRouter);
+app.use("/api/coupon", couponRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));

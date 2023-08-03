@@ -298,6 +298,42 @@ export async function getUserCampaigns(req, res) {
   }
 }
 
+export async function getUserActiveCampaigns(req, res) {
+  try {
+    const allyId = req.params.id;
+    // first find all distinct  cid and campaign name
+    const data = await Campaign.aggregate([
+      { $match: { ally: new ObjectId(allyId), status: "Active" } },
+      {
+        $group: {
+          _id: {
+            cid: "$cid",
+            campaignName: "$campaignName",
+          },
+        },
+      },
+    ]);
+
+    if (data?.length === 0)
+      res.status(404).send({ message: "Campaign not found" });
+
+    const myCampaigns = [];
+
+    for (let singleData of data) {
+      const campaign = await Campaign.findOne({
+        cid: singleData?._id?.cid,
+        campaignName: singleData?._id?.campaignName,
+      });
+      myCampaigns.push(campaign);
+    }
+    return res.status(200).send(myCampaigns);
+  } catch (error) {
+    res.status(500).send({
+      message: `User router error in getUserCampaigns ${error.message}`,
+    });
+  }
+}
+
 //top barnds
 export async function topBrand(req, res) {
   const topBrands = await User.find({
