@@ -1,4 +1,5 @@
 import Brand from "../models/brandModel.js";
+import Campaign from "../models/campaignModel.js";
 import Coupon from "../models/couponModel.js";
 
 export const createNewCoupon = async (req, res) => {
@@ -13,6 +14,7 @@ export const createNewCoupon = async (req, res) => {
       brandName: brand.brandName,
       offerCreator: req.params.userId,
       // nfts: [{ type: String, default: ""}],
+      brandLogo: brand?.brandDetails?.logo,
       quantity: req.body.quantity,
       couponCode: req.body.couponCode,
       campaigns: req.body.campaigns,
@@ -46,7 +48,14 @@ export const createNewCoupon = async (req, res) => {
     });
 
     const coupon = await newCoupon.save();
-    console.log("created coupon  : ", coupon);
+    for (let id of coupon?.campaigns) {
+      const campaign = await Campaign.findById(id);
+      if (!campaign?.coupons.includes(coupon._id)) {
+        campaign.coupons.push(coupon._id);
+      }
+      const updatedcampaign = await campaign.save();
+      // console.log("updatedcampaign  : ", updatedcampaign);
+    }
 
     return res.status(200).send(coupon);
   } catch (error) {
@@ -125,6 +134,15 @@ export async function updateCoupon(req, res) {
     const updatedCoupon = await coupon.save();
     console.log("coupon updated successfullt!");
 
+    for (let id of updatedCoupon?.campaigns) {
+      const campaign = await Campaign.findById(id);
+      if (!campaign?.coupons.includes(updatedCoupon._id)) {
+        campaign.coupons.push(updatedCoupon._id);
+      }
+      const updatedcampaign = await campaign.save();
+      // console.log("updatedcampaign  : ", updatedcampaign);
+    }
+
     return res.status(200).send(updatedCoupon);
   } catch (error) {
     return res.status(500).send({
@@ -132,3 +150,25 @@ export async function updateCoupon(req, res) {
     });
   }
 }
+
+export const getAllActiveCouponList = async (req, res) => {
+  try {
+    const today = new Date();
+    // console.log("today : ", today);
+    const coupons = await Coupon.find({});
+    // const coupons = await Coupon.find({
+    //   $or: [
+    //     { "couponRewardInfo.validity.to": { $gte: today } },
+    //     { "couponRewardInfo.validity.to": { $eq: null } },
+    //   ],
+    //   "couponRewardInfo.validity.from": { $lte: today },
+    // });
+    console.log("coupons: ", coupons?.length);
+    return res.status(200).send(coupons);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      message: `Coupon Reward controller error at getAllActiveCouponList ${error.message}`,
+    });
+  }
+};

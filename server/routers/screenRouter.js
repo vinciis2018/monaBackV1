@@ -19,9 +19,13 @@ import {
   getFilteredScreenList,
   getFilteredScreenListByAudiance,
   getAllScreens,
+  getCouponListByScreenId,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
-import { getScreenData, getScreenDataByDate } from "../controllers/screenDataController.js";
+import {
+  getScreenData,
+  getScreenDataByDate,
+} from "../controllers/screenDataController.js";
 
 const screenRouter = express.Router();
 
@@ -33,9 +37,9 @@ screenRouter.post("/:id/allyPlea/ally", isAuth, addAllyPlea);
 //get request
 screenRouter.get("/top-medias", getTopCampaigns);
 screenRouter.get("/", getScreensList);
+screenRouter.get("/couponList/:screenId", getCouponListByScreenId);
 screenRouter.get("/:id", getScreenDetailsByScreenId);
 screenRouter.get("/:id/pin", getPinDetailsByScreenId);
-
 screenRouter.get("/:id/screenmedias/playlist", getScreenPlayList); // not understand what is its purpose ?
 screenRouter.get("/:id/screenLogs", getScreenLogs);
 screenRouter.get("/getFilterScreenList/:text/:locality", getFilteredScreenList);
@@ -62,9 +66,11 @@ screenRouter.get(
 
 // screendata related
 screenRouter.get("/screenData/:id", getScreenData);
-screenRouter.get("/todayScreenData/:id/pageNumber/:pageNumber", getScreenDataByDate);
+screenRouter.get(
+  "/todayScreenData/:id/pageNumber/:pageNumber",
+  getScreenDataByDate
+);
 
 screenRouter.get("/get/allScreens", getAllScreens);
-
 
 export default screenRouter;

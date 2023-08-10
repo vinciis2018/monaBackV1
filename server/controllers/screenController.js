@@ -8,8 +8,13 @@ import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
 import Randomstring from "randomstring";
 import Plea from "../models/pleaModel.js";
-import { uploadWeb3File, uploadWeb3Name } from "../helpers/uploadWeb3Storage.js";
+import {
+  uploadWeb3File,
+  uploadWeb3Name,
+} from "../helpers/uploadWeb3Storage.js";
 import ScreenData from "../models/screenDataModel.js";
+import Coupon from "../models/couponModel.js";
+import QRCode from "qrcode";
 
 // for android APk
 
@@ -295,12 +300,12 @@ export async function addNewScreen(req, res) {
     //     screen.screenCode
     //   }
     // }
-    
+
     const screenData = new ScreenData({
       _id: screenDataId,
       screen: screenId,
       dataType: req.body.screenCategory || "RAILWAYS",
-    })
+    });
     await screenData.save();
 
     const createdScreen = await screen.save();
@@ -541,7 +546,7 @@ export async function getScreensList(req, res) {
       .skip(pageSize * (page - 1))
       .limit(pageSize);
 
-    console.log
+    console.log;
     // now i got top 6 screen id, now it time to get screen details by id and push the data
     let screens = [];
 
@@ -706,11 +711,15 @@ export async function updateScreenById(req, res) {
           trainName: req.body.trainName,
           trainCode: req.body.trainCode,
           trainDetails: req.body.trainDetails,
-        }
+        };
         screenData.stationName = req.body.stationName || screenData.stationName;
         screenData.stationCode = req.body.stationCode || screenData.stationCode;
-        const myTrainData = screenData.trains.filter((td) => td.trainName === req.body.trainName)[0];
-        const myTrainCode = screenData.trains.filter((tc) => tc.trainCode === req.body.trainCode).map((mtc) => mtc.trainCode)[0];
+        const myTrainData = screenData.trains.filter(
+          (td) => td.trainName === req.body.trainName
+        )[0];
+        const myTrainCode = screenData.trains
+          .filter((tc) => tc.trainCode === req.body.trainCode)
+          .map((mtc) => mtc.trainCode)[0];
 
         // console.log(myTrainData);
         // console.log(myTrainCode);
@@ -718,14 +727,13 @@ export async function updateScreenById(req, res) {
         console.log(req.body.trainName);
         if (myTrainData && myTrainCode) {
           // console.log(myTrainData.trainDetails);
-          
+
           myTrainData.trainDetails.push(req.body.trainDetails);
-          
         } else {
           screenData.trains.push(trainDetailsHere);
         }
       }
-      
+
       const updatedScreenData = await screenData.save();
 
       const updatedPin = await pin.save();
@@ -894,7 +902,9 @@ export async function getScreenLogs(req, res) {
     const query = new Date();
     // console.log(query);
 
-    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
+    const overLogs = screenLog.playingDetails.filter(
+      (pl) => (query - pl.createdAt) / 1000 / 60 / 60 / 24 > 3
+    );
     // console.log(overLogs.length);
     // console.log(overLogs);
 
@@ -913,12 +923,12 @@ export async function getScreenLogs(req, res) {
     // const cidData = await uploadWeb3File();
 
     // await uploadWeb3Name(cidData);
-    
+
     console.log("got screen logs: ", screenLog.playingDetails.length);
-    const last50  = screenLog.playingDetails.reverse().slice(0, 50);
+    const last50 = screenLog.playingDetails.reverse().slice(0, 50);
     const totalCount = screenLog.playingDetails.length;
-    const allLogs = screenLog.playingDetails
-    return res.status(200).send({last50, totalCount, allLogs});
+    const allLogs = screenLog.playingDetails;
+    return res.status(200).send({ last50, totalCount, allLogs });
   } catch (error) {
     return res
       .status(500)
@@ -1057,3 +1067,35 @@ export async function rejectAllayPlea(req, res) {
       .send({ message: `Campaign router error ${error.message}` });
   }
 }
+
+//get coupon list attached to campaign playing on this screen
+
+export const getCouponListByScreenId = async (req, res) => {
+  try {
+    const screenVideos = await Campaign.find({
+      screen: req.params.screenId,
+      status: "Active",
+      "coupons.0": { $exists: true },
+    });
+
+    const couponList = [];
+    for (let campaign of screenVideos) {
+      let coupons = campaign?.coupons;
+      for (let couponId of coupons) {
+        const coupon = await Coupon.findById(couponId);
+        couponList.push(coupon);
+      }
+    }
+
+    console.log(
+      `${couponList.length} coupons found on this screen ${req.params.screenId}`
+    );
+
+    return res.status(200).send(couponList);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      message: `Screen controller error at getCouponListByScreenId ${error.message}`,
+    });
+  }
+};

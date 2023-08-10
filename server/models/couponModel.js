@@ -26,6 +26,7 @@ const couponSchema = new mongoose.Schema(
   {
     offerName: { type: String },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
+    brandLogo: { type: String },
     brandName: { type: String },
     offerCreator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     // nfts: [{ type: String, default: ""}],

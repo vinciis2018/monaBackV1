@@ -83,6 +83,7 @@ const screenSchema = new mongoose.Schema(
     masterName: { type: String },
 
     campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
+    qrCode: { type: String },
 
     subscribers: [{ type: String }],
 
