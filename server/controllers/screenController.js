@@ -8,9 +8,11 @@ import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
 import Randomstring from "randomstring";
 import Plea from "../models/pleaModel.js";
-import { uploadWeb3File, uploadWeb3Name } from "../helpers/uploadWeb3Storage.js";
 import ScreenData from "../models/screenDataModel.js";
+import path from "path";
+import { uploadWeb3File, createWeb3Name } from "../helpers/uploadWeb3Storage.js"
 
+import { __dirname } from "./imagesToVideoController.js";
 // for android APk
 
 const getActiveCampaignList = async (screenId) => {
@@ -191,6 +193,7 @@ export async function addNewScreen(req, res) {
     const screenLogsAdd = new ScreenLogs({
       _id: new mongoose.Types.ObjectId(),
       screen: screenId,
+      dataIpfs: [],
     });
     await screenLogsAdd.save();
     //create new pin for this new screen
@@ -335,6 +338,7 @@ export async function getTopCampaigns(req, res) {
 }
 // filter screens by audiance data
 export async function getFilteredScreenListByAudiance(req, res) {
+  console.log(req.query);
   try {
     const averagePurchasePower = JSON.parse(req.params.averagePurchasePower);
     const averageAgeGroup = JSON.parse(req.params.averageAgeGroup);
@@ -888,37 +892,50 @@ export async function addScreenLikeByScreenId(req, res) {
 // get campaign logs by
 export async function getScreenLogs(req, res) {
   try {
-    const screenId = req.params.id;
-    const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    console.log("getting screen logs: ", screenLog.playingDetails.length);
-    const query = new Date();
-    // console.log(query);
-
-    const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
-    // console.log(overLogs.length);
-    // console.log(overLogs);
-
-    // if (overLogs && overLogs.length > 0) {
-    //   console.log("found overlogs: ", overLogs.length);
-
-    //   const delLogs = screenLog.playingDetails.filter((pl) => {
-    //     return ((query - pl.createdAt)/1000/60/60/24 > 3);
-    //   });
-
-    //   screenLog.playingDetails = screenLog.playingDetails.pull([...delLogs]);
-    //   await screenLog.save();
-    //   console.log("found: ", screenLog.playingDetails.length);
-
-    // }
-    // const cidData = await uploadWeb3File();
-
-    // await uploadWeb3Name(cidData);
+    const screenId = req.params.screenId;
+    const screen = await Screen({ _id: req.params.screenId });
+    const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
+    const outputFilename = path.join(__dirname, "server", "random", "screenlogs", `${req.params.screenId}`);
     
-    console.log("got screen logs: ", screenLog.playingDetails.length);
-    const last50  = screenLog.playingDetails.reverse().slice(0, 50);
-    const totalCount = screenLog.playingDetails.length;
-    const allLogs = screenLog.playingDetails
-    return res.status(200).send({last50, totalCount, allLogs});
+    req.outputFilename = outputFilename;
+    req.screenLogs = screenLogs;
+    req.screenId = screen._id;
+    // console.log(screenLogs);
+    // console.log(screen._id);
+        
+    console.log("got screen logs: ", screenLogs.playingDetails.length);
+
+    const last50  = screenLogs.playingDetails.reverse().slice(-50);
+    const totalCount = screenLogs.playingDetails.length;
+    const allLogs = screenLogs.playingDetails
+    // console.log(last50);
+    // console.log(totalCount);
+
+    if (screenLogs.playingDetails.length >= 5000) {
+      const fileDetails = await uploadWeb3File(req);
+
+      const carDetails = await createWeb3Name(req);
+
+      const datai = {
+        date: new Date(),
+        data: {
+          carDetails: carDetails,
+          fileDetails: fileDetails
+        }
+      }
+
+      // console.log(datai);
+      if (screenLogs.dataIpfs.filter((d) => d.data.fileDetails.cid === datai.data.fileDetails.cid).length !== 0) {
+        screenLogs.dataIpfs ? screenLogs.dataIpfs.push(datai) : screenLogs.dataIpfs[datai];
+      }
+      screenLogs.playingDetails = [];
+      // console.log(screenLogs.playingDetails.length);
+    
+    }
+    await screenLogs.save()
+    // console.log(screenLogs.playingDetails.length);
+    const web3Data = screenLogs.dataIpfs;
+    return res.status(200).send({last50, totalCount, allLogs, web3Data});
   } catch (error) {
     return res
       .status(500)

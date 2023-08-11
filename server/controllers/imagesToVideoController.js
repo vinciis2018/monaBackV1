@@ -5,39 +5,20 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { Web3Storage, getFilesFromPath } from "web3.storage";
+import sizeOf from "image-size";
+
 import Media from "../models/mediaModel.js";
 import User from "../models/userModel.js";
-const __dirname = path.resolve();
+
+export const __dirname = path.resolve();
 // if using in production
 // const __dirname = path.resolve() + "/monaBackV1";
 // because in ubuntu path.resolve() = /home/ubuntu
+export const token = process.env.REACT_APP_WEB3_STORAGE_API_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDczQTg1YzJhQTVmNzU1ZTM4MUUxODhmYkI2ZTg3M0E3MEJGRUQ2RjAiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjMxODkwNjgyOTEsIm5hbWUiOiJtb25hX2JldGEifQ.pONwiaib6R_lPL2bop4cTgk5-Z2Otf4723aDJjEYDLY";
+// console.log("token : ", token);
+export const storage = new Web3Storage({ token });
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
-
-const token = process.env.REACT_APP_WEB3_STORAGE_API_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDczQTg1YzJhQTVmNzU1ZTM4MUUxODhmYkI2ZTg3M0E3MEJGRUQ2RjAiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjMxODkwNjgyOTEsIm5hbWUiOiJtb25hX2JldGEifQ.pONwiaib6R_lPL2bop4cTgk5-Z2Otf4723aDJjEYDLY";
-// console.log("token : ", token);
-const storage = new Web3Storage({ token });
-
-const createVideoFromImageHere = () => {
-  ffmpeg()
-    .input("../mediaFiles/images/frame-001.png")
-    .loop("5")
-    .inputOptions("-framerate", "30")
-    .videoCodec("libx264")
-    .outputOptions("-pix_fmt", "yuv420p")
-    .saveToFile("../mediaFiles/videos/video.mp4")
-    .on("progress", (progress) => {
-      if (progress.percent) {
-        console.log(`processing: ${Math.floor(progress.percent)}% done`);
-      }
-    })
-    .on("end", () => {
-      console.log("FFmpeg has finished");
-    })
-    .on("error", (error) => {
-      console.error(error);
-    });
-};
 
 //first save file in local
 const localStorage = multer.diskStorage({
@@ -72,6 +53,15 @@ export const createVideoFromImage = (req, res, next) => {
   try {
     console.log("createVideoFromImage : called! : ", req.dirName);
     //after successfully uploaded image in folder
+    const dimensions = sizeOf(path.join( __dirname,
+      "server",
+      "mediaFiles",
+      req.dirName,
+      // "G3O95OBr",
+      "frame-001.png"));
+      const size = `${dimensions.width}x${dimensions.height}`;
+    //   const aspectRatio = JSON.stringify(dimensions.width / dimensions.height);
+    // console.log(size);
     // now create video from image
     ffmpeg()
       .input(
@@ -88,8 +78,9 @@ export const createVideoFromImage = (req, res, next) => {
       .inputOptions("-framerate", "30")
       .videoBitrate("1024k")
       .videoCodec("libx264")
-      .size("720x?") // get size from the image uploaded
-      .aspect("16:9") // get aspect ratio from the image uploaded
+      // .size("720x?") // get size from the image uploaded
+      .size(`"${dimensions.width}x${dimensions.height}"`) // get size from the image uploaded
+      // .aspect("16:9") // get aspect ratio from the image uploaded
       .outputOptions("-pix_fmt", "yuv420p")
       .saveToFile(
         path.join(__dirname, "server", "mediaFiles", req.dirName, "video.mp4")
@@ -170,7 +161,7 @@ export const createVideoFromImage = (req, res, next) => {
               }
             });
           
-            return res.status(201).send(newMedia);
+            return res.status(200).send(newMedia);
 
           }
         }
