@@ -35,7 +35,7 @@ app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const url = process.env.DB_URL;
+const url = process.env.DB_URL || "mongodb+srv://KishanVinciis:toomuchfun@cluster0.hxk5t.mongodb.net/mongoDB?retryWrites=true&w=majority";
 mongoose.set("strictQuery", true);
 mongoose.connect(url, {
   useNewUrlParser: true,
