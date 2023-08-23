@@ -69,11 +69,12 @@ app.use("/api/campaignForMultipleScreens", campaignForMultipleScreenRouter);
 app.use("/api/rewardPrograms", rewardRouter);
 app.use("/api/brands", brandRouter);
 app.use("/api/creators", creatorRouter);
-
+app.use("/api/qrcode", qrcodeRouter);
 app.use("/api/couponReward", couponRewardOfferRouter);
 app.use("/api/cardReward", cardRewardOfferRouter);
 app.use("/api/createVideoFromImage", imageRouter);
 app.use("/api/coupon", couponRouter);
+app.use("/api/web3", web3Router);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));
