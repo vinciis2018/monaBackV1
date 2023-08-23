@@ -908,7 +908,7 @@ export async function getScreenLogs(req, res) {
   try {
     const screenId = req.params.id;
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    console.log("getting screen logs: ", screenLog.playingDetails.length);
+    console.log("getting screen logs: ", screenLog?.playingDetails?.length);
     const query = new Date();
     // console.log(query);
 
@@ -925,17 +925,17 @@ export async function getScreenLogs(req, res) {
     // console.log(last50);
     // console.log(totalCount);
 
-    if (screenLog.playingDetails.length >= 5000) {
-      const fileDetails = await uploadWeb3File(req);
+    // if (screenLog?.playingDetails.length >= 5000) {
+    //   const fileDetails = await uploadWeb3File(req);
 
-      const carDetails = await createWeb3Name(req);
-    }
+    //   const carDetails = await createWeb3Name(req);
+    // }
     // await uploadWeb3Name(cidData);
     
-    console.log("got screen logs: ", screenLog.playingDetails.length);
-    const last50  = screenLog.playingDetails.reverse().slice(0, 50);
-    const totalCount = screenLog.playingDetails.length;
-    const allLogs = screenLog.playingDetails
+    console.log("got screen logs: ", screenLog?.playingDetails?.length);
+    const last50  = screenLog?.playingDetails.reverse().slice(0, 50);
+    const totalCount = screenLog?.playingDetails.length;
+    const allLogs = screenLog?.playingDetails
     return res.status(200).send({last50, totalCount, allLogs});
   } catch (error) {
     return res

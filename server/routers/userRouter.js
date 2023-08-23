@@ -38,10 +38,10 @@ userRouter.get("/seed", seedData);
 userRouter.get("/filterUser/:name", filterUserListByName);
 userRouter.get("/getUserCouponList/:userId", getUserCouponList);
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
-userRouter.get("/:id/:wallet/myScreens", getUserScreens); // tested
-userRouter.get("/:id/:wallet/myMedias", isAuth, getUserMedias);
-userRouter.get("/:id/:wallet/myCampaign", getUserCampaigns); // tested
-userRouter.get("/:id/:wallet/myActiveCampaigns", getUserActiveCampaigns); // tested
+userRouter.get("/gus/:id/myScreens", getUserScreens); // tested
+userRouter.get("/gum/:id/myMedias", isAuth, getUserMedias);
+userRouter.get("/guc/:id/myCampaign", getUserCampaigns); // tested
+userRouter.get("/guac/:id/myActiveCampaigns", getUserActiveCampaigns); // tested
 
 userRouter.get("/:id/:walletAddress", getUserInfoById);
 //put request

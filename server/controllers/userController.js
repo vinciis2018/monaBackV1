@@ -8,6 +8,8 @@ import data from "../utils/data.js";
 import Campaign from "../models/campaignModel.js";
 import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import { ObjectId } from "mongodb";
+import Wallet from "../models/walletModel.js";
+import mongoose from "mongoose";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -184,6 +186,7 @@ export async function userSignin(req, res) {
         .status(401)
         .send({ message: "New user, please sign up to continue" });
     }
+
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       return res.status(200).send({
         _id: user._id,
