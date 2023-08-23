@@ -26,8 +26,8 @@ const userSchema = new mongoose.Schema(
     isMaster: { type: Boolean, default: false, required: true },
     master: [{ type: mongoose.Schema.Types.ObjectId, ref: "Master" }],
 
-    isAlly: { type: Boolean, default: false, required: true },
-    ally: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ally" }],
+    isCreator: { type: Boolean, default: false, required: true },
+    creator: [{ type: mongoose.Schema.Types.ObjectId, ref: "Creator" }],
 
     isBrand: { type: Boolean, default: false, required: true },
     brand: [{ type: mongoose.Schema.Types.ObjectId, ref: "Brand" }],

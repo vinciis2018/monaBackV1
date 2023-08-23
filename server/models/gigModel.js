@@ -21,7 +21,9 @@ const gigSchema= new mongoose.Schema(
     // expected target locations
     targetLocations: [{ type: String }],
     // gig creator
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    // gig brand
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
     // what are the deliverables of this gig
     deliverables: [{
       task: { type: String },
@@ -32,6 +34,9 @@ const gigSchema= new mongoose.Schema(
       completedOn: { type: Date },
       additionalInfo: {},
     }],
+    creatorApplied: [{ type: mongoose.Schema.Types.ObjectId, ref: "Creator" }],
+    creatorSelected: [{ type: mongoose.Schema.Types.Object, ref: "Creator" }],
+    status: { type: String },
     started: { type: Date },
     ended: { type: Date },
     details: {},

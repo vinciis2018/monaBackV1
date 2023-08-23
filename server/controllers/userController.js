@@ -20,7 +20,8 @@ const changePassword = async (req, res, user) => {
       avatar: updateUser.avatar,
       isItanimulli: updateUser.isItanimulli,
       isMaster: updateUser.isMaster,
-      isAlly: updateUser.isAlly,
+      isCreator: updateUser.isCreator,
+      creator: updatedUser.creator,
       isBrand: updateUser.isBrand,
       brand: updateUser.brand,
       isViewer: updateUser.isViewer,
@@ -99,7 +100,8 @@ export async function userSignUp(req, res) {
         avatar: createdUser.avatar,
         isItanimulli: createdUser.isItanimulli,
         isMaster: createdUser.isMaster,
-        isAlly: createdUser.isAlly,
+        isCreator: createdUser.isCreator,
+        creator: createdUser.creator,
         isBrand: createdUser.isBrand,
         brand: createdUser.brand,
         isViewer: createdUser.isViewer,
@@ -190,7 +192,8 @@ export async function userSignin(req, res) {
         avatar: user.avatar,
         isItanimulli: user.isItanimulli,
         isMaster: user.isMaster,
-        isAlly: user.isAlly,
+        isCreator: user.isCreator,
+        creator: user.creator,
         isBrand: user.isBrand,
         brand: user.brand,
         isViewer: user.isViewer,
@@ -237,13 +240,13 @@ export async function getUsersList(req, res) {
   }
 }
 
-export async function topAllies(req, res) {
-  const topAllies = await User.find({
-    isAlly: true,
+export async function topCreators(req, res) {
+  const topCreators = await User.find({
+    isCreator: true,
   })
-    .sort({ "ally.rating": -1 })
+    .sort({ "creator.rating": -1 })
     .limit(5);
-  res.status(200).send(topAllies);
+  res.status(200).send(topCreators);
 }
 
 export async function topMasters(req, res) {
@@ -337,7 +340,7 @@ export async function getUserActiveCampaigns(req, res) {
 //top barnds
 export async function topBrand(req, res) {
   const topBrands = await User.find({
-    isAlly: true,
+    isBrand: true,
   })
     .sort({ "brand.rating": -1 })
     .limit(7);
@@ -438,6 +441,9 @@ export async function updateUserProfile(req, res) {
       user.pincode = req.body.pincode || user.pincode;
       user.stateUt = req.body.stateUt || user.stateUt;
       user.country = req.body.country || user.country;
+      user.isMaster = req.body.isMaster || user.isMaster;
+      user.isCreator = req.body.isCreator || user.isCreator;
+      user.isBrand = req.body.isBrand || user.isBrand;
 
       if (req.body.password) {
         user.password = bcrypt.hashSync(req.body.password, 8);
@@ -457,7 +463,8 @@ export async function updateUserProfile(req, res) {
         country: updatedUser.country,
         isItanimulli: updatedUser.isItanimulli,
         isMaster: user.isMaster,
-        isAlly: user.isAlly,
+        isCreator: user.isCreator,
+        creator: user.creator,
         isBrand: user.isBrand,
         brand: user.brand,
 
@@ -523,7 +530,7 @@ export async function updateUser(req, res) {
     user.email = req.body.email || user.email;
     user.isMaster = Boolean(req.body.isMaster);
     user.isItanimulli = Boolean(req.body.isItanimulli);
-    user.isAlly = Boolean(req.body.isAlly);
+    user.isCreator = Boolean(req.body.isCreator);
     user.isBrand = Boolean(req.body.isBrand);
     user.isViewer = Boolean(req.body.isViewer);
     user.pleasMade = req.body.pleasMade || user.pleasMade;

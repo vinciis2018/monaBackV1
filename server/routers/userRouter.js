@@ -6,7 +6,7 @@ import {
   getUsersList,
   getUserMedias,
   seedData,
-  topAllies,
+  topCreators,
   topBrand,
   topMasters,
   updateUser,
@@ -32,7 +32,7 @@ userRouter.post("/signin", userSignin);
 //get request
 userRouter.get("/", getUsersList);
 userRouter.get("/top-masters", topMasters);
-userRouter.get("/top-allies", topAllies);
+userRouter.get("/top-creators", topCreators);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
 userRouter.get("/filterUser/:name", filterUserListByName);

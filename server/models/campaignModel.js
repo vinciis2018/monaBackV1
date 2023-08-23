@@ -38,6 +38,7 @@ const campaignSchema = new mongoose.Schema(
     stateUT: { type: String, required: true }, //v
     country: { type: String, required: true }, //v
     status: { type: String, required: true, default: "Pending" },
+    coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
     couponRewads: [
       { type: mongoose.Schema.Types.ObjectId, ref: "CouponRewardOffer" },
     ],

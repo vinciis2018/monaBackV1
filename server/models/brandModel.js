@@ -28,8 +28,17 @@ const brandSchema = new mongoose.Schema(
       instagramId: { type: String },
       facebookId: { type: String },
     },
+    brandCategory: { type: String }, // restaurant/grocerry
+    brandType: { type: String }, // online/offline/both
+
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
+    services: [{
+      name: { type: String },
+      image: { type: String },
+      description: { type: String },
+    }],
+    gigs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Gig" }],
     additionalInfo: {},
     ratings: { type: Number },
     reviews: [reviewSchema],

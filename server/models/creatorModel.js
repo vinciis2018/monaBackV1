@@ -11,9 +11,10 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-const allySchema= new mongoose.Schema(
+const creatorSchema= new mongoose.Schema(
   {
-    allyName: { type: String },
+    creatorName: { type: String },
+    creatorType: { type: String },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     socialId: [{
       profile: { type: String },
@@ -33,7 +34,7 @@ const allySchema= new mongoose.Schema(
     gigs: [{ type: mongoose.Schema.Types.ObjectId, ref: "GiG" }],
     about: { type: String },
     brandsWorkedWith: [{ type: String }],
-    allyDetails: {
+    creatorDetails: {
       averageResponseTime: { type: Number },
       expertIn: [{ type: String }],
       achievements: [{ type: String }],
@@ -54,6 +55,6 @@ const allySchema= new mongoose.Schema(
   }
 );
 
-const Ally = mongoose.model("Ally", allySchema);
+const Creator = mongoose.model("Creator", creatorSchema);
 
-export default Ally;
+export default Creator;

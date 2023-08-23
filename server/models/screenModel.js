@@ -52,6 +52,7 @@ const screenSchema = new mongoose.Schema(
     stateUT: { type: String, required: true },
     country: { type: String, required: true },
     stationCode: { type: String, default: "" },
+    landMark: { type: String },
 
     category: { type: String, required: true },
     screenType: { type: String, required: true },
@@ -83,6 +84,7 @@ const screenSchema = new mongoose.Schema(
     masterName: { type: String },
 
     campaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
+    qrCode: { type: String },
 
     subscribers: [{ type: String }],
 

@@ -8,9 +8,11 @@ import Campaign from "../models/campaignModel.js";
 import ScreenLogs from "../models/screenLogsModel.js";
 import Randomstring from "randomstring";
 import Plea from "../models/pleaModel.js";
+import {
+  uploadWeb3File,
+  // uploadWeb3Name,
+} from "../helpers/uploadWeb3Storage.js";
 import ScreenData from "../models/screenDataModel.js";
-import path from "path";
-import { uploadWeb3File, createWeb3Name } from "../helpers/uploadWeb3Storage.js"
 
 import { __dirname } from "./imagesToVideoController.js";
 // for android APk
@@ -225,6 +227,7 @@ export async function addNewScreen(req, res) {
       districtCity: "district/citvideoy" || req.body.districtCity, //v
       stateUT: "state/UT" || req.body.stateUT, //v
       country: "country" || req.body.country, //v
+      landMark: "" || req.body.landMark, // like colony or marketname
       screenCode:
         Randomstring.generate({
           length: 6,
@@ -298,12 +301,12 @@ export async function addNewScreen(req, res) {
     //     screen.screenCode
     //   }
     // }
-    
+
     const screenData = new ScreenData({
       _id: screenDataId,
       screen: screenId,
       dataType: req.body.screenCategory || "RAILWAYS",
-    })
+    });
     await screenData.save();
 
     const createdScreen = await screen.save();
@@ -545,7 +548,7 @@ export async function getScreensList(req, res) {
       .skip(pageSize * (page - 1))
       .limit(pageSize);
 
-    console.log
+    console.log;
     // now i got top 6 screen id, now it time to get screen details by id and push the data
     let screens = [];
 
@@ -681,6 +684,7 @@ export async function updateScreenById(req, res) {
       //     await campaign.save();
       //   });
       // }
+      screen.landMark = req.body.landMark || screen.landMark;
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
       screen.districtCity = req.body.districtCity || screen.districtCity; //v
       screen.stateUT = req.body.stateUT || screen.stateUT; //v
@@ -710,11 +714,15 @@ export async function updateScreenById(req, res) {
           trainName: req.body.trainName,
           trainCode: req.body.trainCode,
           trainDetails: req.body.trainDetails,
-        }
+        };
         screenData.stationName = req.body.stationName || screenData.stationName;
         screenData.stationCode = req.body.stationCode || screenData.stationCode;
-        const myTrainData = screenData.trains.filter((td) => td.trainName === req.body.trainName)[0];
-        const myTrainCode = screenData.trains.filter((tc) => tc.trainCode === req.body.trainCode).map((mtc) => mtc.trainCode)[0];
+        const myTrainData = screenData.trains.filter(
+          (td) => td.trainName === req.body.trainName
+        )[0];
+        const myTrainCode = screenData.trains
+          .filter((tc) => tc.trainCode === req.body.trainCode)
+          .map((mtc) => mtc.trainCode)[0];
 
         // console.log(myTrainData);
         // console.log(myTrainCode);
@@ -722,14 +730,13 @@ export async function updateScreenById(req, res) {
         console.log(req.body.trainName);
         if (myTrainData && myTrainCode) {
           // console.log(myTrainData.trainDetails);
-          
+
           myTrainData.trainDetails.push(req.body.trainDetails);
-          
         } else {
           screenData.trains.push(trainDetailsHere);
         }
       }
-      
+
       const updatedScreenData = await screenData.save();
 
       const updatedPin = await pin.save();
@@ -890,59 +897,52 @@ export async function addScreenLikeByScreenId(req, res) {
 }
 
 // get campaign logs by
+// export async function getScreenLogs(req, res) {
+//   try {
+
+//   } catch (error) {
+
+//   }
+// }
 export async function getScreenLogs(req, res) {
   try {
-    const screenId = req.params.screenId;
-    const screen = await Screen({ _id: req.params.screenId });
-    const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
-    const outputFilename = path.join(__dirname, "server", "random", "screenlogs", `${req.params.screenId}`);
-    
-    req.outputFilename = outputFilename;
-    req.screenLogs = screenLogs;
-    req.screenId = screen._id;
-    // console.log(screenLogs);
-    // console.log(screen._id);
-        
-    console.log("got screen logs: ", screenLogs.playingDetails.length);
+    const screenId = req.params.id;
+    const screenLog = await ScreenLogs.findOne({ screen: screenId });
+    console.log("getting screen logs: ", screenLog.playingDetails.length);
+    const query = new Date();
+    // console.log(query);
 
-    const last50  = screenLogs.playingDetails.reverse().slice(-50);
-    const totalCount = screenLogs.playingDetails.length;
-    const allLogs = screenLogs.playingDetails
+    // const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
+    // console.log(overLogs.length);
+    // console.log(overLogs);
+
+    // if (overLogs && overLogs.length > 0) {
+    //   console.log("found overlogs: ", overLogs.length);
+
+    // const last50  = screenLogs.playingDetails.reverse().slice(-50);
+    // const totalCount = screenLogs.playingDetails.length;
+    // const allLogs = screenLogs.playingDetails
     // console.log(last50);
     // console.log(totalCount);
 
-    if (screenLogs.playingDetails.length >= 5000) {
+    if (screenLog.playingDetails.length >= 5000) {
       const fileDetails = await uploadWeb3File(req);
 
       const carDetails = await createWeb3Name(req);
-
-      const datai = {
-        date: new Date(),
-        data: {
-          carDetails: carDetails,
-          fileDetails: fileDetails
-        }
-      }
-
-      // console.log(datai);
-      if (screenLogs.dataIpfs.filter((d) => d.data.fileDetails.cid === datai.data.fileDetails.cid).length !== 0) {
-        screenLogs.dataIpfs ? screenLogs.dataIpfs.push(datai) : screenLogs.dataIpfs[datai];
-      }
-      screenLogs.playingDetails = [];
-      // console.log(screenLogs.playingDetails.length);
-    
     }
-    await screenLogs.save()
-    // console.log(screenLogs.playingDetails.length);
-    const web3Data = screenLogs.dataIpfs;
-    return res.status(200).send({last50, totalCount, allLogs, web3Data});
+    // await uploadWeb3Name(cidData);
+    
+    console.log("got screen logs: ", screenLog.playingDetails.length);
+    const last50  = screenLog.playingDetails.reverse().slice(0, 50);
+    const totalCount = screenLog.playingDetails.length;
+    const allLogs = screenLog.playingDetails
+    return res.status(200).send({last50, totalCount, allLogs});
   } catch (error) {
     return res
       .status(500)
       .send({ message: `Screen router error ${error.message}` });
   }
 }
-
 // requesting plea from allay
 export async function addAllyPlea(req, res) {
   try {
@@ -1072,5 +1072,37 @@ export async function rejectAllayPlea(req, res) {
     return res
       .status(500)
       .send({ message: `Campaign router error ${error.message}` });
+  }
+}
+
+//get coupon list attached to campaign playing on this screen
+
+export const getCouponListByScreenId = async (req, res) => {
+  try {
+    const screenVideos = await Campaign.find({
+      screen: req.params.screenId,
+      status: "Active",
+      "coupons.0": { $exists: true },
+    });
+
+    const couponList = [];
+    for (let campaign of screenVideos) {
+      let coupons = campaign?.coupons;
+      for (let couponId of coupons) {
+        const coupon = await Coupon.findById(couponId);
+        couponList.push(coupon);
+      }
+    }
+
+    console.log(
+      `${couponList.length} coupons found on this screen ${req.params.screenId}`
+    );
+
+    return res.status(200).send(couponList);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      message: `Screen controller error at getCouponListByScreenId ${error.message}`,
+    });
   }
 }

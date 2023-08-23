@@ -12,7 +12,7 @@ import User from "../models/userModel.js";
 
 export const __dirname = path.resolve();
 // if using in production
-// const __dirname = path.resolve() + "/monaBackV1";
+// export const __dirname = path.resolve() + "/monaBackV1";
 // because in ubuntu path.resolve() = /home/ubuntu
 export const token = process.env.REACT_APP_WEB3_STORAGE_API_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDczQTg1YzJhQTVmNzU1ZTM4MUUxODhmYkI2ZTg3M0E3MEJGRUQ2RjAiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjMxODkwNjgyOTEsIm5hbWUiOiJtb25hX2JldGEifQ.pONwiaib6R_lPL2bop4cTgk5-Z2Otf4723aDJjEYDLY";
 // console.log("token : ", token);

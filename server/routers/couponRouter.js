@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   createNewCoupon,
+  getAllActiveCouponList,
   getCouponListForBrand,
   updateCoupon,
 } from "../controllers/couponsController.js";
@@ -11,6 +12,7 @@ const couponRouter = express.Router();
 couponRouter.post("/create/:userId/:brandId", createNewCoupon);
 
 //get
+couponRouter.get("/getActiveCoupons", getAllActiveCouponList);
 couponRouter.get("/:brandId", getCouponListForBrand);
 
 //put
