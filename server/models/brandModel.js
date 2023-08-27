@@ -14,6 +14,8 @@ const reviewSchema = new mongoose.Schema(
 const brandSchema = new mongoose.Schema(
   {
     brandName: { type: String },
+    tagline: { type: String },
+    address: { type: String },
     brandDetails: {
       website: { type: String },
       aboutBrand: { type: String },

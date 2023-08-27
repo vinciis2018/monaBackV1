@@ -548,14 +548,16 @@ export async function getScreensList(req, res) {
       .skip(pageSize * (page - 1))
       .limit(pageSize);
 
-    console.log;
+    // console.log(data);
     // now i got top 6 screen id, now it time to get screen details by id and push the data
     let screens = [];
 
     for (let eachData of data) {
       const screenId = eachData._id.screen;
       const screen = await Screen.findById(screenId);
-      screens.push(screen);
+      if (screen) {
+        screens.push(screen);
+      }
     }
 
     // console.log("screensData -------: ", screensData);
@@ -591,16 +593,21 @@ export async function getScreenDetailsByScreenId(req, res) {
       "master",
       "master.name master.logo master.rating master.numReviews master.description"
     );
-    if (!screen)
-      res.status(404).send({ message: "Screen Not Found in Database" });
+    if (!screen) {
+      return res.status(404).send({ message: "Screen Not Found in Database" });
+    }
 
     const calender = await Calender.findOne({ _id: screen.calender });
+    // console.log(calender, "1");
     const pin = await Pin.findOne({ screen: screen._id });
+    // console.log(pin, "2");
     pin.activeGame = calender.activeGameContract;
     pin.image = screen.image;
     pin.save();
     screen.activeGameContract = calender.activeGameContract;
     screen.save();
+    // console.log(screen, "3");
+
     // const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
     // if (!screenLogs) {
     //   const screenLogsAdd = new ScreenLogs({
@@ -649,6 +656,7 @@ export async function updateScreenById(req, res) {
     );
 
     if (calender && masterScreen) {
+
       screen.name = req.body.name || screen.name;
       screen.rentPerSlot = req.body.rentPerSlot || screen.rentPerSlot;
       screen.image = req.body.image || screen.image;
@@ -707,38 +715,44 @@ export async function updateScreenById(req, res) {
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
       //pin.activeGame = req.body.activeGameContract || screen.activeGameContract
-      screenData.dataType = req.body.screenDataType || screenData.dataType;
 
-      if (screen.category === "RAILWAYS" || req.body.dataType === "RAILWAYS") {
-        const trainDetailsHere = {
-          trainName: req.body.trainName,
-          trainCode: req.body.trainCode,
-          trainDetails: req.body.trainDetails,
-        };
-        screenData.stationName = req.body.stationName || screenData.stationName;
-        screenData.stationCode = req.body.stationCode || screenData.stationCode;
-        const myTrainData = screenData.trains.filter(
-          (td) => td.trainName === req.body.trainName
-        )[0];
-        const myTrainCode = screenData.trains
-          .filter((tc) => tc.trainCode === req.body.trainCode)
-          .map((mtc) => mtc.trainCode)[0];
+      if (screenData) {
+        screenData.dataType = req?.body?.screenDataType || screenData?.dataType;
 
-        // console.log(myTrainData);
-        // console.log(myTrainCode);
-
-        console.log(req.body.trainName);
-        if (myTrainData && myTrainCode) {
-          // console.log(myTrainData.trainDetails);
-
-          myTrainData.trainDetails.push(req.body.trainDetails);
-        } else {
-          screenData.trains.push(trainDetailsHere);
+        if (screen.category === "RAILWAYS" || req?.body?.dataType === "RAILWAYS") {
+          console.log("2");
+  
+          const trainDetailsHere = {
+            trainName: req.body.trainName,
+            trainCode: req.body.trainCode,
+            trainDetails: req.body.trainDetails,
+          };
+          screenData.stationName = req.body.stationName || screenData.stationName;
+          screenData.stationCode = req.body.stationCode || screenData.stationCode;
+          const myTrainData = screenData.trains.filter(
+            (td) => td.trainName === req.body.trainName
+          )[0];
+          const myTrainCode = screenData.trains
+            .filter((tc) => tc.trainCode === req.body.trainCode)
+            .map((mtc) => mtc.trainCode)[0];
+  
+          // console.log(myTrainData);
+          // console.log(myTrainCode);
+  
+          console.log(req.body.trainName);
+          if (myTrainData && myTrainCode) {
+            // console.log(myTrainData.trainDetails);
+  
+            myTrainData.trainDetails.push(req.body.trainDetails);
+          } else {
+            screenData.trains.push(trainDetailsHere);
+          }
         }
+  
+        const updatedScreenData = await screenData.save();
+  
       }
-
-      const updatedScreenData = await screenData.save();
-
+      
       const updatedPin = await pin.save();
       const updatedCalender = await calender.save();
       const updatedScreen = await screen.save();
@@ -748,7 +762,7 @@ export async function updateScreenById(req, res) {
         screen: updatedScreen,
         calender: updatedCalender,
         pin: updatedPin,
-        screenData: updatedScreenData,
+        // screenData: updatedScreenData,
       });
     } else {
       return res.status(401).send({
@@ -906,9 +920,10 @@ export async function addScreenLikeByScreenId(req, res) {
 // }
 export async function getScreenLogs(req, res) {
   try {
-    const screenId = req.params.id;
+    const screenId = req.params.screenId;
+    // console.log(screenId)
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    console.log("getting screen logs: ", screenLog?.playingDetails?.length);
+    console.log("getting screen logs: ", screenLog?.playingDetails.length);
     const query = new Date();
     // console.log(query);
 
@@ -956,15 +971,15 @@ export async function addAllyPlea(req, res) {
       from: user._id,
       reject: false,
     });
-    // console.log("old plea  : ", plea);
     if (plea) {
-      console.log("plea not found, creating new plea");
+      console.log("old plea  : ", plea);
 
       return res
         .status(400)
         .send({ message: "Plea already made, please contact moderators" });
     }
-
+    console.log("plea not found, creating new plea");
+    const remark = `${user.name} has requested an Ally plea for ${screen.name} screen`;
     const newPlea = new Plea({
       _id: new mongoose.Types.ObjectId(),
       from: user._id,
@@ -975,7 +990,7 @@ export async function addAllyPlea(req, res) {
       status: false,
       reject: false,
       blackList: false,
-      remarks: `${user.name} has requested an Ally plea for ${screen.name} screen`,
+      remarks: [remark],
     });
     await newPlea.save();
     // console.log("before pusing plea on scren  : ", screen);
@@ -987,8 +1002,8 @@ export async function addAllyPlea(req, res) {
     await screen.save();
     await user.save();
     console.log(
-      "pleas creaded and send plea rewuest to screen owner : ",
-      newPlea
+      "pleas creaded and send plea request to screen owner : ",
+      // newPlea
     );
     return res
       .status(200)

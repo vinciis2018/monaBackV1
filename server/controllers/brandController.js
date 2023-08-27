@@ -37,6 +37,8 @@ export async function createBrand(req, res) {
       const brand = new Brand({
         _id: brandId,
         brandName: "BrandName" || req.body.brandName,
+        tagline: "One of the best brands" || req.body.tagline,
+        address: "Full address here" || req.body.address,
         user: user._id,
         rewards: [],
         additionalInfo: {},

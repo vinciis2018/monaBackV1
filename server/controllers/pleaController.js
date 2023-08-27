@@ -7,6 +7,15 @@ import Media from "../models/mediaModel.js";
 import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import mongoose from "mongoose";
 
+export async function getMyPleas(req, res) {
+  try {
+    const userId = req.params.userId;
+    const pleas = await Plea.find({ from: userId });
+    return res.status(200).send(pleas);
+  } catch (error) {
+    return res.status(500).send({ message: `Plea router error ${error.message}` })
+  }
+}
 export async function getPleaRequestListByUserID(req, res) {
   try {
     const screenOwnerUserId = req.params.id;
@@ -63,7 +72,7 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
       screen: screen._id,
       media: campaignForMultipleScreen.media,
       cid: cid,
-      thumbnail: campaignForMultipleScreen.thumbnail,
+      thumbnail: campaignForMultipleScreen.thumbnail || `https://ipfs.io/ipfs/${cid}`,
       campaignName: campaignForMultipleScreen.campaignName || "campaign Name",
       video: plea.video,
       ally: plea.from,
@@ -75,8 +84,8 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
       remainingSlots: campaignForMultipleScreen.totalSlotBooked || 0,
       rentPerSlot: screen.rentPerSlot,
       totalAmount:
-        campaignForMultipleScreen.totalSlotBooked * screen.rentPerSlot,
-      vault: campaignForMultipleScreen.totalSlotBooked * screen.rentPerSlot,
+        campaignForMultipleScreen.totalSlotBooked * screen.rentPerSlot || 0,
+      vault: campaignForMultipleScreen.totalSlotBooked * screen.rentPerSlot || 0,
       allyWalletAddress: user.defaultWallet,
 
       startDate: campaignForMultipleScreen.startDate || new Date(),

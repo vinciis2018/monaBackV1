@@ -47,7 +47,7 @@ export const qrcodeGenerateForScreen = async (req, res) => {
     );
     QRCode.toFile(
       filePath,
-      `/coupon/screen/${screen?._id}`,
+      `https://monad.vinciis.in/coupon/screen/${screen?._id}`,
       {
         errorCorrectionLevel: "H",
       },

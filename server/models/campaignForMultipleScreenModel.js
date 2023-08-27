@@ -33,6 +33,8 @@ const campaignForMultipleScreenSchema = new mongoose.Schema(
         },
       },
     ],
+    acceptedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
+    rejectedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
   },
   {
     timestamps: true,
