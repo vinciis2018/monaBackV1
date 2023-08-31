@@ -71,22 +71,30 @@ export async function createBrand(req, res) {
 
 export async function editBrand(req, res) {
   try {
-    // brand creates a reward program, which mints reward coupons from user interaction
-    const user = await User.findOne({ _id: req.user._id });
-    if (!user) {
-      return res
-        .status(404)
-        .send({ message: "User Not Found! DO login again" });
-    }
     const brand = await Brand.findOne({
       _id: req.params.id,
     });
 
-    //  console.log(user)
+    if (!brand) {
+      return res.status(404).send({ message: "User is not a brand" });
+    }
+    // console.log("brand : ", brand);
+    brand.brandName = req.body.brandName || brand.brandName;
+    brand.brandDetails.website = req.body.website || brand.brandDetails.website;
+    brand.brandDetails.aboutBrand =
+      req.body.aboutBrand || brand.brandDetails.aboutBrand;
+    brand.brandDetails.logo = req.body.logo || brand.brandDetails.logo;
+    brand.brandDetails.images = req.body.images || brand.brandDetails.images;
+    brand.brandDetails.phone = req.body.phone || brand.brandDetails.phone;
+    brand.brandDetails.email = req.body.email || brand.brandDetails.email;
+    brand.brandDetails.instagramId =
+      req.body.instagramId || brand.brandDetails.instagramId;
+    brand.brandDetails.facebookId =
+      req.body.facebookId || brand.brandDetails.facebookId;
 
-    brand.brandName = req.body.brandInfo.brandName;
-    await user.save();
     const updatedBrand = await brand.save();
+
+    // console.log("updatedBrand : ", updatedBrand);
 
     return res.status(200).send(updatedBrand);
   } catch (error) {

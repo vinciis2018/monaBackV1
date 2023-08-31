@@ -20,6 +20,7 @@ import {
   filterUserListByName,
   getUserCouponList,
   getUserActiveCampaigns,
+  userSigninWithGoogleLogin,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -28,6 +29,7 @@ const userRouter = express.Router();
 //add new user
 userRouter.post("/signup", userSignUp);
 userRouter.post("/signin", userSignin);
+userRouter.post("/googleSignupSignin", userSigninWithGoogleLogin);
 
 //get request
 userRouter.get("/", getUsersList);

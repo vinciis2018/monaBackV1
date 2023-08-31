@@ -3,7 +3,10 @@ import bcrypt from "bcryptjs";
 import Screen from "../models/screenModel.js";
 import Media from "../models/mediaModel.js";
 import { generateToken } from "../utils/authUtils.js";
-import { sendConfirmationEmail } from "../utils/sendEmail.js";
+import {
+  sendConfirmationEmail,
+  sendMailForThankYou,
+} from "../utils/sendEmail.js";
 import data from "../utils/data.js";
 import Campaign from "../models/campaignModel.js";
 import CouponRewardOffer from "../models/couponRewardOfferModel.js";
@@ -177,6 +180,75 @@ export async function getUserInfoById(req, res) {
       .send({ message: `User router error ${error.message}` });
   }
 }
+export async function userSigninWithGoogleLogin(req, res) {
+  try {
+    const requestCameFromURL = `${req.header("Origin")}/`;
+    const email = req.body.email;
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // user not exist then create his account
+      // console.log("This is new user, Creatating new user!");
+      const newUser = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: bcrypt.hashSync(`12345678`, 8),
+        avatar: req.body.avatar,
+      });
+      user = await newUser.save();
+      sendMailForThankYou({
+        toEmail: email,
+        userName: req.body.name,
+        requestCameFromURL,
+        password: `12345678`,
+      });
+    }
+    // else {
+    //   console.log("This is old user, no need to create new account again!");
+    // }
+
+    return res.status(200).send({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      isItanimulli: user.isItanimulli,
+      isMaster: user.isMaster,
+      isAlly: user.isAlly,
+      isBrand: user.isBrand,
+      brand: user.brand,
+      isViewer: user.isViewer,
+      phone: user.phone,
+      districtCity: user.districtCity,
+      pincode: user.pincode,
+      address: user.address,
+      stateUt: user.stateUt,
+      country: user.country,
+
+      defaultWallet: user.defaultWallet,
+      wallets: user.wallets,
+
+      screens: user.screens,
+      screensSubscribed: user.screensSubscribed,
+      screensLiked: user.screensLiked,
+      screensFlagged: user.screensFlagged,
+      medias: user.medias,
+      mediasLiked: user.mediasLiked,
+      mediasFlagged: user.mediasFlagged,
+      mediasViewed: user.mediasViewed,
+
+      pleasMade: user.pleasMade,
+      alliedScreens: user.alliedScreens,
+
+      createdAt: user.createdAt,
+      token: generateToken(user),
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `User router error userSigninWithGoogleLogin ${error.message}`,
+    });
+  }
+}
 
 export async function userSignin(req, res) {
   try {
@@ -284,7 +356,7 @@ export async function getUserCampaigns(req, res) {
     // },]
 
     if (data?.length === 0)
-      res.status(404).send({ message: "Campaign not found" });
+      return res.status(404).send({ message: "Campaign not found" });
 
     const myCampaigns = [];
 
