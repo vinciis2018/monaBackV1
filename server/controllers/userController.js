@@ -356,10 +356,6 @@ export async function getUserCampaigns(req, res) {
     //   }
     // },]
 
-<<<<<<< Updated upstream
-    if (data?.length === 0)
-      return res.status(404).send({ message: "Campaign not found" });
-=======
     const data2 = await CampaignForMultipleScreen.aggregate([
       { $match: { ally: new ObjectId(allyId) } },
       {
@@ -375,7 +371,6 @@ export async function getUserCampaigns(req, res) {
     if (data?.length === 0 && data?.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     }
->>>>>>> Stashed changes
 
     const myCampaigns = [];
 
