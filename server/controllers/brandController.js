@@ -39,6 +39,8 @@ export async function createBrand(req, res) {
         brandName: "BrandName" || req.body.brandName,
         tagline: "One of the best brands" || req.body.tagline,
         address: "Full address here" || req.body.address,
+        brandCategory: "" || req.body.brandCategory,
+        brandType: "" || req.body.brandType,
         user: user._id,
         rewards: [],
         additionalInfo: {},
@@ -51,6 +53,11 @@ export async function createBrand(req, res) {
           email: req.body.email,
           instagramId: req.body.instagramId,
           facebookId: req.body.facebookId,
+          tiktok: req.body.tiktok,
+          snapchat: req.body.snapchat,
+          youtube: req.body.youtube,
+          linkedin: req.body.linkedin,
+          twitter: req.body.twitter,
         },
       });
 
@@ -75,22 +82,40 @@ export async function editBrand(req, res) {
       _id: req.params.id,
     });
 
-    if (!brand) {
-      return res.status(404).send({ message: "User is not a brand" });
+    //  console.log(req.body);
+
+    brand.brandName = req.body.brandName;
+    brand.tagline = req.body.tagline || brand.tagline;
+    brand.address = req.body.address || brand.address;
+    brand.brandCategory = req.body.brandCategory || brand.brandCategory;
+    brand.brandType = req.body.brandType || brand.brandType;
+    brand.brandDetails = {
+      website: req.body.website || brand.brandDetails.website,
+      aboutBrand: req.body.aboutBrand || brand.brandDetails.aboutBrand,
+      logo: req.body.logo || brand.brandDetails.logo,
+      images: brand.brandDetails.images,
+      phone: req.body.phone || brand.brandDetails.phone,
+      email: req.body.email || brand.brandDetails.email,
+      instagramId: req.body.instagramId || brand.brandDetails.instagramId,
+      facebookId: req.body.facebookId || brand.brandDetails.facebookId,
+      tiktok: req.body.tiktok || brand.brandDetails.tiktok,
+      snapchat: req.body.snapchat || brand.brandDetails.snapchat,
+      youtube: req.body.youtube || brand.brandDetails.youtube,
+      linkedin: req.body.linkedin || brand.brandDetails.linkedin,
+      twitter: req.body.twitter || brand.brandDetails.twitter,
+    };
+    if (req.body.images) {
+      for (let image of req.body.images) {
+        // console.log(brand.brandDetails.images.map((img) => img === image).length);
+        if (brand.brandDetails.images.filter((img) => img === image).length === 0) {
+          // console.log(brand.brandDetails.images);
+          
+          brand.brandDetails.images.push(image);
+          // console.log(brand.brandDetails.images);
+          await brand.save()
+        }
+      }
     }
-    // console.log("brand : ", brand);
-    brand.brandName = req.body.brandName || brand.brandName;
-    brand.brandDetails.website = req.body.website || brand.brandDetails.website;
-    brand.brandDetails.aboutBrand =
-      req.body.aboutBrand || brand.brandDetails.aboutBrand;
-    brand.brandDetails.logo = req.body.logo || brand.brandDetails.logo;
-    brand.brandDetails.images = req.body.images || brand.brandDetails.images;
-    brand.brandDetails.phone = req.body.phone || brand.brandDetails.phone;
-    brand.brandDetails.email = req.body.email || brand.brandDetails.email;
-    brand.brandDetails.instagramId =
-      req.body.instagramId || brand.brandDetails.instagramId;
-    brand.brandDetails.facebookId =
-      req.body.facebookId || brand.brandDetails.facebookId;
 
     const updatedBrand = await brand.save();
 

@@ -13,6 +13,7 @@ import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import { ObjectId } from "mongodb";
 import Wallet from "../models/walletModel.js";
 import mongoose from "mongoose";
+import CampaignForMultipleScreen from "../models/campaignForMultipleScreenModel.js";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -355,8 +356,26 @@ export async function getUserCampaigns(req, res) {
     //   }
     // },]
 
+<<<<<<< Updated upstream
     if (data?.length === 0)
       return res.status(404).send({ message: "Campaign not found" });
+=======
+    const data2 = await CampaignForMultipleScreen.aggregate([
+      { $match: { ally: new ObjectId(allyId) } },
+      {
+        $group: {
+          _id: {
+            cid: "$cid",
+            campaignName: "$campaignName",
+          },
+        },
+      },
+    ]);
+
+    if (data?.length === 0 && data?.length === 0) {
+      return res.status(404).send({ message: "Campaign not found" });
+    }
+>>>>>>> Stashed changes
 
     const myCampaigns = [];
 
@@ -368,7 +387,19 @@ export async function getUserCampaigns(req, res) {
       myCampaigns.push(campaign);
     }
 
-    return res.status(200).send(myCampaigns);
+    for (let singleData of data2) {
+      const campaign2 = await Campaign.findOne({
+        cid: singleData?._id?.cid,
+        campaignName: singleData?._id?.campaignName,
+      });
+      myCampaigns.push(campaign2);
+    }
+
+    const campaignsHere = myCampaigns.sort(
+      (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
+    ).reverse();
+    
+    return res.status(200).send(campaignsHere);
   } catch (error) {
     res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,

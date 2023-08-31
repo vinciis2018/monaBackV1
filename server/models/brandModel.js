@@ -29,6 +29,11 @@ const brandSchema = new mongoose.Schema(
       email: { type: String },
       instagramId: { type: String },
       facebookId: { type: String },
+      tiktok: { type: String },
+      snapchat: { type: String },
+      linkedin: { type: String },
+      youtube: { type: String },
+      twitter: { type: String },
     },
     brandCategory: { type: String }, // restaurant/grocerry
     brandType: { type: String }, // online/offline/both
