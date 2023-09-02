@@ -10,6 +10,7 @@ export const createNewCoupon = async (req, res) => {
 
     const newCoupon = new Coupon({
       offerName: req.body.offerName,
+      offerDetails: req.body.offerDetails,
       brand: brand?._id,
       brandName: brand.brandName,
       offerCreator: req.params.userId,
@@ -17,7 +18,7 @@ export const createNewCoupon = async (req, res) => {
       brandLogo: brand?.brandDetails?.logo,
       quantity: req.body.quantity,
       couponCode: req.body.couponCode,
-      campaigns: req.body.campaigns,
+      campaigns: req.body.campaigns || [],
 
       couponRewardInfo: {
         couponType: req.body?.couponType, // % discount , discount amount , buy x get y , freebie
@@ -81,14 +82,15 @@ export async function getCouponListForBrand(req, res) {
 
 export async function updateCoupon(req, res) {
   try {
-    console.log("edit coupon details called!");
+    console.log("edit coupon details called! ", req.body);
     const coupon = await Coupon.findById(req.params.couponId);
 
-    coupon.offerName = req.body.offerName;
+    coupon.offerName = req.body.offerName || coupon.offerName;
+    coupon.offerDetails = req.body.offerDetails || coupon.offerDetails;
 
-    coupon.quantity = req.body.quantity;
-    coupon.couponCode = req.body.couponCode;
-    coupon.campaigns = req.body.campaigns;
+    coupon.quantity = req.body.quantity || coupon.quantity;
+    coupon.couponCode = req.body.couponCode || coupon.couponCode;
+    coupon.campaigns = req.body.campaigns || req.body.campaign;
 
     // coupon.couponRewardInfo.couponType = req.body?.couponType; // % discount ; discount amount ; buy x get y ; freebie
     coupon.couponRewardInfo.minimumOrderCondition =
@@ -153,7 +155,7 @@ export async function updateCoupon(req, res) {
 
 export const getAllActiveCouponList = async (req, res) => {
   try {
-    const today = new Date();
+    // const today = new Date();
     // console.log("today : ", today);
     const coupons = await Coupon.find({});
     // const coupons = await Coupon.find({
@@ -165,6 +167,35 @@ export const getAllActiveCouponList = async (req, res) => {
     // });
     console.log("coupons: ", coupons?.length);
     return res.status(200).send(coupons);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      message: `Coupon Reward controller error at getAllActiveCouponList ${error.message}`,
+    });
+  }
+};
+
+export const deleteCoupon = async (req, res) => {
+  try {
+    const couponId = req.params.couponId;
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) {
+      return res.status(404).send("Coupon not found!");
+    }
+    if (coupon?.campaigns?.length > 0) {
+      for (let campaignId of coupon?.campaigns) {
+        const campaign = await Campaign.findById(campaignId);
+        // console.log("before campaigns : ", campaign?.coupons);
+        campaign.coupons = campaign.coupons.filter(
+          (id) => id !== campaign?._id
+        );
+        const updatedCampaign = await campaign.save();
+        // console.log("updated campaigns : ", updatedCampaign?.coupons);
+      }
+    }
+    const deletedCoupon = await coupon.delete();
+    // console.log("delted coupon : ", deletedCoupon);
+    return res.status(200).send(deletedCoupon);
   } catch (error) {
     console.log(error);
     return res.status(500).send({

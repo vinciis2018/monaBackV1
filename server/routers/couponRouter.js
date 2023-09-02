@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   createNewCoupon,
+  deleteCoupon,
   getAllActiveCouponList,
   getCouponListForBrand,
   updateCoupon,
@@ -17,5 +18,8 @@ couponRouter.get("/:brandId", getCouponListForBrand);
 
 //put
 couponRouter.put("/:couponId", updateCoupon);
+
+//delete
+couponRouter.delete("/:couponId", deleteCoupon);
 
 export default couponRouter;

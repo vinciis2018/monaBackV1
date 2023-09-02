@@ -25,6 +25,7 @@ const reviewSchema = new mongoose.Schema(
 const couponSchema = new mongoose.Schema(
   {
     offerName: { type: String },
+    offerDetails: { type: String },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
     brandLogo: { type: String },
     brandName: { type: String },
