@@ -368,33 +368,34 @@ export async function getUserCampaigns(req, res) {
       },
     ]);
 
-    if (data?.length === 0 && data?.length === 0) {
+    if (data?.length === 0 && data2?.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
+    } else {
+      const myCampaigns = [];
+
+      for (let singleData of data) {
+        const campaign = await Campaign.findOne({
+          cid: singleData?._id?.cid,
+          campaignName: singleData?._id?.campaignName,
+        });
+        myCampaigns.push(campaign);
+      }
+  
+      for (let singleData of data2) {
+        const campaign2 = await Campaign.findOne({
+          cid: singleData?._id?.cid,
+          campaignName: singleData?._id?.campaignName,
+        });
+        myCampaigns.push(campaign2);
+      }
+  
+      const campaignsHere = myCampaigns.sort(
+        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
+      ).reverse();
+      
+      return res.status(200).send(campaignsHere);
     }
-
-    const myCampaigns = [];
-
-    for (let singleData of data) {
-      const campaign = await Campaign.findOne({
-        cid: singleData?._id?.cid,
-        campaignName: singleData?._id?.campaignName,
-      });
-      myCampaigns.push(campaign);
-    }
-
-    for (let singleData of data2) {
-      const campaign2 = await Campaign.findOne({
-        cid: singleData?._id?.cid,
-        campaignName: singleData?._id?.campaignName,
-      });
-      myCampaigns.push(campaign2);
-    }
-
-    const campaignsHere = myCampaigns.sort(
-      (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
-    ).reverse();
     
-    return res.status(200).send(campaignsHere);
   } catch (error) {
     res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
@@ -417,20 +418,43 @@ export async function getUserActiveCampaigns(req, res) {
         },
       },
     ]);
+    const data2 = await CampaignForMultipleScreen.aggregate([
+      { $match: { ally: new ObjectId(allyId), status: "Active" } },
+      {
+        $group: {
+          _id: {
+            cid: "$cid",
+            campaignName: "$campaignName",
+          },
+        },
+      },
+    ]);
 
-    if (data?.length === 0)
-      res.status(404).send({ message: "Campaign not found" });
+    if (data?.length === 0 && data2.length === 0) {
+      return res.status(404).send({ message: "Campaign not found" });
+    } else {
+      const myCampaigns = [];
 
-    const myCampaigns = [];
-
-    for (let singleData of data) {
-      const campaign = await Campaign.findOne({
-        cid: singleData?._id?.cid,
-        campaignName: singleData?._id?.campaignName,
-      });
-      myCampaigns.push(campaign);
+      for (let singleData of data) {
+        const campaign = await Campaign.findOne({
+          cid: singleData?._id?.cid,
+          campaignName: singleData?._id?.campaignName,
+        });
+        myCampaigns.push(campaign);
+      }
+      for (let singleData of data2) {
+        const campaign2 = await Campaign.findOne({
+          cid: singleData?._id?.cid,
+          campaignName: singleData?._id?.campaignName,
+        });
+        myCampaigns.push(campaign2);
+      }
+      const campaignsHere = myCampaigns.sort(
+        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
+      ).reverse();
+      return res.status(200).send(campaignsHere);
     }
-    return res.status(200).send(myCampaigns);
+    
   } catch (error) {
     res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
