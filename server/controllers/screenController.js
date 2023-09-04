@@ -15,6 +15,7 @@ import {
 import ScreenData from "../models/screenDataModel.js";
 
 import { __dirname } from "./imagesToVideoController.js";
+import Coupon from "../models/couponModel.js";
 // for android APk
 
 const getActiveCampaignList = async (screenId) => {

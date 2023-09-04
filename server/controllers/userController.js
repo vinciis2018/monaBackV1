@@ -389,11 +389,11 @@ export async function getUserCampaigns(req, res) {
         myCampaigns.push(campaign2);
       }
   
-      const campaignsHere = myCampaigns.sort(
-        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
-      ).reverse();
+      // const campaignsHere = myCampaigns.sort(
+      //   (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
+      // ).reverse();
       
-      return res.status(200).send(campaignsHere);
+      return res.status(200).send(myCampaigns);
     }
     
   } catch (error) {
@@ -449,10 +449,10 @@ export async function getUserActiveCampaigns(req, res) {
         });
         myCampaigns.push(campaign2);
       }
-      const campaignsHere = myCampaigns.sort(
-        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
-      ).reverse();
-      return res.status(200).send(campaignsHere);
+      // const campaignsHere = myCampaigns.sort(
+      //   (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
+      // ).reverse();
+      return res.status(200).send(myCampaigns);
     }
     
   } catch (error) {
