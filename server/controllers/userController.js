@@ -53,7 +53,7 @@ const changePassword = async (req, res, user) => {
       token: generateToken(updateUser),
     });
   } catch (error) {
-    throw new Error(error);
+    return res.status(404).send(error);
   }
 };
 
@@ -302,7 +302,7 @@ export async function userSignin(req, res) {
       return res.status(402).send({ message: "password incorrect" });
     }
   } catch (error) {
-    return res.send(error);
+    return res.status(404).send(error);
   }
 }
 
@@ -388,16 +388,22 @@ export async function getUserCampaigns(req, res) {
         });
         myCampaigns.push(campaign2);
       }
-  
-      // const campaignsHere = myCampaigns.sort(
-      //   (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
-      // ).reverse();
-      
-      return res.status(200).send(myCampaigns);
+
+      if (myCampaigns.length === (data.length + data2.length)) {
+        // console.log(myCampaigns.sort(
+        //   (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
+        // ).reverse()[0].startDate);
+    
+        const campaignsHere = myCampaigns.sort(
+          (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
+        ).reverse();
+        
+        return res.status(200).send(campaignsHere);
+      }
     }
     
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
     });
   }
@@ -456,7 +462,7 @@ export async function getUserActiveCampaigns(req, res) {
     }
     
   } catch (error) {
-    res.status(500).send({
+    return res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
     });
   }
@@ -480,7 +486,7 @@ export async function getUserScreens(req, res) {
     if (myScreens) return res.status(200).send(myScreens);
     return res.status(404).send({ message: "Screens not found" });
   } catch (error) {
-    res.status(500).send({ message: `User router error ${error.message}` });
+    return res.status(500).send({ message: `User router error ${error.message}` });
   }
 }
 
@@ -492,17 +498,19 @@ export async function deleteAllMedias(req, res) {
       return res.status(401).send({
         message: "User not Found",
       });
+    } else {
+      const deletedMedia = await Media.deleteMany({ uploader: req.params.id });
+      const updatedUser = await User.update(
+        { uploader: req.params.id },
+        { $set: { medias: [] } },
+        { multi: true }
+      );
+      return res.status(200).send({
+        message: "All media Deleted of user",
+        medias: deletedMedia,
+      });
     }
-    const deletedMedia = await Media.deleteMany({ uploader: req.params.id });
-    const updatedUser = await User.update(
-      { uploader: req.params.id },
-      { $set: { medias: [] } },
-      { multi: true }
-    );
-    return res.status(200).send({
-      message: "All media Deleted of user",
-      medias: deletedMedia,
-    });
+    
   } catch (error) {
     return res.status(404).send(error);
   }
@@ -530,7 +538,7 @@ export async function getUserMedias(req, res) {
     if (mymedias.length > 0) return res.status(200).send(mymedias);
     else return res.status(401).send({ message: "medias not found" });
   } catch (error) {
-    res.status(500).send({ message: `User router error ${error.message}` });
+    return res.status(500).send({ message: `User router error ${error.message}` });
   }
 }
 
@@ -627,13 +635,12 @@ export async function deleteUser(req, res) {
       });
     }
     if (user.email === "vviicckkyy55@gmail.com") {
-      res.status(400).send({
+      return res.status(400).send({
         message: "Cannot delete admin father",
       });
-      return;
     }
     const deleteUser = await user.remove();
-    res.status(200).send({
+    return res.status(200).send({
       message: "User Deleted",
       user: deleteUser,
     });

@@ -319,8 +319,9 @@ export async function getCampaignDetailWithScreenList(req, res) {
     const campaignName = req.params.campaignName;
     const campaigns = await Campaign.find({ cid, campaignName });
 
-    if (campaigns.length === 0)
-      res.status(404).send({ message: "Campaigns not found" });
+    if (campaigns.length === 0) {
+      return res.status(404).send({ message: "Campaigns not found" });
+    }
 
     const results = [];
 
