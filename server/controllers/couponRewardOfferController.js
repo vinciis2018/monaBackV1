@@ -85,11 +85,7 @@ export async function getCouponRewardOfferListForBrand(req, res) {
     const myRewardOffers = await CouponRewardOffer.find({
       offerCreator: req.params.id,
     });
-    return res
-      .status(
-        200 // console.log([...myRewardOffers]);
-      )
-      .send([...myRewardOffers]);
+    return res.status(200).send([...myRewardOffers]);
   } catch (error) {
     return res.status(500).send({
       message: `Coupon Reward controller error at getCouponRewardOfferListForBrand ${error.message}`,

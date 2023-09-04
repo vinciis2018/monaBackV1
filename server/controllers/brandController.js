@@ -82,9 +82,9 @@ export async function editBrand(req, res) {
       _id: req.params.id,
     });
 
-    //  console.log(req.body);
+    //  console.log(brand);
 
-    brand.brandName = req.body.brandName;
+    brand.brandName = req.body.brandName || brand.brandName;
     brand.tagline = req.body.tagline || brand.tagline;
     brand.address = req.body.address || brand.address;
     brand.brandCategory = req.body.brandCategory || brand.brandCategory;

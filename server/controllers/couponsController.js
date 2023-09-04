@@ -5,60 +5,63 @@ import Coupon from "../models/couponModel.js";
 export const createNewCoupon = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.brandId);
+    // console.log(brand);
+    if (!brand) {
+      return req.status(404).send("No brand found");
+    } else {
+      const newCoupon = new Coupon({
+        offerName: req.body.offerName,
+        offerDetails: req.body.offerDetails,
+        brand: brand?._id,
+        brandName: brand.brandName,
+        offerCreator: req.params.userId,
+        // nfts: [{ type: String, default: ""}],
+        brandLogo: brand?.brandDetails?.logo,
+        quantity: req.body.quantity,
+        couponCode: req.body.couponCode,
+        campaigns: req.body.campaigns || [],
 
-    if (!brand) return req.status(404).send("No brand found");
+        couponRewardInfo: {
+          couponType: req.body?.couponType, // % discount , discount amount , buy x get y , freebie
+          minimumOrderCondition: req.body?.minimumOrderCondition,
+          minimumOrderValue: req.body?.minimumOrderValue,
+          minimumOrderQuantity: req.body?.minimumOrderQuantity,
+          discountPersentage: req.body?.discountPersentage,
+          discountAmount: req.body?.discountAmount,
+          buyItems: req.body?.buyItems, // buy x get y
+          freeItems: req.body?.freeItems, // buy x gey y
+          freebieItemsName: req.body?.freebieItemsName, //freebie
+          loyaltyPoints: req.body?.loyaltyPoints,
+          redeemFrequency: req.body?.redeemFrequency,
+          validity: {
+            to: req.body?.endDateAndTime,
+            from: req.body?.startDateAndTime,
+          },
 
-    const newCoupon = new Coupon({
-      offerName: req.body.offerName,
-      offerDetails: req.body.offerDetails,
-      brand: brand?._id,
-      brandName: brand.brandName,
-      offerCreator: req.params.userId,
-      // nfts: [{ type: String, default: ""}],
-      brandLogo: brand?.brandDetails?.logo,
-      quantity: req.body.quantity,
-      couponCode: req.body.couponCode,
-      campaigns: req.body.campaigns || [],
-
-      couponRewardInfo: {
-        couponType: req.body?.couponType, // % discount , discount amount , buy x get y , freebie
-        minimumOrderCondition: req.body?.minimumOrderCondition,
-        minimumOrderValue: req.body?.minimumOrderValue,
-        minimumOrderQuantity: req.body?.minimumOrderQuantity,
-        discountPersentage: req.body?.discountPersentage,
-        discountAmount: req.body?.discountAmount,
-        buyItems: req.body?.buyItems, // buy x get y
-        freeItems: req.body?.freeItems, // buy x gey y
-        freebieItemsName: req.body?.freebieItemsName, //freebie
-        loyaltyPoints: req.body?.loyaltyPoints,
-        redeemFrequency: req.body?.redeemFrequency,
-        validity: {
-          to: req.body?.endDateAndTime,
-          from: req.body?.startDateAndTime,
+          showCouponToCustomer: req.body.showCouponToCustomer,
+          validForOnLinePayment: req.body.validForOnLinePayment,
+          validForNewCostomer: req.body.validForNewCostomer,
+          autoApplyCoupon: req.body.autoApplyCoupon,
         },
 
-        showCouponToCustomer: req.body.showCouponToCustomer,
-        validForOnLinePayment: req.body.validForOnLinePayment,
-        validForNewCostomer: req.body.validForNewCostomer,
-        autoApplyCoupon: req.body.autoApplyCoupon,
-      },
+        ratings: 0,
+        reviews: [],
+        createdOn: Date.now(),
+      });
 
-      ratings: 0,
-      reviews: [],
-      createdOn: Date.now(),
-    });
-
-    const coupon = await newCoupon.save();
-    for (let id of coupon?.campaigns) {
-      const campaign = await Campaign.findById(id);
-      if (!campaign?.coupons.includes(coupon._id)) {
-        campaign.coupons.push(coupon._id);
+      const coupon = await newCoupon.save();
+      for (let id of coupon?.campaigns) {
+        const campaign = await Campaign.findById(id);
+        if (!campaign?.coupons.includes(coupon._id)) {
+          campaign.coupons.push(coupon._id);
+        }
+        const updatedcampaign = await campaign.save();
+        // console.log("updatedcampaign  : ", updatedcampaign);
       }
-      const updatedcampaign = await campaign.save();
-      // console.log("updatedcampaign  : ", updatedcampaign);
-    }
 
-    return res.status(200).send(coupon);
+      return res.status(200).send(coupon);
+    }
+  
   } catch (error) {
     console.log("error : ", error);
     return res.status(500).send({

@@ -355,7 +355,6 @@ export async function getUserCampaigns(req, res) {
     //     campaignName: 'play card'
     //   }
     // },]
-
     const data2 = await CampaignForMultipleScreen.aggregate([
       { $match: { ally: new ObjectId(allyId) } },
       {
@@ -367,7 +366,6 @@ export async function getUserCampaigns(req, res) {
         },
       },
     ]);
-
     if (data?.length === 0 && data2?.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     } else {
@@ -378,7 +376,9 @@ export async function getUserCampaigns(req, res) {
           cid: singleData?._id?.cid,
           campaignName: singleData?._id?.campaignName,
         });
-        myCampaigns.push(campaign);
+        if (campaign) {
+          myCampaigns.push(campaign);
+        }
       }
   
       for (let singleData of data2) {
@@ -386,20 +386,16 @@ export async function getUserCampaigns(req, res) {
           cid: singleData?._id?.cid,
           campaignName: singleData?._id?.campaignName,
         });
-        myCampaigns.push(campaign2);
+        if (campaign2) {
+          myCampaigns.push(campaign2);
+        }
       }
 
-      if (myCampaigns.length === (data.length + data2.length)) {
-        // console.log(myCampaigns.sort(
-        //   (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
-        // ).reverse()[0].startDate);
-    
-        const campaignsHere = myCampaigns.sort(
-          (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
-        ).reverse();
-        
-        return res.status(200).send(campaignsHere);
-      }
+      const campaignsHere = myCampaigns.sort(
+        (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
+      ).reverse();
+      
+      return res.status(200).send(campaignsHere);
     }
     
   } catch (error) {
@@ -446,19 +442,23 @@ export async function getUserActiveCampaigns(req, res) {
           cid: singleData?._id?.cid,
           campaignName: singleData?._id?.campaignName,
         });
-        myCampaigns.push(campaign);
+        if (campaign) {
+          myCampaigns.push(campaign);
+        }
       }
       for (let singleData of data2) {
         const campaign2 = await Campaign.findOne({
           cid: singleData?._id?.cid,
           campaignName: singleData?._id?.campaignName,
         });
-        myCampaigns.push(campaign2);
+        if (campaign2) {
+          myCampaigns.push(campaign2);
+        }
       }
-      // const campaignsHere = myCampaigns.sort(
-      //   (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
-      // ).reverse();
-      return res.status(200).send(myCampaigns);
+      const campaignsHere = myCampaigns.sort(
+        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
+      ).reverse();
+      return res.status(200).send(campaignsHere);
     }
     
   } catch (error) {
