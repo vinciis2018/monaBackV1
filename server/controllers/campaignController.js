@@ -2,6 +2,7 @@ import Screen from "../models/screenModel.js";
 import Campaign from "../models/campaignModel.js";
 import Media from "../models/mediaModel.js";
 import { sendMoneyBackToAlly } from "../helpers/sendMoney.js";
+import Brand from "../models/brandModel.js";
 
 export async function addNewCampaign(req, res) {
   try {
@@ -58,14 +59,12 @@ export async function addNewCampaign(req, res) {
     screen.campaigns.push(campaign._id);
     await screen.save();
 
-    res.status(201).send({
+    return res.status(201).send({
       message: "Campaign Created successfull",
       campaign,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
@@ -88,14 +87,12 @@ export async function getCampaignListByScreenId(req, res) {
         { $or: [{ status: { $eq: "Active" } }, { status: { $eq: "Pause" } }] },
       ],
     });
-    if (!campaignList)
+    if (!campaignList) {
       return res.status(401).send({ message: "campaign not found" });
-
+    }
     return res.status(200).send(campaignList);
   } catch (error) {
-    return res
-      .status(401)
-      .send({ message: `campaign router error, ${error.message}` });
+    return res.status(401).send({ message: `campaign router error, ${error.message}` });
   }
 }
 
@@ -105,14 +102,12 @@ export async function getAllCampaignListByScreenId(req, res) {
     const campaignList = await Campaign.find({
       screen: screenId,
     }).sort({ status: 1 });
-    if (!campaignList)
+    if (!campaignList) {
       return res.status(401).send({ message: "campaign not found" });
-
+    }
     return res.status(200).send(campaignList);
   } catch (error) {
-    return res
-      .status(401)
-      .send({ message: `campaign router error, ${error.message}` });
+    return res.status(401).send({ message: `campaign router error, ${error.message}` });
   }
 }
 
@@ -143,24 +138,21 @@ export async function getCampaignList(req, res) {
       return res.status(404).send({ message: "No campaign found" });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `campaign router error ${error.message}` });
+    return res.status(500).send({ message: `campaign router error ${error.message}` });
   }
 }
 
 // change campaign status (Deleted, Pause , Resume)from screen
 export async function changeCampaignStatus(req, res) {
   try {
-    console.log("changeCampaignStatus called! ");
+    // console.log("changeCampaignStatus called! ");
     const campaignId = req.params.id;
     const campaignStatus = req.params.status;
     const campaign = await Campaign.findById(campaignId);
     //only screen owner can delete campaign
-    if (!campaign)
-      return res
-        .status(400)
-        .send("Unauthorize access for deleting this campaign");
+    if (!campaign) {
+      return res.status(400).send("Unauthorize access for deleting this campaign");
+    }
 
     if (campaignStatus === "Deleted") {
       const screen = await Screen.findById(campaign.screen);
@@ -184,15 +176,13 @@ export async function changeCampaignStatus(req, res) {
       return res.status(200).send(updatedCampaign);
     } else if (campaignStatus === "Pause") {
       if (campaign.isPause) {
-        res
-          .status(400)
-          .send({ message: `Already paused ${campaign.name} campaign` });
+        return res.status(400).send({ message: `Already paused ${campaign.name} campaign` });
       } else {
         campaign.isPause = true;
         campaign.status = "Pause";
         const updatedCampaign = await campaign.save();
         console.log("status chnage to pause :", updatedCampaign);
-        res.status(200).send({ message: "Campaign Paused " });
+        return res.status(200).send({ message: "Campaign Paused " });
       }
     } else if (campaignStatus === "Resume") {
       if (campaign.isPause) {
@@ -202,19 +192,13 @@ export async function changeCampaignStatus(req, res) {
         console.log("status chnage to resume :", updatedCampaign.status);
         res.status(200).send({ message: "Campaign Resume " });
       } else {
-        res
-          .status(400)
-          .send({ message: `Already resumed ${campaign.name} campaign` });
+        return res.status(400).send({ message: `Already resumed ${campaign.name} campaign` });
       }
     } else {
-      return res
-        .status(400)
-        .send("Unauthorize access for deleting this campaign");
+      return res.status(400).send("Unauthorize access for deleting this campaign");
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
@@ -230,9 +214,7 @@ export async function getCampaignDetail(req, res) {
       return res.status(404).send({ message: "No campaign found" });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
@@ -258,14 +240,12 @@ export async function getCampaignAndMediaListByScreenId(req, res) {
           });
         }
       }
-      res.status(200).send(data);
+      return res.status(200).send(data);
     } else {
       return res.status(404).send({ message: "No Screen found", data });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
@@ -279,9 +259,7 @@ export async function updateCampaignById(req, res) {
     const updatededCampaign = await campaign.save();
     return res.status(200).send(updatededCampaign);
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
@@ -306,14 +284,13 @@ export async function getFilteredCampaignListBydateRange(req, res) {
 
     return res.status(200).send(campaigns);
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
+    return res.status(500).send({ message: `Campaign router error ${error.message}` });
   }
 }
 
 // get campaign details alogn with all screens with this campaign
 export async function getCampaignDetailWithScreenList(req, res) {
+
   try {
     const cid = req.params.cid;
     const campaignName = req.params.campaignName;
@@ -337,5 +314,22 @@ export async function getCampaignDetailWithScreenList(req, res) {
     return res.status(500).send({
       message: `Campaign controller error at getCampaignDetailWithScreenList ${error}`,
     });
+  }
+}
+
+
+export async function getAllCampaignListByBrandId(req, res) {
+  try {
+    const brandId = req.params.brandId;
+    const brand = await Brand.findOne({ _id: brandId })
+    const campaignList = await Campaign.find({
+      ally: brand.user,
+    });
+    if (!campaignList) {
+      return res.status(401).send({ message: "campaign not found" });
+    }
+    return res.status(200).send(campaignList);
+  } catch (error) {
+    return res.status(404).send({ message: `campaign router error, ${error.message}` });
   }
 }

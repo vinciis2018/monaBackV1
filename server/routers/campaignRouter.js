@@ -11,6 +11,7 @@ import {
   getAllCampaignListByScreenId,
   getFilteredCampaignListBydateRange,
   getCampaignDetailWithScreenList,
+  getAllCampaignListByBrandId,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -21,6 +22,7 @@ const campaignRouter = express.Router();
 campaignRouter.post("/create", isAuth, addNewCampaign);
 
 //get request
+campaignRouter.get("/brandCampaign/:brandId", getAllCampaignListByBrandId);
 campaignRouter.get("/:id/screen", getCampaignListByScreenId);
 campaignRouter.get("/:id/screen/all", getAllCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);
