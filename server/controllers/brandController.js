@@ -21,26 +21,27 @@ export async function createBrand(req, res) {
   try {
     // brand creates a reward program, which mints reward coupons from user interaction
     const brandId = new mongoose.Types.ObjectId();
-    console.log("createBrand called !");
+    // console.log("createBrand called !", req.body);
     const user = await User.findOne({ _id: req.user._id });
     if (!user) {
-      return res
-        .status(404)
-        .send({ message: "User Not Found! DO login again" });
+      return res.status(404).send({ message: "User Not Found! DO login again" });
     }
 
     if (user.brand?.length > 0) {
-      const brand = await Brand.findOne({ _id: user.brand[0] });
+      // console.log("1 called !", user.brand?.length);
 
+      const brand = await Brand.findOne({ _id: user.brand[0] });
+      // console.log("2 called !");
       return res.status(200).send(brand);
     } else {
+      // console.log("3 called !");
       const brand = new Brand({
         _id: brandId,
-        brandName: "BrandName" || req.body.brandName,
-        tagline: "One of the best brands" || req.body.tagline,
-        address: "Full address here" || req.body.address,
-        brandCategory: "" || req.body.brandCategory,
-        brandType: "" || req.body.brandType,
+        brandName: req.body.brandName,
+        tagline: req.body.tagline,
+        address: req.body.address,
+        brandCategory: req.body.brandCategory,
+        brandType: req.body.brandType,
         user: user._id,
         rewards: [],
         additionalInfo: {},
@@ -66,13 +67,13 @@ export async function createBrand(req, res) {
 
       await user.save();
       const createdBrand = await brand.save();
+      // console.log("4 called !");
+
       return res.status(200).send(createdBrand);
     }
   } catch (error) {
     console.log("error : ", error);
-    return res
-      .status(500)
-      .send({ message: `Brand router error ${error.message}` });
+    return res.status(404).send({ message: `Brand router error ${error.message}` });
   }
 }
 
@@ -123,9 +124,7 @@ export async function editBrand(req, res) {
 
     return res.status(200).send(updatedBrand);
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Brand router error ${error.message}` });
+    return res.status(500).send({ message: `Brand router error ${error.message}` });
   }
 }
 
