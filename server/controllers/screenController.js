@@ -557,7 +557,13 @@ export async function getFilteredScreenList(req, res) {
 //  get all screens
 export async function getAllScreens(req, res) {
   try {
-    const screens = await Screen.find();
+    const allScreens = await Screen.find();
+    // console.log(allScreens.length);
+    const sampleScreens = allScreens.filter((sc) => sc.name.includes('sample'));
+    // console.log(sampleScreens.length);
+    const realScreens = allScreens.filter((screen) => !sampleScreens.some( scn => screen.name === scn.name ))
+    // console.log(realScreens.length);
+    const screens = realScreens;
     return res.status(200).send(screens);
   } catch (error) {
     return res.status(500).send(`screen router error ${error}`);
