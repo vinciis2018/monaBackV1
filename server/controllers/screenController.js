@@ -403,7 +403,7 @@ export async function getScreensBySearchQuery(req, res) {
       ...highlightsFilter,
       ...mobilityFilter,
     });
-    console.log("records founds : ", JSON.stringify(screens));
+    // console.log("records founds : ", JSON.stringify(screens));
     return res.status(200).send(screens);
   } catch (error) {
     return res.status(500).send({
