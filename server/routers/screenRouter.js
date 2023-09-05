@@ -20,6 +20,7 @@ import {
   getFilteredScreenListByAudiance,
   getAllScreens,
   getCouponListByScreenId,
+  getScreensBySearchQuery,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -37,6 +38,7 @@ screenRouter.post("/:id/allyPlea/ally", isAuth, addAllyPlea);
 //get request
 screenRouter.get("/top-medias", getTopCampaigns);
 screenRouter.get("/", getScreensList);
+screenRouter.get("/getScreens", getScreensBySearchQuery);
 screenRouter.get("/couponList/:screenId", getCouponListByScreenId);
 screenRouter.get("/:id", getScreenDetailsByScreenId);
 screenRouter.get("/:id/pin", getPinDetailsByScreenId);

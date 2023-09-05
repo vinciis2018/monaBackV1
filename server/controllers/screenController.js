@@ -340,6 +340,78 @@ export async function getTopCampaigns(req, res) {
     return res.status(500).send(`screen router error ${error}`);
   }
 }
+
+//filter screen
+export async function getScreensBySearchQuery(req, res) {
+  try {
+    const screenHighlights = JSON.parse(req.query.screenHighlights);
+    const averageAgeGroup = JSON.parse(req.query.averageAgeGroup);
+    const mobility = JSON.parse(req.query.mobility);
+    const employmentStatus = JSON.parse(req.query.employmentStatus);
+
+    // const genders = JSON.stringify(req.query.genders);
+    const averageAgeGroupGreaterThen =
+      averageAgeGroup?.length > 1
+        ? {
+            "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
+              {
+                $gte: averageAgeGroup[0],
+              },
+          }
+        : {};
+    const averageAgeGroupLessThen =
+      averageAgeGroup?.length > 1
+        ? {
+            "additionalData.footfallClassification.averageAgeGroup.eaverageEndAgend":
+              {
+                $lte: averageAgeGroup[1],
+              },
+          }
+        : {};
+    const employmentStatusFilter =
+      employmentStatus?.length > 0
+        ? {
+            "additionalData.footfallClassification.employmentStatus": {
+              $in: [...employmentStatus],
+            },
+          }
+        : {};
+    //additionalData?.footfallClassification?.crowdMobilityType
+
+    const mobilityFilter =
+      mobility?.length > 0
+        ? {
+            "additionalData?.footfallClassification?.crowdMobilityType": {
+              $in: [...mobility],
+            },
+          }
+        : {};
+
+    const highlightsFilter =
+      screenHighlights?.length > 0
+        ? {
+            screenHighlights: {
+              $in: [...screenHighlights],
+            },
+          }
+        : {};
+
+    const screens = await Screen.find({
+      ...averageAgeGroupGreaterThen,
+      ...averageAgeGroupLessThen,
+      ...employmentStatusFilter,
+      ...highlightsFilter,
+      ...mobilityFilter,
+    });
+    console.log("records founds : ", JSON.stringify(screens));
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at getScreensBySearchQuery ${error.message}`,
+    });
+  }
+}
+
 // filter screens by audiance data
 export async function getFilteredScreenListByAudiance(req, res) {
   console.log(req.query);
@@ -657,7 +729,6 @@ export async function updateScreenById(req, res) {
     );
 
     if (calender && masterScreen) {
-
       screen.name = req.body.name || screen.name;
       screen.rentPerSlot = req.body.rentPerSlot || screen.rentPerSlot;
       screen.image = req.body.image || screen.image;
@@ -720,40 +791,44 @@ export async function updateScreenById(req, res) {
       if (screenData) {
         screenData.dataType = req?.body?.screenDataType || screenData?.dataType;
 
-        if (screen.category === "RAILWAYS" || req?.body?.dataType === "RAILWAYS") {
+        if (
+          screen.category === "RAILWAYS" ||
+          req?.body?.dataType === "RAILWAYS"
+        ) {
           console.log("2");
-  
+
           const trainDetailsHere = {
             trainName: req.body.trainName,
             trainCode: req.body.trainCode,
             trainDetails: req.body.trainDetails,
           };
-          screenData.stationName = req.body.stationName || screenData.stationName;
-          screenData.stationCode = req.body.stationCode || screenData.stationCode;
+          screenData.stationName =
+            req.body.stationName || screenData.stationName;
+          screenData.stationCode =
+            req.body.stationCode || screenData.stationCode;
           const myTrainData = screenData.trains.filter(
             (td) => td.trainName === req.body.trainName
           )[0];
           const myTrainCode = screenData.trains
             .filter((tc) => tc.trainCode === req.body.trainCode)
             .map((mtc) => mtc.trainCode)[0];
-  
+
           // console.log(myTrainData);
           // console.log(myTrainCode);
-  
+
           console.log(req.body.trainName);
           if (myTrainData && myTrainCode) {
             // console.log(myTrainData.trainDetails);
-  
+
             myTrainData.trainDetails.push(req.body.trainDetails);
           } else {
             screenData.trains.push(trainDetailsHere);
           }
         }
-  
+
         const updatedScreenData = await screenData.save();
-  
       }
-      
+
       const updatedPin = await pin.save();
       const updatedCalender = await calender.save();
       const updatedScreen = await screen.save();
@@ -947,12 +1022,12 @@ export async function getScreenLogs(req, res) {
     //   const carDetails = await createWeb3Name(req);
     // }
     // await uploadWeb3Name(cidData);
-    
+
     console.log("got screen logs: ", screenLog?.playingDetails?.length);
-    const last50  = screenLog?.playingDetails.reverse().slice(0, 50);
+    const last50 = screenLog?.playingDetails.reverse().slice(0, 50);
     const totalCount = screenLog?.playingDetails.length;
-    const allLogs = screenLog?.playingDetails
-    return res.status(200).send({last50, totalCount, allLogs});
+    const allLogs = screenLog?.playingDetails;
+    return res.status(200).send({ last50, totalCount, allLogs });
   } catch (error) {
     return res
       .status(500)
@@ -1003,7 +1078,7 @@ export async function addAllyPlea(req, res) {
     await screen.save();
     await user.save();
     console.log(
-      "pleas creaded and send plea request to screen owner : ",
+      "pleas creaded and send plea request to screen owner : "
       // newPlea
     );
     return res
@@ -1121,4 +1196,4 @@ export const getCouponListByScreenId = async (req, res) => {
       message: `Screen controller error at getCouponListByScreenId ${error.message}`,
     });
   }
-}
+};
