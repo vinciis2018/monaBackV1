@@ -349,7 +349,7 @@ export async function getScreensBySearchQuery(req, res) {
     const mobility = JSON.parse(req.query.mobility);
     const employmentStatus = JSON.parse(req.query.employmentStatus);
 
-    // const genders = JSON.stringify(req.query.genders);
+    const genders = JSON.stringify(req.query.genders);
     const averageAgeGroupGreaterThen =
       averageAgeGroup?.length > 1
         ? {
@@ -404,7 +404,16 @@ export async function getScreensBySearchQuery(req, res) {
       ...mobilityFilter,
     });
     // console.log("records founds : ", JSON.stringify(screens));
-    return res.status(200).send(screens);
+    return res.status(200).send({
+      screens,
+      filter: {
+        screenHighlights,
+        averageAgeGroup,
+        mobility,
+        employmentStatus,
+        genders,
+      },
+    });
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at getScreensBySearchQuery ${error.message}`,
@@ -559,9 +568,11 @@ export async function getAllScreens(req, res) {
   try {
     const allScreens = await Screen.find();
     // console.log(allScreens.length);
-    const sampleScreens = allScreens.filter((sc) => sc.name.includes('sample'));
+    const sampleScreens = allScreens.filter((sc) => sc.name.includes("sample"));
     // console.log(sampleScreens.length);
-    const realScreens = allScreens.filter((screen) => !sampleScreens.some( scn => screen.name === scn.name ))
+    const realScreens = allScreens.filter(
+      (screen) => !sampleScreens.some((scn) => screen.name === scn.name)
+    );
     // console.log(realScreens.length);
     const screens = realScreens;
     return res.status(200).send(screens);
