@@ -1,57 +1,53 @@
+import { CAMPAIGN_STATUS_PENDING } from "../Constant/campaignStatusConstant.js";
+import { CAMPAIGN_ALLY_PLEA } from "../Constant/pleaRequestTypeConstant.js";
 import CampaignForMultipleScreen from "../models/campaignForMultipleScreenModel.js";
+import Campaign from "../models/campaignModel.js";
 import Media from "../models/mediaModel.js";
 import Plea from "../models/pleaModel.js";
 import Screen from "../models/screenModel.js";
 import User from "../models/userModel.js";
 import mongoose from "mongoose";
 
-async function addCampaignPlea({
-  user: userInfo,
-  campaignData,
-  cid,
-  campaign,
-}) {
+async function addCampaignPlea({ user, screen, cid, campaign }) {
   try {
-    console.log("addCampaignPlea called! : ", campaignData);
-    const screen = await Screen.findById(campaignData?.screen);
-    const user = await User.findOne({
-      _id: userInfo._id,
-    });
-
-    if (!user) return res.status(404).send("No user found");
-
     const oldPlea = await Plea.findOne({
       screen: screen._id,
       from: user._id,
+      video: `https://ipfs.io/ipfs/${cid}`,
       reject: false,
     });
 
+    if (oldPlea) {
+      // console.log(
+      //   "old Plea is present so i am not going to create again new plea: "
+      // );
+      return Promise.resolve();
+    }
+
+    const fromUser = await User.findById(user?._id);
+
     // if plea already present then no need to create a new plea
-    console.log(
-      "old Plea is present so i am not going to create again new plea: "
-    );
-    if (oldPlea) return Promise.resolve();
 
     const plea = new Plea({
       _id: new mongoose.Types.ObjectId(),
       from: user._id,
       to: screen.master,
       screen: screen._id,
-      pleaType: "CAMPAIGN_ALLY_PLEA",
+      pleaType: CAMPAIGN_ALLY_PLEA,
       content: `I would like to request an Campaign plea for this ${screen.name} screen`,
       status: false,
       reject: false,
       blackList: false,
       remarks: `${user.name} has requested an Campaign plea for ${screen.name} screen`,
       video: `https://ipfs.io/ipfs/${cid}`,
-      campaignForMultipleScreen: campaign._id,
+      campaign: campaign._id,
     });
 
     const savedPlea = await plea.save();
     screen.pleas.push(savedPlea);
-    user.pleasMade.push(savedPlea);
+    fromUser.pleasMade.push(savedPlea);
     await screen.save();
-    await user.save();
+    await fromUser.save();
     return Promise.resolve();
   } catch (error) {
     return Promise.reject(error);
@@ -66,22 +62,63 @@ export async function addNewCampaignForMultipleScreen(req, res) {
     // if (!media) res.status(404).send({ message: "Media Not Found" });
     const cid = req.body.cid;
     const user = req.body.user;
+    const media = req.body.media;
 
-    const newCampaign = new CampaignForMultipleScreen({
-      cid: cid,
-      campaignName: req.body.campaignName || "campaign Name",
-      ally: user._id,
-      additionalInfo: [...req.body.campaignWithScreens],
-    });
-    const campaign = await newCampaign.save();
-    // Creating new ples request for each screen
-    for (let campaignData of campaign?.additionalInfo) {
-      await addCampaignPlea({ user, campaignData, cid, campaign });
+    // const newCampaign = new CampaignForMultipleScreen({
+    //   cid: cid,
+    //   campaignName: req.body.campaignName || "campaign Name",
+    //   ally: user._id,
+    //   additionalInfo: [...req.body.campaignWithScreens],
+    // });
+
+    for (let data of req.body.campaignWithScreens) {
+      const screenId = data.screen;
+      const screen = await Screen.findById(screenId);
+
+      const newCampaign = new Campaign({
+        screen: screenId,
+        cid: cid,
+        media: media?._id,
+        thumbnail: media.thumbnail,
+        campaignName: trim(req.body.campaignName) || "campaign Name",
+        video: media.media,
+        ally: user._id,
+        master: screen.master,
+        isSlotBooked: false,
+        paidForSlot: false,
+        totalSlotBooked: Number(data.totalSlotBooked) || 0,
+        remainingSlots: data.totalSlotBooked || 0,
+        rentPerSlot: screen.rentPerSlot,
+        totalAmount: Number(data.totalSlotBooked) * screen.rentPerSlot,
+        vault: Number(data.totalSlotBooked) * screen.rentPerSlot,
+        allyWalletAddress: user.defaultWallet,
+
+        startDate: data.startDateAndTime || new Date(),
+        endDate: data.endDateAndTime || new Date(),
+        startTime: data.startDateAndTime || new Date(),
+        endTime: data.endDateAndTime || new Date(),
+        isDefaultCampaign: data.isDefaultCampaign || false,
+        status: CAMPAIGN_STATUS_PENDING,
+        screenAddress: screen.screenAddress,
+        districtCity: screen.districtCity,
+        stateUT: screen.stateUT,
+        country: screen.country,
+      });
+      const campaign = await newCampaign.save();
+      // console.log("new campaign created successfully!", campaign);
+      screen.campaigns.push(campaign._id);
+      await screen.save();
+
+      // Now send plea request to screen owner of this screen, if user itself is not screen owner
+      if (screen.master !== user?._id) {
+        //send campaign plea to that screen owner
+        await addCampaignPlea({ user, screen, cid, campaign });
+      }
     }
-    return res.status(200).send(campaign);
+    return res.status(200).send("Campaigns created successfuly!");
   } catch (error) {
     return res.status(500).send({
-      message: `CampaignForMultipleScreen router error ${error.message}`,
+      message: `addNewCampaignForMultipleScreen router error ${error.message}`,
     });
   }
 }

@@ -27,7 +27,7 @@ const changePassword = async (req, res, user) => {
       isItanimulli: updateUser.isItanimulli,
       isMaster: updateUser.isMaster,
       isCreator: updateUser.isCreator,
-      creator: updatedUser.creator,
+      creator: updateUser.creator,
       isBrand: updateUser.isBrand,
       brand: updateUser.brand,
       isViewer: updateUser.isViewer,
@@ -355,49 +355,50 @@ export async function getUserCampaigns(req, res) {
     //     campaignName: 'play card'
     //   }
     // },]
-    const data2 = await CampaignForMultipleScreen.aggregate([
-      { $match: { ally: new ObjectId(allyId) } },
-      {
-        $group: {
-          _id: {
-            cid: "$cid",
-            campaignName: "$campaignName",
-          },
-        },
-      },
-    ]);
-    if (data?.length === 0 && data2?.length === 0) {
+    // const data2 = await CampaignForMultipleScreen.aggregate([
+    //   { $match: { ally: new ObjectId(allyId) } },
+    //   {
+    //     $group: {
+    //       _id: {
+    //         cid: "$cid",
+    //         campaignName: "$campaignName",
+    //       },
+    //     },
+    //   },
+    // ]);
+    if (data?.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
-    } else {
-      const myCampaigns = [];
-
-      for (let singleData of data) {
-        const campaign = await Campaign.findOne({
-          cid: singleData?._id?.cid,
-          campaignName: singleData?._id?.campaignName,
-        });
-        if (campaign) {
-          myCampaigns.push(campaign);
-        }
-      }
-  
-      for (let singleData of data2) {
-        const campaign2 = await Campaign.findOne({
-          cid: singleData?._id?.cid,
-          campaignName: singleData?._id?.campaignName,
-        });
-        if (campaign2) {
-          myCampaigns.push(campaign2);
-        }
-      }
-
-      const campaignsHere = myCampaigns.sort(
-        (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate),
-      ).reverse();
-      
-      return res.status(200).send(campaignsHere);
     }
-    
+
+    const myCampaigns = [];
+
+    for (let singleData of data) {
+      const campaign = await Campaign.findOne({
+        cid: singleData?._id?.cid,
+        campaignName: singleData?._id?.campaignName,
+      });
+      if (campaign) {
+        myCampaigns.push(campaign);
+      }
+
+      // for (let singleData of data2) {
+      //   const campaign2 = await Campaign.findOne({
+      //     cid: singleData?._id?.cid,
+      //     campaignName: singleData?._id?.campaignName,
+      //   });
+      //   if (campaign2) {
+      //     myCampaigns.push(campaign2);
+      //   }
+      // }
+
+      // const campaignsHere = myCampaigns
+      //   .sort(
+      //     (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate)
+      //   )
+      //   .reverse();
+
+      return res.status(200).send(myCampaigns);
+    }
   } catch (error) {
     return res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
@@ -455,12 +456,13 @@ export async function getUserActiveCampaigns(req, res) {
           myCampaigns.push(campaign2);
         }
       }
-      const campaignsHere = myCampaigns.sort(
-        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate),
-      ).reverse();
+      const campaignsHere = myCampaigns
+        .sort(
+          (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate)
+        )
+        .reverse();
       return res.status(200).send(campaignsHere);
     }
-    
   } catch (error) {
     return res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,
@@ -486,7 +488,9 @@ export async function getUserScreens(req, res) {
     if (myScreens) return res.status(200).send(myScreens);
     return res.status(404).send({ message: "Screens not found" });
   } catch (error) {
-    return res.status(500).send({ message: `User router error ${error.message}` });
+    return res
+      .status(500)
+      .send({ message: `User router error ${error.message}` });
   }
 }
 
@@ -510,7 +514,6 @@ export async function deleteAllMedias(req, res) {
         medias: deletedMedia,
       });
     }
-    
   } catch (error) {
     return res.status(404).send(error);
   }
@@ -538,7 +541,9 @@ export async function getUserMedias(req, res) {
     if (mymedias.length > 0) return res.status(200).send(mymedias);
     else return res.status(401).send({ message: "medias not found" });
   } catch (error) {
-    return res.status(500).send({ message: `User router error ${error.message}` });
+    return res
+      .status(500)
+      .send({ message: `User router error ${error.message}` });
   }
 }
 

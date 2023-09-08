@@ -7,6 +7,10 @@ const pleaSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "CampaignForMultipleScreen",
     },
+    campaign: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+    },
     from: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, //from
     to: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }, // to
     pleaType: {
