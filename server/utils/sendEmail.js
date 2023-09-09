@@ -40,9 +40,9 @@ export function sendConfirmationEmail(
     })
     .then((data) => {
       console.log("Email has send to your email :", toEmail);
-      return res.status(400).send({
-        message: `Email sent to your ragistered email ${toEmail}`,
-      });
+      return res
+        .status(200)
+        .send(`Email sent to your ragistered email ${toEmail}`);
     })
     .catch((err) => {
       console.log(err);

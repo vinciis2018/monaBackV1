@@ -21,6 +21,7 @@ import {
   getUserCouponList,
   getUserActiveCampaigns,
   userSigninWithGoogleLogin,
+  sendEmailToSetPassword,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -30,6 +31,7 @@ const userRouter = express.Router();
 userRouter.post("/signup", userSignUp);
 userRouter.post("/signin", userSignin);
 userRouter.post("/googleSignupSignin", userSigninWithGoogleLogin);
+userRouter.post("/sendEmailToSetPassword", sendEmailToSetPassword);
 
 //get request
 userRouter.get("/", getUsersList);

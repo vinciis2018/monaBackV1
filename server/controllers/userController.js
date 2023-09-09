@@ -82,15 +82,6 @@ export async function userSignUp(req, res) {
       changePassword(req, res, oldUser);
     }
 
-    if (req.body.password === "") {
-      sendConfirmationEmail(
-        req.body.email,
-        req.body.name,
-        requestCameFromURL,
-        req,
-        res
-      );
-    }
     if (!oldUser && req.body.password) {
       const user = new User({
         name: req.body.name,
@@ -179,6 +170,45 @@ export async function getUserInfoById(req, res) {
     return res
       .status(500)
       .send({ message: `User router error ${error.message}` });
+  }
+}
+
+// send email ti user to set passoword
+
+export async function sendEmailToSetPassword(req, res) {
+  try {
+    console.log("request came to send email to user ", req.body.email);
+    const requestCameFromURL = `${req.header("Origin")}/`;
+    //signup,
+    //forgetPsssword,
+
+    const email = req.body.email;
+    const signup = req.body.signup;
+    const forgetPassword = req.body.forgetPsssword;
+
+    const user = await User.findOne({ email });
+
+    if (user && signup) {
+      return res
+        .status(400)
+        .send({ message: "User allready exist, please sign in" });
+    } else if (!user && forgetPassword) {
+      return res
+        .status(400)
+        .send({ message: "Your account does not exist, please sign up first" });
+    } else {
+      sendConfirmationEmail(
+        req.body.email,
+        req.body.name,
+        requestCameFromURL,
+        req,
+        res
+      );
+    }
+  } catch (error) {
+    return res.status(500).send({
+      message: `sendEmailToSetPassword controller error ${error.message}`,
+    });
   }
 }
 export async function userSigninWithGoogleLogin(req, res) {
