@@ -2,6 +2,7 @@ import express from "express";
 import {
   addNewCampaignForMultipleScreen,
   createCampaignBasedOnAudiancesProfile,
+  filterScreensBasedOnAudiancesProfile,
 } from "../controllers/campaignForMultipleScreenController.js";
 const campaignForMultipleScreenRouter = express.Router();
 
@@ -11,7 +12,10 @@ campaignForMultipleScreenRouter.post(
   "/create",
   addNewCampaignForMultipleScreen
 );
-
+campaignForMultipleScreenRouter.post(
+  "/getScreens",
+  filterScreensBasedOnAudiancesProfile
+);
 campaignForMultipleScreenRouter.post(
   "/createCampaign",
   createCampaignBasedOnAudiancesProfile

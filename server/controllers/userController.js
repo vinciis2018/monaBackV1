@@ -380,25 +380,15 @@ export async function getUserCampaigns(req, res) {
       if (campaign) {
         myCampaigns.push(campaign);
       }
-
-      // for (let singleData of data2) {
-      //   const campaign2 = await Campaign.findOne({
-      //     cid: singleData?._id?.cid,
-      //     campaignName: singleData?._id?.campaignName,
-      //   });
-      //   if (campaign2) {
-      //     myCampaigns.push(campaign2);
-      //   }
-      // }
-
-      // const campaignsHere = myCampaigns
-      //   .sort(
-      //     (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate)
-      //   )
-      //   .reverse();
-
-      return res.status(200).send(myCampaigns);
     }
+
+    const campaignsHere = myCampaigns
+      .sort(
+        (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate)
+      )
+      .reverse();
+
+    return res.status(200).send(campaignsHere);
   } catch (error) {
     return res.status(500).send({
       message: `User router error in getUserCampaigns ${error.message}`,

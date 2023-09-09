@@ -1,8 +1,6 @@
 import { CAMPAIGN_STATUS_PENDING } from "../Constant/campaignStatusConstant.js";
 import { CAMPAIGN_ALLY_PLEA } from "../Constant/pleaRequestTypeConstant.js";
-import CampaignForMultipleScreen from "../models/campaignForMultipleScreenModel.js";
 import Campaign from "../models/campaignModel.js";
-import Media from "../models/mediaModel.js";
 import Plea from "../models/pleaModel.js";
 import Screen from "../models/screenModel.js";
 import User from "../models/userModel.js";
@@ -57,19 +55,10 @@ async function addCampaignPlea({ user, screen, cid, campaign }) {
 export async function addNewCampaignForMultipleScreen(req, res) {
   try {
     console.log("addNewCampaignForMultipleScreen  called : ");
-    // const mediaId = req.body.mediaId;
-    // const media = await Media.findById(mediaId);
-    // if (!media) res.status(404).send({ message: "Media Not Found" });
+
     const cid = req.body.cid;
     const user = req.body.user;
     const media = req.body.media;
-
-    // const newCampaign = new CampaignForMultipleScreen({
-    //   cid: cid,
-    //   campaignName: req.body.campaignName || "campaign Name",
-    //   ally: user._id,
-    //   additionalInfo: [...req.body.campaignWithScreens],
-    // });
 
     for (let data of req.body.campaignWithScreens) {
       const screenId = data.screen;
@@ -80,7 +69,7 @@ export async function addNewCampaignForMultipleScreen(req, res) {
         cid: cid,
         media: media?._id,
         thumbnail: media.thumbnail,
-        campaignName: trim(req.body.campaignName) || "campaign Name",
+        campaignName: req.body.campaignName.trim() || "campaign Name",
         video: media.media,
         ally: user._id,
         master: screen.master,
@@ -123,39 +112,38 @@ export async function addNewCampaignForMultipleScreen(req, res) {
   }
 }
 
-export async function createCampaignBasedOnAudiancesProfile(req, res) {
+export async function filterScreensBasedOnAudiancesProfile(req, res) {
   try {
-    // console.log("req.body : ", req.body);
-    const user = req.body.user;
     const genderPreference = req.body.genderPreference;
     const employmentTypes = req.body.employmentTypes;
     const croudMobability = req.body.croudMobability;
     const screenHighlights = req.body.screenHighlights;
-    const location = req.body.cities?.split(",").map((city) => city.trim()); // 'wqw,wq,wqw,qw' => ['wqw','wq',....]
-    const startDateAndTime = req.body.startDateAndTime;
-    const endDateAndTime = req.body.endDateAndTime;
-    const budget = req.body.budget;
-    const campaignName = req.body.campaignName;
-    const cid = req.body.cid;
+    const location = req.body.cities?.split(",").map((city) => {
+      const str = city.trim().toLowerCase();
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }); // note first remove spaces amd convert first cahr is capi
     const ageRange = req.body.ageRange;
     const numberOfAudiances = req.body.numberOfAudiances;
 
-    const averageAgeGroupGreaterThen =
+    const screenNameFilter = {
+      name: { $not: { $regex: "sample", $options: "i" } },
+    };
+    const averageAgeGroupFilter =
       ageRange?.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
               {
-                $lte: ageRange[0],
+                $gte: ageRange[0],
+                $lte: ageRange[1],
               },
           }
         : {};
-    const averageAgeGroupLessThen =
-      ageRange?.length > 1
+    const averageDailyFootfallFilter =
+      numberOfAudiances > 0
         ? {
-            "additionalData.footfallClassification.averageAgeGroup.eaverageEndAgend":
-              {
-                $gte: ageRange[1],
-              },
+            "additionalData.averageDailyFootfall": {
+              $gte: numberOfAudiances,
+            },
           }
         : {};
     const employmentStatusFilter =
@@ -200,59 +188,101 @@ export async function createCampaignBasedOnAudiancesProfile(req, res) {
           }
         : {};
 
-    // console.log(
-    //   "data : ",
-    //   averageAgeGroupGreaterThen,
-    //   averageAgeGroupLessThen,
-    //   employmentStatusFilter,
-    //   croudMobabilityFilter,
-    //   screenAddressFilter,
-    //   highlightsFilter
-    // );
+    console.log(
+      "data : ",
+      employmentStatusFilter,
+      croudMobabilityFilter,
+      screenAddressFilter,
+      highlightsFilter,
+      averageAgeGroupFilter
+    );
 
-    const screens = await Screen.find({
+    let screens = await Screen.find({
+      ...screenNameFilter,
       $or: [screenAddressFilter, locationFilter],
       ...highlightsFilter,
-      ...averageAgeGroupGreaterThen,
-      ...averageAgeGroupLessThen,
+      ...averageAgeGroupFilter,
       ...croudMobabilityFilter,
       ...employmentStatusFilter,
     });
-    console.log("records founds : ", screens);
-    console.log("records founds : ", screens.length);
+    // console.log(
+    //   "records founds in filterScreensBasedOnAudiancesProfile: ",
+    //   screens.length
+    // );
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({
+      message: `filterScreensBasedOnAudiancesProfile router error ${error.message}`,
+    });
+  }
+}
 
-    if (screens.length === 0) {
+export async function createCampaignBasedOnAudiancesProfile(req, res) {
+  try {
+    // console.log("req.body : ", req.body);
+    const user = req.body.user;
+    const media = req.body.media;
+    const startDateAndTime = req.body.startDateAndTime;
+    const endDateAndTime = req.body.endDateAndTime;
+    const budget = req.body.budget;
+    const campaignName = req.body.campaignName;
+    const cid = req.body.cid;
+    const screenIds = req.body.screens;
+
+    if (screenIds.length === 0) {
       return res.status(404).send({
-        message: `No screen found accorging to your filter, 
+        message: `No screen found accorging to your filter,
       Please change your condition and try again!`,
       });
     }
+
+    let screens = await Screen.find({ _id: { $in: screenIds } });
+    // console.log("records founds : ", screens.length);
 
     const averageSlot = (
       budget / screens?.reduce((accum, screen) => accum + screen.rentPerSlot, 0)
     ).toFixed(0);
 
-    const additionalInfo = screens.map((screen) => {
-      return {
-        startDateAndTime: startDateAndTime,
-        endDateAndTime: endDateAndTime,
-        totalSlotBooked: averageSlot,
-        totalAmount: screen.rentPerSlot * averageSlot,
+    for (let screen of screens) {
+      const newCampaign = new Campaign({
         screen: screen?._id,
-      };
-    });
+        cid: cid,
+        media: media?._id,
+        thumbnail: media.thumbnail,
+        campaignName: campaignName.trim() || "campaign Name",
+        video: media.media,
+        ally: user._id,
+        master: screen.master,
+        isSlotBooked: false,
+        paidForSlot: false,
+        totalSlotBooked: Number(averageSlot) || 0,
+        remainingSlots: averageSlot || 0,
+        rentPerSlot: screen.rentPerSlot,
+        totalAmount: Number(averageSlot) * screen.rentPerSlot,
+        vault: Number(averageSlot) * screen.rentPerSlot,
+        allyWalletAddress: user.defaultWallet,
 
-    const newCampaign = new CampaignForMultipleScreen({
-      cid: cid,
-      campaignName: req.body.campaignName || "campaign Name",
-      ally: user._id,
-      additionalInfo: additionalInfo,
-    });
+        startDate: startDateAndTime || new Date(),
+        endDate: endDateAndTime || new Date(),
+        startTime: startDateAndTime || new Date(),
+        endTime: endDateAndTime || new Date(),
+        isDefaultCampaign: req.body.isDefaultCampaign || false,
+        status: CAMPAIGN_STATUS_PENDING,
+        screenAddress: screen.screenAddress,
+        districtCity: screen.districtCity,
+        stateUT: screen.stateUT,
+        country: screen.country,
+      });
+      const campaign = await newCampaign.save();
+      // console.log("new campaign created successfully!", campaign);
+      screen.campaigns.push(campaign._id);
+      await screen.save();
 
-    const campaign = await newCampaign.save();
-    // Creating new ples request for each screen
-    for (let campaignData of campaign?.additionalInfo) {
-      await addCampaignPlea({ user, campaignData, cid, campaign });
+      // Now send plea request to screen owner of this screen, if user itself is not screen owner
+      if (screen.master !== user?._id) {
+        //send campaign plea to that screen owner
+        await addCampaignPlea({ user, screen, cid, campaign });
+      }
     }
 
     return res.status(201).send(`Plea request send on ${screens.length} screens,

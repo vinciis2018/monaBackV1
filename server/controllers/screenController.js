@@ -181,6 +181,16 @@ export async function addNewScreen(req, res) {
     const pinId = new mongoose.Types.ObjectId();
     const screenId = new mongoose.Types.ObjectId();
     const screenDataId = new mongoose.Types.ObjectId();
+    let city = req.body.districtCity;
+    let state = req.body.stateUT;
+    let country = req.body.country;
+
+    let str = city.trim().toLowerCase();
+    city = str.charAt(0).toUpperCase() + str.slice(1);
+    str = state.trim().toLowerCase();
+    state = str.charAt(0).toUpperCase() + str.slice(1);
+    str = country.trim().toLowerCase();
+    country = str.charAt(0).toUpperCase() + str.slice(1);
 
     // create new calender for this new screen
     const calender = new Calender({
@@ -224,10 +234,10 @@ export async function addNewScreen(req, res) {
         "https://ipfs.io/ipfs/bafybeihad6zquqsmmrfuznqiuphs5qb4ovw5dfxn73l624oixnkcfqfuq4" ||
         req.body.image,
 
-      screenAddress: "address" || req.body.screenAddress, //v
-      districtCity: "district/citvideoy" || req.body.districtCity, //v
-      stateUT: "state/UT" || req.body.stateUT, //v
-      country: "country" || req.body.country, //v
+      screenAddress: req.body.screenAddress || "address", //v
+      districtCity: city || "districtCity", //v
+      stateUT: state || "stateUT", //v
+      country: country || "country", //v
       landMark: "" || req.body.landMark, // like colony or marketname
       screenCode:
         Randomstring.generate({
@@ -395,8 +405,12 @@ export async function getScreensBySearchQuery(req, res) {
             },
           }
         : {};
+    const screenNameFilter = {
+      name: { $not: { $regex: "sample", $options: "i" } },
+    }; // remove screens filter which name have sample
 
     const screens = await Screen.find({
+      ...screenNameFilter,
       ...averageAgeGroupGreaterThen,
       ...averageAgeGroupLessThen,
       ...employmentStatusFilter,
@@ -436,14 +450,6 @@ export async function getFilteredScreenListByAudiance(req, res) {
         ? {
             "additionalData.averageDailyFootfall": {
               $lte: averageDailyFootfall[1],
-              $gte: averageDailyFootfall[0],
-            },
-          }
-        : {};
-    const averageDailyFootfallGreaterThen =
-      averageDailyFootfall?.length > 1
-        ? {
-            "additionalData.averageDailyFootfall": {
               $gte: averageDailyFootfall[0],
             },
           }
@@ -494,6 +500,9 @@ export async function getFilteredScreenListByAudiance(req, res) {
     const kidsFriendlyFilter = {
       "additionalData.footfallClassification.kidsFriendly": kidsFriendly,
     };
+    const screenNameFilter = {
+      name: { $not: { $regex: "sample", $options: "i" } },
+    }; // remove screens filter which name have sample
     // console.log("kidsFriendly : ", {
     //   ...averageDailyFootfallFilter,
     //   ...averagePurchasePowerGreaterThen,
@@ -505,6 +514,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
     // });
 
     const screens = await Screen.find({
+      ...screenNameFilter,
       ...averageDailyFootfallFilter,
       ...averagePurchasePowerGreaterThen,
       ...averagePurchasePowerLessThen,
@@ -544,6 +554,9 @@ export async function getFilteredScreenList(req, res) {
             },
           }
         : {};
+    const screenNameFilter = {
+      name: { $not: { $regex: "sample", $options: "i" } },
+    }; // remove screens filter which name have sample
 
     const screens = await Screen.find({
       $or: [
@@ -555,6 +568,7 @@ export async function getFilteredScreenList(req, res) {
         category,
       ],
       ...highlightsFilter,
+      ...screenNameFilter,
     });
     console.log("records founds : ", screens.length);
     return res.status(200).send(screens);
@@ -566,16 +580,13 @@ export async function getFilteredScreenList(req, res) {
 //  get all screens
 export async function getAllScreens(req, res) {
   try {
-    const allScreens = await Screen.find();
-    // console.log(allScreens.length);
-    const sampleScreens = allScreens.filter((sc) => sc.name.includes("sample"));
-    // console.log(sampleScreens.length);
-    const realScreens = allScreens.filter(
-      (screen) => !sampleScreens.some((scn) => screen.name === scn.name)
-    );
-    // console.log(realScreens.length);
-    const screens = realScreens;
-    return res.status(200).send(screens);
+    const screenNameFilter = {
+      name: { $not: { $regex: "sample", $options: "i" } },
+    }; // remove screens filter which name have sample
+
+    const allScreens = await Screen.find({ ...screenNameFilter });
+
+    return res.status(200).send(allScreens);
   } catch (error) {
     return res.status(500).send(`screen router error ${error}`);
   }
@@ -745,6 +756,17 @@ export async function updateScreenById(req, res) {
       (screen) => screen._id.toString() === screenId
     );
 
+    let city = req.body.districtCity;
+    let state = req.body.stateUT;
+    let country = req.body.country;
+
+    let str = city.trim().toLowerCase();
+    city = str.charAt(0).toUpperCase() + str.slice(1);
+    str = state.trim().toLowerCase();
+    state = str.charAt(0).toUpperCase() + str.slice(1);
+    str = country.trim().toLowerCase();
+    country = str.charAt(0).toUpperCase() + str.slice(1);
+
     if (calender && masterScreen) {
       screen.name = req.body.name || screen.name;
       screen.rentPerSlot = req.body.rentPerSlot || screen.rentPerSlot;
@@ -783,9 +805,9 @@ export async function updateScreenById(req, res) {
       // }
       screen.landMark = req.body.landMark || screen.landMark;
       screen.screenAddress = req.body.screenAddress || screen.screenAddress; //v
-      screen.districtCity = req.body.districtCity || screen.districtCity; //v
-      screen.stateUT = req.body.stateUT || screen.stateUT; //v
-      screen.country = req.body.country || screen.country; //v
+      screen.districtCity = city || screen.districtCity; //v
+      screen.stateUT = state || screen.stateUT; //v
+      screen.country = country || screen.country; //v
       screen.calender = calender._id || screen.calender; // we can change screen calender id ?
       screen.screenTags = req.body.screenTags || screen.screenTags;
       screen.screenHighlights =
