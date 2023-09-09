@@ -1236,3 +1236,32 @@ export const getCouponListByScreenId = async (req, res) => {
     });
   }
 };
+
+export const camDataHandleScreen = async (req, res) => {
+  try {
+    console.log("screenId", req.params.screenId);
+    const query = { '"","","1","2023-09-07 18:01"\n': '' }
+    console.log("body", req.query);
+    console.log("body", JSON.parse(query));
+
+
+    let move_right;
+    let inTime;
+    let move_left;
+    let outTime;
+    const dataEnter = {
+      move_right: move_right,
+      inTime: inTime,
+      move_left: move_left,
+      outTime: outTime
+    };
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId});
+    console.log(screenLog._id);
+    // screenLog.camData.push(dataEnter);
+    return res.status(200).send(screenLog.camData);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at camData ${error.message}`,
+    });
+  }
+};

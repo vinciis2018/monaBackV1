@@ -42,7 +42,8 @@ const campaignSchema = new mongoose.Schema(
     couponRewads: [
       { type: mongoose.Schema.Types.ObjectId, ref: "CouponRewardOffer" },
     ],
-
+    // isPrivate: { type: Boolean, default: false },// for brands who want to keep their campaign private
+    // isMain: { type: Boolean, default: false },// for one main content
     /**
      * Status will change accorging to this condition
      * paidForSlot === false -> Pending

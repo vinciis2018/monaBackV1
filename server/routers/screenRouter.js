@@ -21,6 +21,7 @@ import {
   getAllScreens,
   getCouponListByScreenId,
   getScreensBySearchQuery,
+  camDataHandleScreen,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -74,5 +75,8 @@ screenRouter.get(
 );
 
 screenRouter.get("/get/allScreens", getAllScreens);
+
+// cam related
+screenRouter.put("/cam/:screenId", camDataHandleScreen);
 
 export default screenRouter;

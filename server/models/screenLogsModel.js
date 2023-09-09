@@ -14,6 +14,7 @@ const screenLogsSchema = new mongoose.Schema(
     screen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
     playingDetails: [playingDataSchema],
     dataIpfs: [],
+    camData: {}
   },
   {
     timestamps: true,
