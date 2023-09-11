@@ -1232,9 +1232,7 @@ export const getCouponListByScreenId = async (req, res) => {
 export const camDataHandleScreen = async (req, res) => {
   try {
     console.log("screenId", req.params.screenId);
-    const query = { '"","","1","2023-09-07 18:01"\n': "" };
-    console.log("body", req.query);
-    console.log("body", JSON.parse(query));
+    console.log("body", req.body);
 
     let move_right;
     let inTime;
@@ -1253,6 +1251,22 @@ export const camDataHandleScreen = async (req, res) => {
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at camData ${error.message}`,
+    });
+  }
+};
+
+export const forImpressionMultiplier = async (req, res) => {
+  try {
+    console.log("screenId", req.params.screenId);
+    console.log("body", req.body);
+
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+    console.log(screenLog._id);
+    // screenLog.camData.push(dataEnter);
+    return res.status(200).send(screenLog.camData);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at impression multiplier ${error.message}`,
     });
   }
 };

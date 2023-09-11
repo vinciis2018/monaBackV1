@@ -22,6 +22,7 @@ import {
   getCouponListByScreenId,
   getScreensBySearchQuery,
   camDataHandleScreen,
+  forImpressionMultiplier,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -78,5 +79,5 @@ screenRouter.get("/get/allScreens", getAllScreens);
 
 // cam related
 screenRouter.put("/cam/:screenId", camDataHandleScreen);
-
+screenRouter.put("/impressionMultiplier/cam/:screenId", forImpressionMultiplier);
 export default screenRouter;
