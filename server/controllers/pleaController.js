@@ -74,6 +74,7 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
     const remark = `${user.name} user has been given an Campaign Ally access for ${screen.name} screen from ${master.name} user`;
 
     plea.status = true;
+    plea.reject = false;
     plea.remarks.push(remark);
 
     // Change status of campaign as "active"
