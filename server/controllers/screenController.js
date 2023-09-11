@@ -185,13 +185,6 @@ export async function addNewScreen(req, res) {
     let state = req.body.stateUT;
     let country = req.body.country;
 
-    let str = city.trim().toLowerCase();
-    city = str.charAt(0).toUpperCase() + str.slice(1);
-    str = state.trim().toLowerCase();
-    state = str.charAt(0).toUpperCase() + str.slice(1);
-    str = country.trim().toLowerCase();
-    country = str.charAt(0).toUpperCase() + str.slice(1);
-
     // create new calender for this new screen
     const calender = new Calender({
       _id: calenderId,
@@ -740,7 +733,6 @@ export async function getPinDetailsByScreenId(req, res) {
 //update screen by screen Id Note :  here we are  updating screen detail as wellas pin details also
 export async function updateScreenById(req, res) {
   try {
-    console.log("updateScreenById called ,", req.body);
     const screenId = req.params.id;
     const screen = await Screen.findOne({ _id: screenId });
     if (!screen) return res.status(404).send({ message: "Screeen Not Found" });
@@ -760,12 +752,12 @@ export async function updateScreenById(req, res) {
     let state = req.body.stateUT;
     let country = req.body.country;
 
-    let str = city.trim().toLowerCase();
-    city = str.charAt(0).toUpperCase() + str.slice(1);
-    str = state.trim().toLowerCase();
-    state = str.charAt(0).toUpperCase() + str.slice(1);
-    str = country.trim().toLowerCase();
-    country = str.charAt(0).toUpperCase() + str.slice(1);
+    let str = city?.trim().toLowerCase();
+    city = str?.charAt(0).toUpperCase() + str?.slice(1);
+    str = state?.trim().toLowerCase();
+    state = str?.charAt(0).toUpperCase() + str?.slice(1);
+    str = country?.trim().toLowerCase();
+    country = str?.charAt(0).toUpperCase() + str?.slice(1);
 
     if (calender && masterScreen) {
       screen.name = req.body.name || screen.name;
@@ -1240,10 +1232,9 @@ export const getCouponListByScreenId = async (req, res) => {
 export const camDataHandleScreen = async (req, res) => {
   try {
     console.log("screenId", req.params.screenId);
-    const query = { '"","","1","2023-09-07 18:01"\n': '' }
+    const query = { '"","","1","2023-09-07 18:01"\n': "" };
     console.log("body", req.query);
     console.log("body", JSON.parse(query));
-
 
     let move_right;
     let inTime;
@@ -1253,9 +1244,9 @@ export const camDataHandleScreen = async (req, res) => {
       move_right: move_right,
       inTime: inTime,
       move_left: move_left,
-      outTime: outTime
+      outTime: outTime,
     };
-    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId});
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
     // screenLog.camData.push(dataEnter);
     return res.status(200).send(screenLog.camData);
