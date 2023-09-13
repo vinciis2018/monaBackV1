@@ -3,6 +3,7 @@ import Campaign from "../models/campaignModel.js";
 import Media from "../models/mediaModel.js";
 import { sendMoneyBackToAlly } from "../helpers/sendMoney.js";
 import Brand from "../models/brandModel.js";
+import User from "../models/userModel.js";
 
 export async function addNewCampaign(req, res) {
   try {
@@ -348,6 +349,51 @@ export async function getAllCampaignListByBrandId(req, res) {
       return res.status(401).send({ message: "campaign not found" });
     }
     return res.status(200).send(campaignList);
+  } catch (error) {
+    return res
+      .status(404)
+      .send({ message: `campaign router error, ${error.message}` });
+  }
+}
+
+export async function deleteCampaignsPermanentlyByUserId(req, res) {
+  try {
+    const userId = req.params.id || "63f9ca13f179e67ed6c3357b";
+
+    // first check user present or not
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ message: "user not found" });
+    }
+    // let campaigns = await Campaign.find({ ally: userId });
+    // console.log(" before delete camapigns : ", campaigns.length);
+
+    // // direct delete
+    // const deletedCampaigns = await Campaign.deleteMany({ ally: userId });
+    // console.log("all deleted campaigns : ", deletedCampaigns);
+
+    // campaigns = await Campaign.find({ ally: userId });
+    // console.log(" After deletecamapigns : ", campaigns.length);
+
+    //screen wise delete
+    // first find all screens of user
+    const screens = await Screen.find({ master: userId });
+    console.log("screens .length ", screens.length);
+    //iterate each screens and delete each campaigns
+    for (let screen of screens) {
+      let campaigns = screen.campaigns;
+      // console.log(`campaigns of ${screen?.name} : ${campaigns}`);
+      for (let campaignId of campaigns) {
+        const deletdCampaigns = await Campaign.deleteOne({ _id: campaignId });
+        // console.log("deleted campaigns : ", deletdCampaigns);
+      }
+      screen.campaigns = [];
+      await screen.save();
+      // delete screen also if need else collent that line
+    }
+    return res
+      .status(200)
+      .send({ message: "All campaigns deleted successfully!" });
   } catch (error) {
     return res
       .status(404)

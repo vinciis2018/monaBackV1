@@ -87,7 +87,7 @@ export async function xxxx(req, res) {
   try {
   } catch (error) {
     return res.status(500).send({
-      message: `Card Reward controller error at createNewCardRewardOffer ${error.message}`,
+      message: `Error in getCouponListForUser ${error.message}`,
     });
   }
 }

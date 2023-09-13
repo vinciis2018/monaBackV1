@@ -1,6 +1,12 @@
+import mongoose from "mongoose";
+import {
+  COUPON_STATUS_DELETED,
+  COUPON_STATUS_FULL,
+} from "../Constant/couponStatusConstant.js";
 import Brand from "../models/brandModel.js";
 import Campaign from "../models/campaignModel.js";
 import Coupon from "../models/couponModel.js";
+import User from "../models/userModel.js";
 
 export const createNewCoupon = async (req, res) => {
   try {
@@ -61,7 +67,6 @@ export const createNewCoupon = async (req, res) => {
 
       return res.status(200).send(coupon);
     }
-  
   } catch (error) {
     console.log("error : ", error);
     return res.status(500).send({
@@ -196,9 +201,11 @@ export const deleteCoupon = async (req, res) => {
         // console.log("updated campaigns : ", updatedCampaign?.coupons);
       }
     }
-    const deletedCoupon = await coupon.delete();
+    // const deletedCoupon = await coupon.delete();
+    coupon.status = COUPON_STATUS_DELETED;
+    await coupon.save();
     // console.log("delted coupon : ", deletedCoupon);
-    return res.status(200).send(deletedCoupon);
+    return res.status(200).send(coupon);
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -206,3 +213,116 @@ export const deleteCoupon = async (req, res) => {
     });
   }
 };
+
+export async function addRedeemerToCoupon(req, res) {
+  try {
+    // console.log("addRedeemerToCoupon called!");
+    const couponId = req.params.id;
+    const userId = req.params.userId;
+
+    const couponUser = await User.findById(userId);
+    if (!couponUser)
+      return res.status(404).send({ message: "User Not Found!" });
+
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) return res.status(404).send({ message: "Coupon Not Found!" });
+    // coupon.rewardCoupons = [];
+    // await coupon.save();
+    // return res.status(200).send("deletd");
+
+    // check coupon has reach its filnal limit or not
+    if (coupon.rewardCoupons.length >= coupon.quantity) {
+      //change coupon status expire or full
+      coupon.status = COUPON_STATUS_FULL;
+      await coupon.save();
+      return res.status(400).send({
+        message: "Coupon have reached its limits, you can not use this coupon",
+      });
+    }
+    // coupon has not reach its filnal limit
+    // now check this user has redeem already or not
+    const user = coupon.rewardCoupons.find(
+      (singleUser) => singleUser.redeemer == userId
+    );
+    // console.log("user in coupons : ", user);
+    // Ager user hai to, check karenge ki user kitne bar redeem kiya hai is coupon ko and maximum time kitna hai
+    if (user) {
+      if (coupon.couponRewardInfo.redeemFrequency >= user.redeemedFrequency) {
+        return res.status(400).send({
+          message: `You can use this coupon only ${coupon.couponRewardInfo.redeemFrequency} and you have allready use this coupon ${coupon.couponRewardInfo.redeemFrequency} times.`,
+        });
+      } else {
+        // Jab  singleUser.redeemedFrequency < coupon.couponRewardInfo.redeemFrequency came to else part
+        const updatedCoupon = await Coupon.updateOne(
+          {
+            _id: couponId,
+            "rewardCoupons.redeemer": userId,
+          },
+
+          { $inc: { "rewardCoupons.$.redeemedFrequency": 1 } }
+        );
+        // console.log("updatedCoupon : ", updatedCoupon);
+        return res.status(200).send(updatedCoupon);
+      }
+    }
+    // if user not exist in coupon.rewardCoupons , it came into else part
+    // create a new user for this coupon
+    const singleCouponId = new mongoose.Types.ObjectId();
+    // single user coupon data
+    const data = {
+      _id: singleCouponId,
+      redeemer: userId,
+      redeemedFrequency: 1,
+    };
+    coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
+
+    const updatedCoupon = await coupon.save();
+    // console.log("updatedCoupon : ", updatedCoupon);
+    // saving coupon and user coupon details to user also to find all user coupon list easily
+
+    const updateUser = await User.updateOne(
+      { _id: couponUser?._id },
+      {
+        $push: { rewardCoupons: coupon._id },
+      }
+    );
+    // console.log("updated user : ", updateUser);
+    return res.status(200).send({
+      couponReward: updatedCoupon,
+      userCouponDetails: updateUser,
+    });
+  } catch (error) {
+    // console.log("eeeeeeee : ", error);
+    return res.status(500).send({
+      message: `Error in addRedeemerToCoupon ${error.message}`,
+    });
+  }
+}
+
+// get coupon list by user id
+export async function getCouponListForUser(req, res) {
+  try {
+    // console.log("getCouponListForUser called! ", req.params.userId);
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send("User not found!");
+    //check user.rewardCoupons.length
+    if (user.rewardCoupons.length === 0) return res.status(200).send([]);
+
+    const coupons = [];
+    for (let couponId of user.rewardCoupons) {
+      const coupon = await Coupon.findById(couponId);
+      if (coupon) {
+        coupons.push(coupon);
+      }
+    }
+    //you got user coupon list, now sent to user
+    return res.status(200).send(coupons);
+  } catch (error) {
+    console.log("error : ", error);
+    return res.status(500).send({
+      message: `Error in getCouponListForUser ${error.message}`,
+    });
+  }
+}

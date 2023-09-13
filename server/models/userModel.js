@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
     rewardCoupons: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "CouponRewardOffer",
+        ref: "Coupon",
       },
     ],
   },

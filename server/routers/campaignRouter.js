@@ -12,6 +12,7 @@ import {
   getFilteredCampaignListBydateRange,
   getAllCampaignListByBrandId,
   getCampaignDetailWithCidAndCampaignName,
+  deleteCampaignsPermanentlyByUserId,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -44,7 +45,10 @@ campaignRouter.get(
 campaignRouter.put("/:id", updateCampaignById);
 
 //delete request
-
+campaignRouter.delete(
+  "/deleteCamapigns/:id",
+  deleteCampaignsPermanentlyByUserId
+);
 campaignRouter.delete("/:id/:status", isAuth, changeCampaignStatus);
 
 export default campaignRouter;

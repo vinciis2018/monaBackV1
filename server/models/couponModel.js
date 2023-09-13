@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
+import { COUPON_STATUS_ACTIVE } from "../Constant/couponStatusConstant.js";
 
 export const couponRewardSchema = new mongoose.Schema(
   {
     redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    couponCode: { type: String, required: true }, //unique coupon code assign to each coupon
     redeemedFrequency: { type: Number, default: 0 }, // for each user, each user how many times redeemed this coupon
     additionalInfo: {},
   },
@@ -33,6 +33,7 @@ const couponSchema = new mongoose.Schema(
     // nfts: [{ type: String, default: ""}],
     quantity: { type: Number },
     couponCode: { type: String },
+    status: { type: String, default: COUPON_STATUS_ACTIVE },
 
     couponRewardInfo: {
       couponType: { type: String }, // % discount , discount amount , buy x get y , freebie
