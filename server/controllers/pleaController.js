@@ -102,7 +102,7 @@ export async function rejectCampaignAllyPlea(req, res) {
 
     const screen = await Screen.findOne({ _id: plea.screen });
 
-    const campaign = await Campaign.findById(plea?.campaign);
+    const campaign = await Campaign.findById(plea.campaign);
 
     const master = await User.findOne({
       _id: plea.to,

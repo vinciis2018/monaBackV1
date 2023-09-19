@@ -27,8 +27,8 @@ export async function createBrand(req, res) {
       return res.status(404).send({ message: "User Not Found! DO login again" });
     }
 
-    if (user.brand?.length > 0) {
-      // console.log("1 called !", user.brand?.length);
+    if (user.brand.length > 0) {
+      // console.log("1 called !", user.brand.length);
 
       const brand = await Brand.findOne({ _id: user.brand[0] });
       // console.log("2 called !");

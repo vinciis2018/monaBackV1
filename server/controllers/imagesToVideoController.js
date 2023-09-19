@@ -111,7 +111,7 @@ export const createVideoFromImage = (req, res, next) => {
         console.log("Content added with CID:", cid);
         let resp = await storage.get(cid);
         // console.log("response : ", resp);
-        const Videofiles = await resp?.files() || []; // Web3File[]
+        const Videofiles = await resp.files() || []; // Web3File[]
         for (const file of Videofiles) {
           //getting cid to create new media
           console.log(`${file.cid} ${file.name} ${file.size}`);

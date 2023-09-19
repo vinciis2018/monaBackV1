@@ -63,7 +63,7 @@ export async function uploadWeb3File(req, res, next) {
   console.log("4 Content added with CID:", cid);
   let resp = await storage.get(cid);
   // console.log("response : ", resp);
-  const Jsonfiles = await resp?.files() || []; // Web3File[]
+  const Jsonfiles = await resp.files() || []; // Web3File[]
   for (const file of Jsonfiles) {
     //getting cid to create new media
     console.log(`5 ${file.cid} ${file.name} ${file.size}`);

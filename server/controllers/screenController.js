@@ -56,7 +56,7 @@ const deleteVideoFromplayListWhenTimeUp = async (cid, screenId) => {
   });
   if (campaign) {
     const dateAndTime = new Date();
-    const campaignEndDateAndTime = new Date(campaign?.endDate);
+    const campaignEndDateAndTime = new Date(campaign.endDate);
     console.log(
       "dateAndTime : campaignEndDateAndTime  ",
       dateAndTime,
@@ -354,7 +354,7 @@ export async function getScreensBySearchQuery(req, res) {
 
     const genders = JSON.stringify(req.query.genders);
     const averageAgeGroupGreaterThen =
-      averageAgeGroup?.length > 1
+      averageAgeGroup.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
               {
@@ -363,7 +363,7 @@ export async function getScreensBySearchQuery(req, res) {
           }
         : {};
     const averageAgeGroupLessThen =
-      averageAgeGroup?.length > 1
+      averageAgeGroup.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.eaverageEndAgend":
               {
@@ -372,26 +372,26 @@ export async function getScreensBySearchQuery(req, res) {
           }
         : {};
     const employmentStatusFilter =
-      employmentStatus?.length > 0
+      employmentStatus.length > 0
         ? {
             "additionalData.footfallClassification.employmentStatus": {
               $in: [...employmentStatus],
             },
           }
         : {};
-    //additionalData?.footfallClassification?.crowdMobilityType
+    //additionalData.footfallClassification.crowdMobilityType
 
     const mobilityFilter =
-      mobility?.length > 0
+      mobility.length > 0
         ? {
-            "additionalData?.footfallClassification?.crowdMobilityType": {
+            "additionalData.footfallClassification.crowdMobilityType": {
               $in: [...mobility],
             },
           }
         : {};
 
     const highlightsFilter =
-      screenHighlights?.length > 0
+      screenHighlights.length > 0
         ? {
             screenHighlights: {
               $in: [...screenHighlights],
@@ -439,7 +439,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
     const kidsFriendly = req.params.kidsFriendly;
 
     const averageDailyFootfallFilter =
-      averageDailyFootfall?.length > 1
+      averageDailyFootfall.length > 1
         ? {
             "additionalData.averageDailyFootfall": {
               $lte: averageDailyFootfall[1],
@@ -448,7 +448,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
           }
         : {};
     const averagePurchasePowerGreaterThen =
-      averagePurchasePower?.length > 1
+      averagePurchasePower.length > 1
         ? {
             "additionalData.footfallClassification.averagePurchasePower.start":
               {
@@ -457,7 +457,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
           }
         : {};
     const averagePurchasePowerLessThen =
-      averagePurchasePower?.length > 1
+      averagePurchasePower.length > 1
         ? {
             "additionalData.footfallClassification.averagePurchasePower.end": {
               $lte: averagePurchasePower[1],
@@ -465,7 +465,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
           }
         : {};
     const averageAgeGroupGreaterThen =
-      averageAgeGroup?.length > 1
+      averageAgeGroup.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
               {
@@ -474,7 +474,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
           }
         : {};
     const averageAgeGroupLessThen =
-      averageAgeGroup?.length > 1
+      averageAgeGroup.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.eaverageEndAgend":
               {
@@ -483,7 +483,7 @@ export async function getFilteredScreenListByAudiance(req, res) {
           }
         : {};
     const employmentStatusFilter =
-      employmentStatus?.length > 0
+      employmentStatus.length > 0
         ? {
             "additionalData.footfallClassification.employmentStatus": {
               $all: [...employmentStatus],
@@ -540,7 +540,7 @@ export async function getFilteredScreenList(req, res) {
     const category = { category: { $regex: searchString, $options: "i" } };
 
     const highlightsFilter =
-      screenHighlights?.length > 0
+      screenHighlights.length > 0
         ? {
             screenHighlights: {
               $in: screenHighlights,
@@ -752,12 +752,12 @@ export async function updateScreenById(req, res) {
     let state = req.body.stateUT;
     let country = req.body.country;
 
-    let str = city?.trim().toLowerCase();
-    city = str?.charAt(0).toUpperCase() + str?.slice(1);
-    str = state?.trim().toLowerCase();
-    state = str?.charAt(0).toUpperCase() + str?.slice(1);
-    str = country?.trim().toLowerCase();
-    country = str?.charAt(0).toUpperCase() + str?.slice(1);
+    let str = city.trim().toLowerCase();
+    city = str.charAt(0).toUpperCase() + str.slice(1);
+    str = state.trim().toLowerCase();
+    state = str.charAt(0).toUpperCase() + str.slice(1);
+    str = country.trim().toLowerCase();
+    country = str.charAt(0).toUpperCase() + str.slice(1);
 
     if (calender && masterScreen) {
       screen.name = req.body.name || screen.name;
@@ -787,11 +787,11 @@ export async function updateScreenById(req, res) {
       //   screen.campaigns.map(async (_id) => {
       //     const campaign = await Campaign.findById({ _id });
       //     campaign.screenAddress =
-      //       req.body.screenAddress || campaign?.screenAddress; //v
+      //       req.body.screenAddress || campaign.screenAddress; //v
       //     campaign.districtCity =
-      //       req.body.districtCity || campaign?.districtCity; //v
-      //     campaign.stateUT = req.body.stateUT || campaign?.stateUT; //v
-      //     campaign.country = req.body.country || campaign?.country; //v
+      //       req.body.districtCity || campaign.districtCity; //v
+      //     campaign.stateUT = req.body.stateUT || campaign.stateUT; //v
+      //     campaign.country = req.body.country || campaign.country; //v
       //     await campaign.save();
       //   });
       // }
@@ -820,11 +820,11 @@ export async function updateScreenById(req, res) {
       //pin.activeGame = req.body.activeGameContract || screen.activeGameContract
 
       if (screenData) {
-        screenData.dataType = req?.body?.screenDataType || screenData?.dataType;
+        screenData.dataType = req.body.screenDataType || screenData.dataType;
 
         if (
           screen.category === "RAILWAYS" ||
-          req?.body?.dataType === "RAILWAYS"
+          req.body.dataType === "RAILWAYS"
         ) {
           console.log("2");
 
@@ -896,7 +896,7 @@ export async function deleteScreenById(req, res) {
       screen: screen._id,
       status: "Active",
     });
-    if (campaigns?.length > 0) {
+    if (campaigns.length > 0) {
       console.log(
         "Some active campaign running on this screen, You cann't deleted this screen"
       );
@@ -1030,7 +1030,7 @@ export async function getScreenLogs(req, res) {
     const screenId = req.params.screenId;
     // console.log(screenId)
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
-    console.log("getting screen logs: ", screenLog?.playingDetails.length);
+    console.log("getting screen logs: ", screenLog.playingDetails.length);
     const query = new Date();
     // console.log(query);
 
@@ -1047,17 +1047,17 @@ export async function getScreenLogs(req, res) {
     // console.log(last50);
     // console.log(totalCount);
 
-    // if (screenLog?.playingDetails.length >= 5000) {
+    // if (screenLog.playingDetails.length >= 5000) {
     //   const fileDetails = await uploadWeb3File(req);
 
     //   const carDetails = await createWeb3Name(req);
     // }
     // await uploadWeb3Name(cidData);
 
-    console.log("got screen logs: ", screenLog?.playingDetails?.length);
-    const last50 = screenLog?.playingDetails.reverse().slice(0, 50);
-    const totalCount = screenLog?.playingDetails.length;
-    const allLogs = screenLog?.playingDetails;
+    console.log("got screen logs: ", screenLog.playingDetails.length);
+    const last50 = screenLog.playingDetails.reverse().slice(0, 50);
+    const totalCount = screenLog.playingDetails.length;
+    const allLogs = screenLog.playingDetails;
     return res.status(200).send({ last50, totalCount, allLogs });
   } catch (error) {
     return res
@@ -1209,7 +1209,7 @@ export const getCouponListByScreenId = async (req, res) => {
 
     const couponList = [];
     for (let campaign of screenVideos) {
-      let coupons = campaign?.coupons;
+      let coupons = campaign.coupons;
       for (let couponId of coupons) {
         const coupon = await Coupon.findById(couponId);
         couponList.push(coupon);

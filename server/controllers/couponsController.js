@@ -19,30 +19,30 @@ export const createNewCoupon = async (req, res) => {
       const newCoupon = new Coupon({
         offerName: req.body.offerName,
         offerDetails: req.body.offerDetails,
-        brand: brand?._id,
+        brand: brand._id,
         brandName: brand.brandName,
         offerCreator: req.params.userId,
         // nfts: [{ type: String, default: ""}],
-        brandLogo: brand?.brandDetails?.logo,
+        brandLogo: brand.brandDetails.logo,
         quantity: req.body.quantity,
         couponCode: req.body.couponCode,
         campaigns: req.body.campaigns || [],
 
         couponRewardInfo: {
-          couponType: req.body?.couponType, // % discount , discount amount , buy x get y , freebie
-          minimumOrderCondition: req.body?.minimumOrderCondition,
-          minimumOrderValue: req.body?.minimumOrderValue,
-          minimumOrderQuantity: req.body?.minimumOrderQuantity,
-          discountPersentage: req.body?.discountPersentage,
-          discountAmount: req.body?.discountAmount,
-          buyItems: req.body?.buyItems, // buy x get y
-          freeItems: req.body?.freeItems, // buy x gey y
-          freebieItemsName: req.body?.freebieItemsName, //freebie
-          loyaltyPoints: req.body?.loyaltyPoints,
-          redeemFrequency: req.body?.redeemFrequency,
+          couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
+          minimumOrderCondition: req.body.minimumOrderCondition,
+          minimumOrderValue: req.body.minimumOrderValue,
+          minimumOrderQuantity: req.body.minimumOrderQuantity,
+          discountPersentage: req.body.discountPersentage,
+          discountAmount: req.body.discountAmount,
+          buyItems: req.body.buyItems, // buy x get y
+          freeItems: req.body.freeItems, // buy x gey y
+          freebieItemsName: req.body.freebieItemsName, //freebie
+          loyaltyPoints: req.body.loyaltyPoints,
+          redeemFrequency: req.body.redeemFrequency,
           validity: {
-            to: req.body?.endDateAndTime,
-            from: req.body?.startDateAndTime,
+            to: req.body.endDateAndTime,
+            from: req.body.startDateAndTime,
           },
 
           showCouponToCustomer: req.body.showCouponToCustomer,
@@ -58,9 +58,9 @@ export const createNewCoupon = async (req, res) => {
       });
 
       const coupon = await newCoupon.save();
-      for (let id of coupon?.campaigns) {
+      for (let id of coupon.campaigns) {
         const campaign = await Campaign.findById(id);
-        if (!campaign?.coupons.includes(coupon._id)) {
+        if (!campaign.coupons.includes(coupon._id)) {
           campaign.coupons.push(coupon._id);
         }
         const updatedcampaign = await campaign.save();
@@ -81,7 +81,7 @@ export async function getCouponListForBrand(req, res) {
   try {
     const brand = await Brand.findById(req.params.brandId);
     if (!brand) return req.status(404).send("No brand found");
-    const couponList = await Coupon.find({ brand: brand?._id });
+    const couponList = await Coupon.find({ brand: brand._id });
     return res.status(200).send(couponList);
   } catch (error) {
     return res.status(500).send({
@@ -102,34 +102,34 @@ export async function updateCoupon(req, res) {
     coupon.couponCode = req.body.couponCode || coupon.couponCode;
     coupon.campaigns = req.body.campaigns || req.body.campaign;
 
-    // coupon.couponRewardInfo.couponType = req.body?.couponType; // % discount ; discount amount ; buy x get y ; freebie
+    // coupon.couponRewardInfo.couponType = req.body.couponType; // % discount ; discount amount ; buy x get y ; freebie
     coupon.couponRewardInfo.minimumOrderCondition =
-      req.body?.minimumOrderCondition ||
+      req.body.minimumOrderCondition ||
       coupon.couponRewardInfo.minimumOrderCondition;
     coupon.couponRewardInfo.minimumOrderValue =
-      req.body?.minimumOrderValue || coupon.couponRewardInfo.minimumOrderValue;
+      req.body.minimumOrderValue || coupon.couponRewardInfo.minimumOrderValue;
     coupon.couponRewardInfo.minimumOrderQuantity =
-      req.body?.minimumOrderQuantity ||
+      req.body.minimumOrderQuantity ||
       coupon.couponRewardInfo.minimumOrderQuantity;
     coupon.couponRewardInfo.discountPersentage =
-      req.body?.discountPersentage ||
+      req.body.discountPersentage ||
       coupon.couponRewardInfo.discountPersentage;
     coupon.couponRewardInfo.discountAmount =
-      req.body?.discountAmount || coupon.couponRewardInfo.discountAmount;
+      req.body.discountAmount || coupon.couponRewardInfo.discountAmount;
     coupon.couponRewardInfo.buyItems =
-      req.body?.buyItems | coupon.couponRewardInfo.buyItems; // buy x get y
+      req.body.buyItems | coupon.couponRewardInfo.buyItems; // buy x get y
     coupon.couponRewardInfo.freeItems =
-      req.body?.freeItems || coupon.couponRewardInfo.freeItems; // buy x gey y
+      req.body.freeItems || coupon.couponRewardInfo.freeItems; // buy x gey y
     coupon.couponRewardInfo.freebieItemsName =
-      req.body?.freebieItemsName || coupon.couponRewardInfo.freebieItemsName; //freebie
+      req.body.freebieItemsName || coupon.couponRewardInfo.freebieItemsName; //freebie
     coupon.couponRewardInfo.loyaltyPoints =
-      req.body?.loyaltyPoints || coupon.couponRewardInfo.loyaltyPoints;
+      req.body.loyaltyPoints || coupon.couponRewardInfo.loyaltyPoints;
     coupon.couponRewardInfo.redeemFrequency =
-      req.body?.redeemFrequency || coupon.couponRewardInfo.redeemFrequency;
+      req.body.redeemFrequency || coupon.couponRewardInfo.redeemFrequency;
     coupon.couponRewardInfo.validity.to =
-      req.body?.endDateAndTime || coupon.couponRewardInfo.validity.to;
+      req.body.endDateAndTime || coupon.couponRewardInfo.validity.to;
     coupon.couponRewardInfo.validity.from =
-      req.body?.startDateAndTime || coupon.couponRewardInfo.validity.from;
+      req.body.startDateAndTime || coupon.couponRewardInfo.validity.from;
 
     coupon.couponRewardInfo.showCouponToCustomer =
       req.body.showCouponToCustomer ||
@@ -147,9 +147,9 @@ export async function updateCoupon(req, res) {
 
     const updatedCoupon = await coupon.save();
 
-    for (let id of updatedCoupon?.campaigns) {
+    for (let id of updatedCoupon.campaigns) {
       const campaign = await Campaign.findById(id);
-      if (!campaign?.coupons.includes(updatedCoupon._id)) {
+      if (!campaign.coupons.includes(updatedCoupon._id)) {
         campaign.coupons.push(updatedCoupon._id);
       }
       const updatedcampaign = await campaign.save();
@@ -176,7 +176,7 @@ export const getAllActiveCouponList = async (req, res) => {
     //   ],
     //   "couponRewardInfo.validity.from": { $lte: today },
     // });
-    console.log("coupons: ", coupons?.length);
+    console.log("coupons: ", coupons.length);
     return res.status(200).send(coupons);
   } catch (error) {
     console.log(error);
@@ -193,13 +193,13 @@ export const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(404).send("Coupon not found!");
     }
-    if (coupon?.campaigns?.length > 0) {
-      for (let campaignId of coupon?.campaigns) {
+    if (coupon.campaigns.length > 0) {
+      for (let campaignId of coupon.campaigns) {
         const campaign = await Campaign.findById(campaignId);
-        // console.log("before campaigns : ", campaign?.coupons);
+        // console.log("before campaigns : ", campaign.coupons);
         campaign.coupons = campaign.coupons.filter((id) => id != couponId);
         const updatedCampaign = await campaign.save();
-        // console.log("updated campaigns : ", updatedCampaign?.coupons);
+        // console.log("updated campaigns : ", updatedCampaign.coupons);
       }
     }
     // const deletedCoupon = await coupon.delete();
@@ -282,7 +282,7 @@ export async function addRedeemerToCoupon(req, res) {
     // saving coupon and user coupon details to user also to find all user coupon list easily
 
     const updateUser = await User.updateOne(
-      { _id: couponUser?._id },
+      { _id: couponUser._id },
       {
         $push: { rewardCoupons: coupon._id },
       }

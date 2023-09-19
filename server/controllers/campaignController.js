@@ -382,7 +382,7 @@ export async function deleteCampaignsPermanentlyByUserId(req, res) {
     //iterate each screens and delete each campaigns
     for (let screen of screens) {
       let campaigns = screen.campaigns;
-      // console.log(`campaigns of ${screen?.name} : ${campaigns}`);
+      // console.log(`campaigns of ${screen.name} : ${campaigns}`);
       for (let campaignId of campaigns) {
         const deletdCampaigns = await Campaign.deleteOne({ _id: campaignId });
         // console.log("deleted campaigns : ", deletdCampaigns);
