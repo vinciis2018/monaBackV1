@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import {
+  COUPON_STATUS_ACTIVE,
   COUPON_STATUS_DELETED,
   COUPON_STATUS_FULL,
 } from "../Constant/couponStatusConstant.js";
@@ -167,7 +168,7 @@ export const getAllActiveCouponList = async (req, res) => {
   try {
     // const today = new Date();
     // console.log("today : ", today);
-    const coupons = await Coupon.find({});
+    const coupons = await Coupon.find({ status: COUPON_STATUS_ACTIVE });
     // const coupons = await Coupon.find({
     //   $or: [
     //     { "couponRewardInfo.validity.to": { $gte: today } },
@@ -196,9 +197,7 @@ export const deleteCoupon = async (req, res) => {
       for (let campaignId of coupon?.campaigns) {
         const campaign = await Campaign.findById(campaignId);
         // console.log("before campaigns : ", campaign?.coupons);
-        campaign.coupons = campaign.coupons.filter(
-          (id) => id !== campaign?._id
-        );
+        campaign.coupons = campaign.coupons.filter((id) => id != couponId);
         const updatedCampaign = await campaign.save();
         // console.log("updated campaigns : ", updatedCampaign?.coupons);
       }
