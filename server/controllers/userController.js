@@ -85,10 +85,11 @@ export async function userSignUp(req, res) {
     if (!oldUser && req.body.password) {
       const user = new User({
         name: req.body.name,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         password: bcrypt.hashSync(req.body.password, 8),
       });
       const createdUser = await user.save();
+      console.log("user created  : ", createdUser);
 
       return res.status(200).send({
         _id: createdUser._id,
@@ -283,7 +284,8 @@ export async function userSigninWithGoogleLogin(req, res) {
 
 export async function userSignin(req, res) {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const email = req.body.email ? req.body.email.toLowerCase() : "";
+    const user = await User.findOne({ email });
     if (!user) {
       return res
         .status(401)

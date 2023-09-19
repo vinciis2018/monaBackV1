@@ -48,6 +48,7 @@ export const createNewCoupon = async (req, res) => {
           validForOnLinePayment: req.body.validForOnLinePayment,
           validForNewCostomer: req.body.validForNewCostomer,
           autoApplyCoupon: req.body.autoApplyCoupon,
+          images: req.body.images || [],
         },
 
         ratings: 0,
@@ -90,7 +91,7 @@ export async function getCouponListForBrand(req, res) {
 
 export async function updateCoupon(req, res) {
   try {
-    console.log("edit coupon details called! ", req.body);
+    console.log("edit coupon details called! ");
     const coupon = await Coupon.findById(req.params.couponId);
 
     coupon.offerName = req.body.offerName || coupon.offerName;
@@ -140,9 +141,10 @@ export async function updateCoupon(req, res) {
       coupon.couponRewardInfo.validForNewCostomer;
     coupon.couponRewardInfo.autoApplyCoupon =
       req.body.autoApplyCoupon || coupon.couponRewardInfo.autoApplyCoupon;
+    coupon.couponRewardInfo.images =
+      req.body.images || coupon.couponRewardInfo.images;
 
     const updatedCoupon = await coupon.save();
-    console.log("coupon updated successfullt!");
 
     for (let id of updatedCoupon?.campaigns) {
       const campaign = await Campaign.findById(id);
@@ -152,7 +154,7 @@ export async function updateCoupon(req, res) {
       const updatedcampaign = await campaign.save();
       // console.log("updatedcampaign  : ", updatedcampaign);
     }
-
+    console.log("coupon updated successfullt!");
     return res.status(200).send(updatedCoupon);
   } catch (error) {
     return res.status(500).send({

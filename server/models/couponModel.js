@@ -55,6 +55,7 @@ const couponSchema = new mongoose.Schema(
       validForOnLinePayment: { type: Boolean, default: true },
       validForNewCostomer: { type: Boolean, default: true },
       autoApplyCoupon: { type: Boolean, default: true },
+      images: [{ type: String }],
     },
 
     rewardCoupons: [couponRewardSchema],
