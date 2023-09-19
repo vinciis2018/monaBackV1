@@ -20,7 +20,7 @@ import campaignForMultipleScreenRouter from "./routers/campaignForMultipleScreen
 import rewardRouter from "./routers/rewardRouter.js";
 import brandRouter from "./routers/brandRouter.js";
 import creatorRouter from "./routers/creatorRouter.js";
-import dbBackupTask from "./utils/backupAndRestore.js";
+// import dbBackupTask from "./utils/backupAndRestore.js";
 import couponRewardOfferRouter from "./routers/couponRewardOffeRouter.js";
 import cardRewardOfferRouter from "./routers/cardRewaedOfferRouter.js";
 import imageRouter from "./routers/imagesToVideoRouter.js";
@@ -43,9 +43,9 @@ mongoose.connect(url, {
   retryWrites: true,
   w: "majority",
 });
-cron.schedule("55 23 * * *", () => {
-  dbBackupTask();
-});
+// cron.schedule("55 23 * * *", () => {
+//   dbBackupTask();
+// });
 
 app.use(function (req, res, next) {
   //console.log("request : ", req.url);

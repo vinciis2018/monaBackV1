@@ -1258,7 +1258,7 @@ export const camDataHandleScreen = async (req, res) => {
 export const forImpressionMultiplier = async (req, res) => {
   try {
     console.log("screenId", req.params.screenId);
-    console.log("body", req.body);
+    console.log("body for impression multiplier", req.body);
 
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
