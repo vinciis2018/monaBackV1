@@ -4,6 +4,7 @@ import Reward from "../models/rewardModel.js";
 import Brand from "../models/brandModel.js";
 import Campaign from "../models/campaignModel.js";
 import User from "../models/userModel.js";
+import { generateToken } from "../utils/authUtils.js";
 
 export async function getAllBrands(req, res) {
   try {
@@ -24,7 +25,9 @@ export async function createBrand(req, res) {
     // console.log("createBrand called !", req.body);
     const user = await User.findOne({ _id: req.user._id });
     if (!user) {
-      return res.status(404).send({ message: "User Not Found! DO login again" });
+      return res
+        .status(404)
+        .send({ message: "User Not Found! DO login again" });
     }
 
     if (user.brand?.length > 0) {
@@ -65,15 +68,47 @@ export async function createBrand(req, res) {
       user.brand.push(brandId);
       user.isBrand = true;
 
-      await user.save();
+      const updateUser = await user.save();
       const createdBrand = await brand.save();
       // console.log("4 called !");
-
-      return res.status(200).send(createdBrand);
+      return res.status(200).send({
+        _id: updateUser._id,
+        name: updateUser.name,
+        email: updateUser.email,
+        avatar: updateUser.avatar,
+        isItanimulli: updateUser.isItanimulli,
+        isMaster: updateUser.isMaster,
+        isCreator: updateUser.isCreator,
+        creator: updateUser.creator,
+        isBrand: updateUser.isBrand,
+        brand: updateUser.brand,
+        isViewer: updateUser.isViewer,
+        defaultWallet: updateUser.defaultWallet,
+        wallets: updateUser.wallets,
+        screens: updateUser.screens,
+        screensSubscribed: updateUser.screensSubscribed,
+        screensLiked: updateUser.screensLiked,
+        screensFlagged: updateUser.screensFlagged,
+        medias: updateUser.medias,
+        mediasLiked: updateUser.mediasLiked,
+        mediasFlagged: updateUser.mediasFlagged,
+        mediasViewed: updateUser.mediasViewed,
+        pleasMade: updateUser.pleasMade,
+        alliedScreens: updateUser.alliedScreens,
+        createdAt: updateUser.createdAt,
+        phone: updateUser.phone,
+        districtCity: updateUser.districtCity,
+        pincode: updateUser.pincode,
+        address: updateUser.address,
+        stateUt: updateUser.stateUt,
+        country: updateUser.country,
+        token: generateToken(updateUser),
+      });
     }
   } catch (error) {
-    console.log("error : ", error);
-    return res.status(404).send({ message: `Brand router error ${error.message}` });
+    return res
+      .status(404)
+      .send({ message: `Brand router error ${error.message}` });
   }
 }
 
@@ -108,12 +143,14 @@ export async function editBrand(req, res) {
     if (req.body.images) {
       for (let image of req.body.images) {
         // console.log(brand.brandDetails.images.map((img) => img === image).length);
-        if (brand.brandDetails.images.filter((img) => img === image).length === 0) {
+        if (
+          brand.brandDetails.images.filter((img) => img === image).length === 0
+        ) {
           // console.log(brand.brandDetails.images);
-          
+
           brand.brandDetails.images.push(image);
           // console.log(brand.brandDetails.images);
-          await brand.save()
+          await brand.save();
         }
       }
     }
@@ -124,7 +161,9 @@ export async function editBrand(req, res) {
 
     return res.status(200).send(updatedBrand);
   } catch (error) {
-    return res.status(500).send({ message: `Brand router error ${error.message}` });
+    return res
+      .status(500)
+      .send({ message: `Brand router error ${error.message}` });
   }
 }
 
