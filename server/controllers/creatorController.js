@@ -27,7 +27,7 @@ export async function createCreator(req, res) {
       return res.status(404).send({ message: "User Not Found! DO login again" });
     }
 
-    if (user.creator?.length > 0) {
+    if (user.creator.length > 0) {
       const creator = await Creator.findOne({ _id: user.creator[0] });
 
       return res.status(200).send(creator);

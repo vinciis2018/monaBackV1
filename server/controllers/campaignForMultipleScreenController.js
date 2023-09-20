@@ -22,7 +22,7 @@ async function addCampaignPlea({ user, screen, cid, campaign }) {
       return Promise.resolve();
     }
 
-    const fromUser = await User.findById(user?._id);
+    const fromUser = await User.findById(user._id);
 
     // if plea already present then no need to create a new plea
 
@@ -67,7 +67,7 @@ export async function addNewCampaignForMultipleScreen(req, res) {
       const newCampaign = new Campaign({
         screen: screenId,
         cid: cid,
-        media: media?._id,
+        media: media._id,
         thumbnail: media.thumbnail,
         campaignName: req.body.campaignName.trim() || "campaign Name",
         video: media.media,
@@ -99,7 +99,7 @@ export async function addNewCampaignForMultipleScreen(req, res) {
       await screen.save();
 
       // Now send plea request to screen owner of this screen, if user itself is not screen owner
-      if (screen.master !== user?._id) {
+      if (screen.master !== user._id) {
         //send campaign plea to that screen owner
         await addCampaignPlea({ user, screen, cid, campaign });
       }
@@ -118,7 +118,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
     const employmentTypes = req.body.employmentTypes;
     const croudMobability = req.body.croudMobability;
     const screenHighlights = req.body.screenHighlights;
-    const location = req.body.cities?.split(",").map((city) => {
+    const location = req.body.cities.split(",").map((city) => {
       const str = city.trim().toLowerCase();
       return str.charAt(0).toUpperCase() + str.slice(1);
     }); // note first remove spaces amd convert first cahr is capi
@@ -129,7 +129,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
       name: { $not: { $regex: "sample", $options: "i" } },
     };
     const averageAgeGroupFilter =
-      ageRange?.length > 1
+      ageRange.length > 1
         ? {
             "additionalData.footfallClassification.averageAgeGroup.averageStartAge":
               {
@@ -147,7 +147,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
           }
         : {};
     const employmentStatusFilter =
-      employmentTypes?.length > 0
+      employmentTypes.length > 0
         ? {
             "additionalData.footfallClassification.employmentStatus": {
               $in: employmentTypes,
@@ -155,7 +155,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
           }
         : {};
     const highlightsFilter =
-      screenHighlights?.length > 0
+      screenHighlights.length > 0
         ? {
             screenHighlights: {
               $in: screenHighlights,
@@ -163,7 +163,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
           }
         : {};
     const locationFilter =
-      location?.length > 0
+      location.length > 0
         ? {
             districtCity: {
               $in: location,
@@ -171,7 +171,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
           }
         : {};
     const screenAddressFilter =
-      location?.length > 0
+      location.length > 0
         ? {
             screenAddress: {
               $in: location,
@@ -180,7 +180,7 @@ export async function filterScreensBasedOnAudiancesProfile(req, res) {
         : {};
 
     const croudMobabilityFilter =
-      croudMobability?.length > 0
+      croudMobability.length > 0
         ? {
             "additionalData.footfallClassification.crowdMobilityType": {
               $in: croudMobability,
@@ -240,14 +240,14 @@ export async function createCampaignBasedOnAudiancesProfile(req, res) {
     // console.log("records founds : ", screens.length);
 
     const averageSlot = (
-      budget / screens?.reduce((accum, screen) => accum + screen.rentPerSlot, 0)
+      budget / screens.reduce((accum, screen) => accum + screen.rentPerSlot, 0)
     ).toFixed(0);
 
     for (let screen of screens) {
       const newCampaign = new Campaign({
-        screen: screen?._id,
+        screen: screen._id,
         cid: cid,
-        media: media?._id,
+        media: media._id,
         thumbnail: media.thumbnail,
         campaignName: campaignName.trim() || "campaign Name",
         video: media.media,
@@ -279,7 +279,7 @@ export async function createCampaignBasedOnAudiancesProfile(req, res) {
       await screen.save();
 
       // Now send plea request to screen owner of this screen, if user itself is not screen owner
-      if (screen.master !== user?._id) {
+      if (screen.master !== user._id) {
         //send campaign plea to that screen owner
         await addCampaignPlea({ user, screen, cid, campaign });
       }

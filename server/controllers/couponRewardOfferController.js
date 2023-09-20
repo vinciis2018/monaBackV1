@@ -195,15 +195,15 @@ export async function addRedmeerToCoupon(req, res) {
 export async function getRewardOfferPartnerList(req, res) {
   try {
     const rewardOfferPartnerList = [];
-    const couponId = req.params?.couponId;
+    const couponId = req.params.couponId;
     const coupon = await CouponRewardOffer.findById(couponId);
     if (!coupon) {
       return res.status(400).send({
         message: "No coupon found with this couponId",
       });
     }
-    // itrating coupon?.rewardOfferPartners to get details of each reward offer partner
-    for (let userId of coupon?.rewardOfferPartners) {
+    // itrating coupon.rewardOfferPartners to get details of each reward offer partner
+    for (let userId of coupon.rewardOfferPartners) {
       const user = await User.findById(userId, {
         name: 1,
         email: 1,
@@ -249,10 +249,10 @@ export async function incrementUserRedeemFrequency(req, res) {
     console.log("userCoupon : ", userCoupon);
 
     if (
-      coupon.couponRewardInfo.redeemFrequency > userCoupon[0]?.redeemedFrequency
+      coupon.couponRewardInfo.redeemFrequency > userCoupon[0].redeemedFrequency
     ) {
       console.log(
-        `you can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0]?.redeemedFrequency}`
+        `you can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0].redeemedFrequency}`
       );
       const updatedCoupon = await CouponRewardOffer.updateOne(
         {
@@ -266,7 +266,7 @@ export async function incrementUserRedeemFrequency(req, res) {
       return res.status(200).send(updatedCoupon);
     } else {
       console.log(
-        `you completed your redeemed Frequency can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0]?.redeemedFrequency}`
+        `you completed your redeemed Frequency can redeem this only ${coupon.couponRewardInfo.redeemFrequency} and  you have redeemer ${userCoupon[0].redeemedFrequency}`
       );
       return res
         .status(500)

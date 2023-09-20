@@ -23,7 +23,7 @@ const handelError = async (err, filePath, screen) => {
     // console.log(`Uploading ${files.length} files`);
     const cid = await storage.put(files);
     let resp = await storage.get(cid);
-    const Videofiles = (await resp?.files()) || []; // Web3File[]
+    const Videofiles = (await resp.files()) || []; // Web3File[]
     for (const file of Videofiles) {
       //getting cid to create new media
       console.log(`${file.cid} ${file.name} ${file.size}`);
@@ -47,7 +47,7 @@ export const qrcodeGenerateForScreen = async (req, res) => {
     );
     QRCode.toFile(
       filePath,
-      `https://monad.vinciis.in/coupon/screen/${screen?._id}`,
+      `https://monad.vinciis.in/coupon/screen/${screen._id}`,
       {
         errorCorrectionLevel: "H",
       },

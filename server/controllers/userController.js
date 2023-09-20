@@ -398,7 +398,7 @@ export async function getUserCampaigns(req, res) {
     //     },
     //   },
     // ]);
-    if (data?.length === 0) {
+    if (data.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     }
 
@@ -406,8 +406,8 @@ export async function getUserCampaigns(req, res) {
 
     for (let singleData of data) {
       const campaign = await Campaign.findOne({
-        cid: singleData?._id?.cid,
-        campaignName: singleData?._id?.campaignName,
+        cid: singleData._id.cid,
+        campaignName: singleData._id.campaignName,
       });
       if (campaign) {
         myCampaigns.push(campaign);
@@ -416,7 +416,7 @@ export async function getUserCampaigns(req, res) {
 
     const campaignsHere = myCampaigns
       .sort(
-        (objA, objB) => new Date(objA?.startDate) - new Date(objB?.startDate)
+        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate)
       )
       .reverse();
 
@@ -455,15 +455,15 @@ export async function getUserActiveCampaigns(req, res) {
       },
     ]);
 
-    if (data?.length === 0 && data2.length === 0) {
+    if (data.length === 0 && data2.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     } else {
       const myCampaigns = [];
 
       for (let singleData of data) {
         const campaign = await Campaign.findOne({
-          cid: singleData?._id?.cid,
-          campaignName: singleData?._id?.campaignName,
+          cid: singleData._id.cid,
+          campaignName: singleData._id.campaignName,
         });
         if (campaign) {
           myCampaigns.push(campaign);
@@ -471,8 +471,8 @@ export async function getUserActiveCampaigns(req, res) {
       }
       for (let singleData of data2) {
         const campaign2 = await Campaign.findOne({
-          cid: singleData?._id?.cid,
-          campaignName: singleData?._id?.campaignName,
+          cid: singleData._id.cid,
+          campaignName: singleData._id.campaignName,
         });
         if (campaign2) {
           myCampaigns.push(campaign2);
@@ -708,8 +708,8 @@ export async function getUserCouponList(req, res) {
   try {
     const userCouponList = [];
     const user = await User.findById(req.params.userId);
-    //console.log("user?.rewardCoupons  : ", user?.rewardCoupons);
-    for (let couponId of user?.rewardCoupons) {
+    //console.log("user.rewardCoupons  : ", user.rewardCoupons);
+    for (let couponId of user.rewardCoupons) {
       //console.log("user couponId : ", couponId);
       const singleCoupon = await CouponRewardOffer.findById(couponId);
       userCouponList.push(singleCoupon);
