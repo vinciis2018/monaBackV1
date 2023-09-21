@@ -23,6 +23,7 @@ import {
   getScreensBySearchQuery,
   camDataHandleScreen,
   genderAgeCamDataHandleScreen,
+  impressionCamDataHandleScreen,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -80,4 +81,5 @@ screenRouter.get("/get/allScreens", getAllScreens);
 // cam related
 screenRouter.put("/cam/:screenId", camDataHandleScreen);
 screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
+screenRouter.put("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
 export default screenRouter;

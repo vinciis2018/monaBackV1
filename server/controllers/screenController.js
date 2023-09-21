@@ -1270,3 +1270,19 @@ export const genderAgeCamDataHandleScreen = async (req, res) => {
     });
   }
 };
+
+export const impressionCamDataHandleScreen = async (req, res) => {
+  try {
+    console.log("screenId", req.params.screenId);
+    console.log("body for impression multiplier", req.body);
+
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+    console.log(screenLog._id);
+    // screenLog.camData.push(dataEnter);
+    return res.status(200).send(screenLog.camData);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at impression multiplier ${error.message}`,
+    });
+  }
+};
