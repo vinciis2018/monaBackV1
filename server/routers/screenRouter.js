@@ -22,7 +22,7 @@ import {
   getCouponListByScreenId,
   getScreensBySearchQuery,
   camDataHandleScreen,
-  forImpressionMultiplier,
+  genderAgeCamDataHandleScreen,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -79,5 +79,5 @@ screenRouter.get("/get/allScreens", getAllScreens);
 
 // cam related
 screenRouter.put("/cam/:screenId", camDataHandleScreen);
-screenRouter.put("/impressionMultiplier/cam/:screenId", forImpressionMultiplier);
+screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
 export default screenRouter;

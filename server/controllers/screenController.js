@@ -1255,10 +1255,10 @@ export const camDataHandleScreen = async (req, res) => {
   }
 };
 
-export const forImpressionMultiplier = async (req, res) => {
+export const genderAgeCamDataHandleScreen = async (req, res) => {
   try {
     console.log("screenId", req.params.screenId);
-    console.log("body for impression multiplier", req.body);
+    console.log("body for gender age", req.body);
 
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
@@ -1266,7 +1266,7 @@ export const forImpressionMultiplier = async (req, res) => {
     return res.status(200).send(screenLog.camData);
   } catch (error) {
     return res.status(500).send({
-      message: `Screen controller error at impression multiplier ${error.message}`,
+      message: `Screen controller error at gender age ${error.message}`,
     });
   }
 };
