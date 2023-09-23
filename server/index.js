@@ -29,8 +29,8 @@ import qrcodeRouter from "./routers/qrcodeGeneratorRouter.js";
 import web3Router from "./routers/web3Router.js";
 
 const app = express();
-app.use(express.json({ extended: true }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "100mb", extended: true }));
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

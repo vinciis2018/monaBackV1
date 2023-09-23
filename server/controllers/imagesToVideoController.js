@@ -61,7 +61,7 @@ export const createVideoFromImage = (req, res, next) => {
       "frame-001.png"));
       const size = `${dimensions.width}x${dimensions.height}`;
     //   const aspectRatio = JSON.stringify(dimensions.width / dimensions.height);
-    // console.log(size);
+      console.log(dimensions);
     // now create video from image
     ffmpeg()
       .input(
@@ -78,8 +78,8 @@ export const createVideoFromImage = (req, res, next) => {
       .inputOptions("-framerate", "30")
       .videoBitrate("1024k")
       .videoCodec("libx264")
-      // .size("720x?") // get size from the image uploaded
-      .size(`"${dimensions.width}x${dimensions.height}"`) // get size from the image uploaded
+      .size("1080x?") // get size from the image uploaded
+      // .size(`"${dimensions.width}x${dimensions.height}"`) // get size from the image uploaded
       // .aspect("16:9") // get aspect ratio from the image uploaded
       .outputOptions("-pix_fmt", "yuv420p")
       .saveToFile(

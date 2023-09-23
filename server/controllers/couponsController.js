@@ -220,6 +220,9 @@ export async function addRedeemerToCoupon(req, res) {
     // console.log("addRedeemerToCoupon called!");
     const couponId = req.params.id;
     const userId = req.params.userId;
+    const screenId = req.params.screenId;
+
+    const screen = await Screen.findById(screenId);
 
     const couponUser = await User.findById(userId);
     if (!couponUser)
@@ -243,7 +246,7 @@ export async function addRedeemerToCoupon(req, res) {
     // coupon has not reach its filnal limit
     // now check this user has redeem already or not
     const user = coupon.rewardCoupons.find(
-      (singleUser) => singleUser.redeemer == userId
+      (singleUser) => singleUser.redeemer === userId
     );
     // console.log("user in coupons : ", user);
     // Ager user hai to, check karenge ki user kitne bar redeem kiya hai is coupon ko and maximum time kitna hai
@@ -274,6 +277,9 @@ export async function addRedeemerToCoupon(req, res) {
       _id: singleCouponId,
       redeemer: userId,
       redeemedFrequency: 1,
+      email: couponUser.email,
+      status: "CLAIMED",
+      claimedLocation: screen.address
     };
     coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 

@@ -21,7 +21,7 @@ couponRouter.get("/:brandId", getCouponListForBrand);
 
 //put
 couponRouter.put("/:couponId", updateCoupon);
-couponRouter.put("/:id/:userId", addRedeemerToCoupon);
+couponRouter.put("/:id/:userId/:screenId", addRedeemerToCoupon);
 
 //delete
 couponRouter.delete("/:couponId", deleteCoupon);
