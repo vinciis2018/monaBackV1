@@ -24,6 +24,6 @@ couponRouter.put("/:couponId", updateCoupon);
 couponRouter.put("/:id/:userId/:screenId", addRedeemerToCoupon);
 
 //delete
-couponRouter.delete("/:couponId", deleteCoupon);
+couponRouter.delete("/:couponId/:status", deleteCoupon);
 
 export default couponRouter;

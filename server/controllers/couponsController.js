@@ -113,8 +113,7 @@ export async function updateCoupon(req, res) {
       req.body.minimumOrderQuantity ||
       coupon.couponRewardInfo.minimumOrderQuantity;
     coupon.couponRewardInfo.discountPersentage =
-      req.body.discountPersentage ||
-      coupon.couponRewardInfo.discountPersentage;
+      req.body.discountPersentage || coupon.couponRewardInfo.discountPersentage;
     coupon.couponRewardInfo.discountAmount =
       req.body.discountAmount || coupon.couponRewardInfo.discountAmount;
     coupon.couponRewardInfo.buyItems =
@@ -190,21 +189,28 @@ export const getAllActiveCouponList = async (req, res) => {
 export const deleteCoupon = async (req, res) => {
   try {
     const couponId = req.params.couponId;
+    const status = req.params.status;
     const coupon = await Coupon.findById(couponId);
     if (!coupon) {
       return res.status(404).send("Coupon not found!");
     }
-    if (coupon.campaigns.length > 0) {
-      for (let campaignId of coupon.campaigns) {
-        const campaign = await Campaign.findById(campaignId);
-        // console.log("before campaigns : ", campaign.coupons);
-        campaign.coupons = campaign.coupons.filter((id) => id != couponId);
-        const updatedCampaign = await campaign.save();
-        // console.log("updated campaigns : ", updatedCampaign.coupons);
+    // change for parmanent delete or not
+    if (status === COUPON_STATUS_DELETED) {
+      if (coupon.campaigns.length > 0) {
+        for (let campaignId of coupon.campaigns) {
+          const campaign = await Campaign.findById(campaignId);
+          // console.log("before campaigns : ", campaign.coupons);
+          campaign.coupons = campaign.coupons.filter((id) => id != couponId);
+          const updatedCampaign = await campaign.save();
+          // console.log("updated campaigns : ", updatedCampaign.coupons);
+        }
       }
+
+      const deletedCoupon = await coupon.delete();
+      console.log("DELETD COUPON PERMANENTLY : ", deleteCoupon);
+      return res.status(200).send(deletedCoupon);
     }
-    // const deletedCoupon = await coupon.delete();
-    coupon.status = COUPON_STATUS_DELETED;
+    coupon.status = status;
     await coupon.save();
     // console.log("delted coupon : ", deletedCoupon);
     return res.status(200).send(coupon);

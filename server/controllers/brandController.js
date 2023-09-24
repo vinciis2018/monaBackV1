@@ -157,7 +157,7 @@ export async function editBrand(req, res) {
 
     const updatedBrand = await brand.save();
 
-    // console.log("updatedBrand : ", updatedBrand);
+    console.log("updatedBrand : ", updatedBrand);
 
     return res.status(200).send(updatedBrand);
   } catch (error) {

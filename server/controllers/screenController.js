@@ -748,9 +748,9 @@ export async function updateScreenById(req, res) {
       (screen) => screen._id.toString() === screenId
     );
 
-    let city = req.body.districtCity;
-    let state = req.body.stateUT;
-    let country = req.body.country;
+    let city = req.body.districtCity || screen.districtCity;
+    let state = req.body.stateUT || screen.stateUT;
+    let country = req.body.country || screen.country;
 
     let str = city.trim().toLowerCase();
     city = str.charAt(0).toUpperCase() + str.slice(1);
@@ -872,11 +872,14 @@ export async function updateScreenById(req, res) {
         // screenData: updatedScreenData,
       });
     } else {
+      // console.log("user is not the master or no pin or calender found");
       return res.status(401).send({
         message: "user is not the master or no pin or calender found",
       });
     }
   } catch (error) {
+    // console.log(`screen router error, ${error}`);
+
     return res.status(500).send({ message: `screen router error, ${error}` });
   }
 }

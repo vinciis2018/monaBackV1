@@ -1,4 +1,7 @@
-import { CAMPAIGN_STATUS_PENDING } from "../Constant/campaignStatusConstant.js";
+import {
+  CAMPAIGN_STATUS_ACTIVE,
+  CAMPAIGN_STATUS_PENDING,
+} from "../Constant/campaignStatusConstant.js";
 import { CAMPAIGN_ALLY_PLEA } from "../Constant/pleaRequestTypeConstant.js";
 import Campaign from "../models/campaignModel.js";
 import Plea from "../models/pleaModel.js";
@@ -87,7 +90,10 @@ export async function addNewCampaignForMultipleScreen(req, res) {
         startTime: data.startDateAndTime || new Date(),
         endTime: data.endDateAndTime || new Date(),
         isDefaultCampaign: data.isDefaultCampaign || false,
-        status: CAMPAIGN_STATUS_PENDING,
+        status:
+          screen.master != user._id
+            ? CAMPAIGN_STATUS_PENDING
+            : CAMPAIGN_STATUS_ACTIVE,
         screenAddress: screen.screenAddress,
         districtCity: screen.districtCity,
         stateUT: screen.stateUT,
@@ -99,7 +105,7 @@ export async function addNewCampaignForMultipleScreen(req, res) {
       await screen.save();
 
       // Now send plea request to screen owner of this screen, if user itself is not screen owner
-      if (screen.master !== user._id) {
+      if (screen.master != user._id) {
         //send campaign plea to that screen owner
         await addCampaignPlea({ user, screen, cid, campaign });
       }
