@@ -8,6 +8,7 @@ import Brand from "../models/brandModel.js";
 import Campaign from "../models/campaignModel.js";
 import Coupon from "../models/couponModel.js";
 import User from "../models/userModel.js";
+import Screen from "../models/screenModel.js";
 
 export const createNewCoupon = async (req, res) => {
   try {
@@ -222,6 +223,7 @@ export async function addRedeemerToCoupon(req, res) {
     const userId = req.params.userId;
     const screenId = req.params.screenId;
 
+    console.log(req.params);
     const screen = await Screen.findById(screenId);
 
     const couponUser = await User.findById(userId);

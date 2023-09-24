@@ -591,6 +591,9 @@ export async function updateUserProfile(req, res) {
   try {
     const user = await User.findById(req.user._id);
     if (user) {
+      if (req.body.password) {
+        user.password = bcrypt.hashSync(req.body.password, 8);
+      }
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
       user.phone = req.body.phone || user.phone;
@@ -601,13 +604,9 @@ export async function updateUserProfile(req, res) {
       user.pincode = req.body.pincode || user.pincode;
       user.stateUt = req.body.stateUt || user.stateUt;
       user.country = req.body.country || user.country;
-      user.isMaster = req.body.isMaster || user.isMaster;
-      user.isCreator = req.body.isCreator || user.isCreator;
-      user.isBrand = req.body.isBrand || user.isBrand;
-
-      if (req.body.password) {
-        user.password = bcrypt.hashSync(req.body.password, 8);
-      }
+      user.isMaster = req.body.isMaster;
+      user.isCreator = req.body.isCreator;
+      user.isBrand = req.body.isBrand;
       const updatedUser = await user.save();
       return res.status(200).send({
         _id: updatedUser._id,
@@ -622,11 +621,11 @@ export async function updateUserProfile(req, res) {
         stateUt: updatedUser.stateUt,
         country: updatedUser.country,
         isItanimulli: updatedUser.isItanimulli,
-        isMaster: user.isMaster,
-        isCreator: user.isCreator,
-        creator: user.creator,
-        isBrand: user.isBrand,
-        brand: user.brand,
+        isMaster: updatedUser.isMaster,
+        isCreator: updatedUser.isCreator,
+        creator: updatedUser.creator,
+        isBrand: updatedUser.isBrand,
+        brand: updatedUser.brand,
 
         defaultWallet: updatedUser.defaultWallet,
         wallets: updatedUser.wallets,
@@ -642,7 +641,7 @@ export async function updateUserProfile(req, res) {
 
         pleasMade: updatedUser.pleasMade,
         alliedScreens: updatedUser.alliedScreens,
-        token: generateToken(user),
+        token: generateToken(updatedUser),
 
         createdAt: user.createdAt,
       });
