@@ -415,9 +415,7 @@ export async function getUserCampaigns(req, res) {
     }
 
     const campaignsHere = myCampaigns
-      .sort(
-        (objA, objB) => new Date(objA.startDate) - new Date(objB.startDate)
-      )
+      .sort((objA, objB) => new Date(objA.startDate) - new Date(objB.startDate))
       .reverse();
 
     return res.status(200).send(campaignsHere);
@@ -604,9 +602,9 @@ export async function updateUserProfile(req, res) {
       user.pincode = req.body.pincode || user.pincode;
       user.stateUt = req.body.stateUt || user.stateUt;
       user.country = req.body.country || user.country;
-      user.isMaster = req.body.isMaster;
-      user.isCreator = req.body.isCreator;
-      user.isBrand = req.body.isBrand;
+      user.isMaster = req.body.isMaster || user.isMaster;
+      user.isCreator = req.body.isCreator || user.isCreator;
+      user.isBrand = req.body.isBrand || user.isBrand;
       const updatedUser = await user.save();
       return res.status(200).send({
         _id: updatedUser._id,
