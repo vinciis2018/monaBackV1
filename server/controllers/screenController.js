@@ -1234,23 +1234,35 @@ export const getCouponListByScreenId = async (req, res) => {
 
 export const camDataHandleScreen = async (req, res) => {
   try {
-    console.log("screenId", req.params.screenId);
-    console.log("body", req.body);
+    // console.log("screenId", req.params.screenId);
+    // console.log("body", req.body);
 
-    let move_right;
-    let inTime;
-    let move_left;
-    let outTime;
-    const dataEnter = {
-      move_right: move_right,
-      inTime: inTime,
-      move_left: move_left,
-      outTime: outTime,
-    };
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
-    // screenLog.camData.push(dataEnter);
-    return res.status(200).send(screenLog.camData);
+
+    var arr =  Object.keys(req.body)
+    for (var i = 0; i < arr.length; i++) {
+      var key = arr[i];
+      var value = req.body[key];
+      // console.log(Object.keys(value).length)
+      if (Object.keys(value).length !== 0) {
+        const keyValue = key;
+        const valueKey = value;
+        const enter = {
+          date: keyValue,
+          data: valueKey
+        }
+
+        if (!screenLog.peopleCounter.map((count) => count.date).includes(keyValue)) {
+          screenLog.peopleCounter.push(enter);
+          await screenLog.save();
+        } else {
+          // screenLog.peopleCounter
+        }
+      }
+    }
+   
+    return res.status(200).send(screenLog.peopleCounter);
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at camData ${error.message}`,
@@ -1260,13 +1272,33 @@ export const camDataHandleScreen = async (req, res) => {
 
 export const genderAgeCamDataHandleScreen = async (req, res) => {
   try {
-    console.log("screenId", req.params.screenId);
-    console.log("body for gender age", req.body);
+    // console.log("screenId", req.params.screenId);
+    // console.log("body for gender age", req.body);
 
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
     // screenLog.camData.push(dataEnter);
-    return res.status(200).send(screenLog.camData);
+    var arr =  Object.keys(req.body)
+    // console.log(arr);
+    for (var i = 0; i < arr.length; i++) {
+      var key = arr[i];
+      var value = req.body[key];
+      // console.log(Object.keys(value).length)
+      if (Object.keys(value).length !== 0) {
+        const keyValue = key;
+        const valueKey = value;
+
+        // console.log(screenLog.genderAge.map((count) => count.date).includes(keyValue))
+
+        if (!screenLog.genderAge.map((count) => count.date).includes(keyValue)) {
+          screenLog.genderAge.push(valueKey);
+          await screenLog.save();
+        } else {
+          // screenLog.peopleCounter
+        }
+      }
+    }
+    return res.status(200).send(screenLog.genderAge);
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at gender age ${error.message}`,

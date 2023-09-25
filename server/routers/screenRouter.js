@@ -79,7 +79,7 @@ screenRouter.get(
 screenRouter.get("/get/allScreens", getAllScreens);
 
 // cam related
-screenRouter.put("/cam/:screenId", camDataHandleScreen);
-screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
-screenRouter.put("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
+screenRouter.post("/cam/:screenId", camDataHandleScreen);
+screenRouter.post("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
+screenRouter.post("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
 export default screenRouter;
