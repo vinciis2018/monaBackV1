@@ -8,9 +8,13 @@ import { generateToken } from "../utils/authUtils.js";
 
 export async function getAllBrands(req, res) {
   try {
-    const allBrands = await Brand.find();
-    if (!getAllBrands) return res.status(404).send("No Brands Found!");
-    return res.status(200).send(allBrands);
+    const getBrands = await Brand.find();
+    if (!getAllBrands) {
+      return res.status(404).send("No Brands Found!")
+    } else {
+      const allBrands = getBrands.reverse();
+      return res.status(200).send(allBrands);
+    }
   } catch (error) {
     return res
       .status(500)

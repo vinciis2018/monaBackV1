@@ -39,7 +39,7 @@ const brandSchema = new mongoose.Schema(
     brandType: { type: String }, // online/offline/both
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
+    offers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
     services: [{
       name: { type: String },
       image: { type: String },

@@ -67,6 +67,8 @@ export const createNewCoupon = async (req, res) => {
         const updatedcampaign = await campaign.save();
         // console.log("updatedcampaign  : ", updatedcampaign);
       }
+      brand.offers.push(offers);
+      await brand.save();
 
       return res.status(200).send(coupon);
     }

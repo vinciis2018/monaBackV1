@@ -10,7 +10,7 @@ import { isAuth } from "../utils/authUtils.js";
 const brandRouter = express.Router();
 
 //get
-brandRouter.get("/all", isAuth, getAllBrands);
+brandRouter.get("/all", getAllBrands);
 brandRouter.get("/details/:id", getBrandDetails);
 
 //post request

@@ -604,7 +604,7 @@ export async function updateUserProfile(req, res) {
       user.country = req.body.country || user.country;
       user.isMaster = req.body.isMaster || user.isMaster;
       user.isCreator = req.body.isCreator || user.isCreator;
-      user.isBrand = req.body.isBrand || user.isBrand;
+      user.isBrand = req.body.isBrand;
       const updatedUser = await user.save();
       return res.status(200).send({
         _id: updatedUser._id,
