@@ -428,6 +428,7 @@ export async function getUserCampaigns(req, res) {
 
 export async function getUserActiveCampaigns(req, res) {
   try {
+    // console.log("getUserActiveCampaigns called!");
     const allyId = req.params.id;
     // first find all distinct  cid and campaign name
     const data = await Campaign.aggregate([
@@ -441,19 +442,8 @@ export async function getUserActiveCampaigns(req, res) {
         },
       },
     ]);
-    const data2 = await CampaignForMultipleScreen.aggregate([
-      { $match: { ally: new ObjectId(allyId), status: "Active" } },
-      {
-        $group: {
-          _id: {
-            cid: "$cid",
-            campaignName: "$campaignName",
-          },
-        },
-      },
-    ]);
 
-    if (data.length === 0 && data2.length === 0) {
+    if (data.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     } else {
       const myCampaigns = [];
@@ -465,15 +455,6 @@ export async function getUserActiveCampaigns(req, res) {
         });
         if (campaign) {
           myCampaigns.push(campaign);
-        }
-      }
-      for (let singleData of data2) {
-        const campaign2 = await Campaign.findOne({
-          cid: singleData._id.cid,
-          campaignName: singleData._id.campaignName,
-        });
-        if (campaign2) {
-          myCampaigns.push(campaign2);
         }
       }
       const campaignsHere = myCampaigns
