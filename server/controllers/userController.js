@@ -192,7 +192,7 @@ export async function sendEmailToSetPassword(req, res) {
     if (user && signup) {
       return res
         .status(400)
-        .send({ message: "User allready exist, please sign in" });
+        .send({ message: "User already exist, please sign in" });
     } else if (!user && forgetPassword) {
       return res
         .status(400)
