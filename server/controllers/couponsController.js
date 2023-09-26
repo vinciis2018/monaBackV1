@@ -9,7 +9,6 @@ import Campaign from "../models/campaignModel.js";
 import Coupon from "../models/couponModel.js";
 import User from "../models/userModel.js";
 import Screen from "../models/screenModel.js";
-import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
 
 export const createNewCoupon = async (req, res) => {
   try {
@@ -17,78 +16,62 @@ export const createNewCoupon = async (req, res) => {
     // console.log(brand);
     if (!brand) {
       return req.status(404).send("No brand found");
-    }
-    // first find all camapign with same name and cid for comming coupon id:
-    let campaignsId = [];
+    } else {
+      const newCoupon = new Coupon({
+        offerName: req.body.offerName,
+        offerDetails: req.body.offerDetails,
+        brand: brand._id,
+        brandName: brand.brandName,
+        offerCreator: req.params.userId,
+        // nfts: [{ type: String, default: ""}],
+        brandLogo: brand.brandDetails.logo,
+        quantity: req.body.quantity,
+        couponCode: req.body.couponCode,
+        campaigns: req.body.campaigns || [],
 
-    for (let campaignId of req.body.campaigns) {
-      const campaign = await Campaign.findById(campaignId);
-      const campaigns = await Campaign.find({
-        cid: campaign?.cid,
-        campaignName: campaign.campaignName,
-        status: CAMPAIGN_STATUS_ACTIVE,
-      });
-      const ids = campaigns.map((campaign) => campaign._id);
-      campaignsId = [...campaignsId, ...ids];
-    }
+        couponRewardInfo: {
+          couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
+          minimumOrderCondition: req.body.minimumOrderCondition,
+          minimumOrderValue: req.body.minimumOrderValue,
+          minimumOrderQuantity: req.body.minimumOrderQuantity,
+          discountPersentage: req.body.discountPersentage,
+          discountAmount: req.body.discountAmount,
+          buyItems: req.body.buyItems, // buy x get y
+          freeItems: req.body.freeItems, // buy x gey y
+          freebieItemsName: req.body.freebieItemsName, //freebie
+          loyaltyPoints: req.body.loyaltyPoints,
+          redeemFrequency: req.body.redeemFrequency,
+          validity: {
+            to: req.body.endDateAndTime,
+            from: req.body.startDateAndTime,
+          },
 
-    // console.log("campaignsId : ", campaignsId);
-
-    const newCoupon = new Coupon({
-      offerName: req.body.offerName,
-      offerDetails: req.body.offerDetails,
-      brand: brand._id,
-      brandName: brand.brandName,
-      offerCreator: req.params.userId,
-      // nfts: [{ type: String, default: ""}],
-      brandLogo: brand.brandDetails.logo,
-      quantity: req.body.quantity,
-      couponCode: req.body.couponCode,
-      campaigns: req.body.campaigns || [],
-
-      couponRewardInfo: {
-        couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
-        minimumOrderCondition: req.body.minimumOrderCondition,
-        minimumOrderValue: req.body.minimumOrderValue,
-        minimumOrderQuantity: req.body.minimumOrderQuantity,
-        discountPersentage: req.body.discountPersentage,
-        discountAmount: req.body.discountAmount,
-        buyItems: req.body.buyItems, // buy x get y
-        freeItems: req.body.freeItems, // buy x gey y
-        freebieItemsName: req.body.freebieItemsName, //freebie
-        loyaltyPoints: req.body.loyaltyPoints,
-        redeemFrequency: req.body.redeemFrequency,
-        validity: {
-          to: req.body.endDateAndTime,
-          from: req.body.startDateAndTime,
+          showCouponToCustomer: req.body.showCouponToCustomer,
+          validForOnLinePayment: req.body.validForOnLinePayment,
+          validForNewCostomer: req.body.validForNewCostomer,
+          autoApplyCoupon: req.body.autoApplyCoupon,
+          images: req.body.images || [],
         },
 
-        showCouponToCustomer: req.body.showCouponToCustomer,
-        validForOnLinePayment: req.body.validForOnLinePayment,
-        validForNewCostomer: req.body.validForNewCostomer,
-        autoApplyCoupon: req.body.autoApplyCoupon,
-        images: req.body.images || [],
-      },
+        ratings: 0,
+        reviews: [],
+        createdOn: Date.now(),
+      });
 
-      ratings: 0,
-      reviews: [],
-      createdOn: Date.now(),
-    });
-
-    const coupon = await newCoupon.save();
-
-    for (let id of campaignsId) {
-      const campaign = await Campaign.findById(id);
-      if (!campaign.coupons.includes(coupon._id)) {
-        campaign.coupons.push(coupon._id);
+      const coupon = await newCoupon.save();
+      for (let id of coupon.campaigns) {
+        const campaign = await Campaign.findById(id);
+        if (!campaign.coupons.includes(coupon._id)) {
+          campaign.coupons.push(coupon._id);
+        }
+        const updatedcampaign = await campaign.save();
+        // console.log("updatedcampaign  : ", updatedcampaign);
       }
-      const updatedcampaign = await campaign.save();
-      // console.log("updatedcampaign  : ", updatedcampaign);
-    }
+      brand.offers.push(offers);
+      await brand.save();
 
-    brand.offers.push(coupon);
-    await brand.save();
-    return res.status(200).send(coupon);
+      return res.status(200).send(coupon);
+    }
   } catch (error) {
     console.log("error : ", error);
     return res.status(500).send({
@@ -114,19 +97,6 @@ export async function updateCoupon(req, res) {
   try {
     console.log("edit coupon details called! ");
     const coupon = await Coupon.findById(req.params.couponId);
-
-    let campaignsId = [];
-
-    for (let campaignId of req.body.campaigns) {
-      const campaign = await Campaign.findById(campaignId);
-      const campaigns = await Campaign.find({
-        cid: campaign?.cid,
-        campaignName: campaign.campaignName,
-        status: CAMPAIGN_STATUS_ACTIVE,
-      });
-      const ids = campaigns.map((campaign) => campaign._id);
-      campaignsId = [...campaignsId, ...ids];
-    }
 
     coupon.offerName = req.body.offerName || coupon.offerName;
     coupon.offerDetails = req.body.offerDetails || coupon.offerDetails;
@@ -179,7 +149,7 @@ export async function updateCoupon(req, res) {
 
     const updatedCoupon = await coupon.save();
 
-    for (let id of campaignsId) {
+    for (let id of updatedCoupon.campaigns) {
       const campaign = await Campaign.findById(id);
       if (!campaign.coupons.includes(updatedCoupon._id)) {
         campaign.coupons.push(updatedCoupon._id);
@@ -226,23 +196,10 @@ export const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(404).send("Coupon not found!");
     }
-
     // change for parmanent delete or not
     if (status === COUPON_STATUS_DELETED) {
       if (coupon.campaigns.length > 0) {
-        let campaignsId = [];
-
         for (let campaignId of coupon.campaigns) {
-          const campaign = await Campaign.findById(campaignId);
-          const campaigns = await Campaign.find({
-            cid: campaign?.cid,
-            campaignName: campaign.campaignName,
-          });
-          const ids = campaigns.map((campaign) => campaign._id);
-          campaignsId = [...campaignsId, ...ids];
-        }
-
-        for (let campaignId of campaignsId) {
           const campaign = await Campaign.findById(campaignId);
           // console.log("before campaigns : ", campaign.coupons);
           campaign.coupons = campaign.coupons.filter((id) => id != couponId);
@@ -250,12 +207,9 @@ export const deleteCoupon = async (req, res) => {
           // console.log("updated campaigns : ", updatedCampaign.coupons);
         }
       }
-      const brand = await Brand.findById(coupon.brand);
-      brand.offers = brand.offers.filter((id) => id != coupon._id);
-      await brand.save();
 
       const deletedCoupon = await coupon.delete();
-      console.log("DELETD COUPON PERMANENTLY : ", deletedCoupon);
+      console.log("DELETD COUPON PERMANENTLY : ", deleteCoupon);
       return res.status(200).send(deletedCoupon);
     }
     coupon.status = status;
@@ -277,19 +231,17 @@ export async function addRedeemerToCoupon(req, res) {
     const userId = req.params.userId;
     const screenId = req.params.screenId;
 
-    console.log(req.params);
+    // console.log(req.params);
     const screen = await Screen.findById(screenId);
-
     const couponUser = await User.findById(userId);
-    if (!couponUser)
-      return res.status(404).send({ message: "User Not Found!" });
-
     const coupon = await Coupon.findById(couponId);
-    if (!coupon) return res.status(404).send({ message: "Coupon Not Found!" });
-    // coupon.rewardCoupons = [];
-    // await coupon.save();
-    // return res.status(200).send("deletd");
 
+    if (!couponUser) {
+      return res.status(404).send({ message: "User Not Found!" });
+    }
+    if (!coupon) {
+      return res.status(404).send({ message: "Coupon Not Found!" });
+    }
     // check coupon has reach its filnal limit or not
     if (coupon.rewardCoupons.length >= coupon.quantity) {
       //change coupon status expire or full
@@ -301,59 +253,58 @@ export async function addRedeemerToCoupon(req, res) {
     }
     // coupon has not reach its filnal limit
     // now check this user has redeem already or not
-    const user = coupon.rewardCoupons.find(
-      (singleUser) => singleUser.redeemer == userId
-    );
-    // console.log("user in coupons : ", user);
+    const user = coupon.rewardCoupons.filter(u => u.email === couponUser.email);
+
     // Ager user hai to, check karenge ki user kitne bar redeem kiya hai is coupon ko and maximum time kitna hai
-    if (user) {
-      if (coupon.couponRewardInfo.redeemFrequency >= user.redeemedFrequency) {
-        return res.status(400).send({
-          message: `You can use this coupon only ${coupon.couponRewardInfo.redeemFrequency} and you have allready use this coupon ${coupon.couponRewardInfo.redeemFrequency} times.`,
-        });
-      } else {
-        // Jab  singleUser.redeemedFrequency < coupon.couponRewardInfo.redeemFrequency came to else part
-        const updatedCoupon = await Coupon.updateOne(
-          {
-            _id: couponId,
-            "rewardCoupons.redeemer": userId,
-          },
+    if (user.length === 0) {
+      // if user not exist in coupon.rewardCoupons , it came into else part
+      // create a new user for this coupon
+      const singleCouponId = new mongoose.Types.ObjectId();
+      // single user coupon data
+      const data = {
+        _id: singleCouponId,
+        redeemer: userId,
+        redeemedFrequency: coupon.couponRewardInfo.redeemFrequency,
+        email: couponUser.email,
+        status: "CLAIMED",
+        claimedLocation: screen.address
+      };
+      coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 
-          { $inc: { "rewardCoupons.$.redeemedFrequency": 1 } }
-        );
-        // console.log("updatedCoupon : ", updatedCoupon);
-        return res.status(200).send(updatedCoupon);
-      }
+      const updatedCoupon = await coupon.save();
+      // console.log("updatedCoupon : ", updatedCoupon);
+      // saving coupon and user coupon details to user also to find all user coupon list easily
+
+      const updateUser = await User.updateOne(
+        { _id: couponUser._id },
+        {
+          $push: { rewardCoupons: coupon._id },
+        }
+      );
+      // console.log("updated user : ", updateUser);
+      return res.status(200).send({
+        couponReward: updatedCoupon,
+        userCouponDetails: updateUser,
+      });
+    } else {
+      return res.status(400).send({
+        message: `You have already claimed this coupon.`,
+      });
+      // Jab  singleUser.redeemedFrequency < coupon.couponRewardInfo.redeemFrequency came to else part
+      // const updatedCoupon = await Coupon.updateOne(
+      //   {
+      //     _id: couponId,
+      //     "rewardCoupons.redeemer": userId,
+      //   },
+
+      //   { $inc: { "rewardCoupons.$.redeemedFrequency": 1 } }
+      // );
+      // console.log("updatedCoupon : ", updatedCoupon);
+      // return res.status(200).send(updatedCoupon);
+     
     }
-    // if user not exist in coupon.rewardCoupons , it came into else part
-    // create a new user for this coupon
-    const singleCouponId = new mongoose.Types.ObjectId();
-    // single user coupon data
-    const data = {
-      _id: singleCouponId,
-      redeemer: userId,
-      redeemedFrequency: 1,
-      email: couponUser.email,
-      status: "CLAIMED",
-      claimedLocation: screen.address,
-    };
-    coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 
-    const updatedCoupon = await coupon.save();
-    // console.log("updatedCoupon : ", updatedCoupon);
-    // saving coupon and user coupon details to user also to find all user coupon list easily
 
-    const updateUser = await User.updateOne(
-      { _id: couponUser._id },
-      {
-        $push: { rewardCoupons: coupon._id },
-      }
-    );
-    // console.log("updated user : ", updateUser);
-    return res.status(200).send({
-      couponReward: updatedCoupon,
-      userCouponDetails: updateUser,
-    });
   } catch (error) {
     // console.log("eeeeeeee : ", error);
     return res.status(500).send({
