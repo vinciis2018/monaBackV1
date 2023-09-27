@@ -670,6 +670,7 @@ export async function getScreensList(req, res) {
     //   .limit(pageSize);
 
     return res.status(200).send({
+      // screens: screens.reverse(),
       screens,
       page,
       pages: Math.ceil(countDocuments / pageSize),

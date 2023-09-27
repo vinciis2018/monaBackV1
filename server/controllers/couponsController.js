@@ -67,7 +67,7 @@ export const createNewCoupon = async (req, res) => {
         const updatedcampaign = await campaign.save();
         // console.log("updatedcampaign  : ", updatedcampaign);
       }
-      brand.offers.push(offers);
+      brand.offers.push(coupon);
       await brand.save();
 
       return res.status(200).send(coupon);
@@ -103,7 +103,6 @@ export async function updateCoupon(req, res) {
 
     coupon.quantity = req.body.quantity || coupon.quantity;
     coupon.couponCode = req.body.couponCode || coupon.couponCode;
-    coupon.campaigns = req.body.campaigns || req.body.campaign;
 
     // coupon.couponRewardInfo.couponType = req.body.couponType; // % discount ; discount amount ; buy x get y ; freebie
     coupon.couponRewardInfo.minimumOrderCondition =
@@ -147,17 +146,37 @@ export async function updateCoupon(req, res) {
     coupon.couponRewardInfo.images =
       req.body.images || coupon.couponRewardInfo.images;
 
+    if (req.body.campaigns !== coupon.campaigns) {
+      for (let id of coupon.campaigns) {
+        const campaign = await Campaign.findById(id);
+        // console.log(campaign._id);
+        // console.log(coupon.campaigns);
+        if (campaign.coupons.includes(coupon._id) && !req.body.campaigns.includes(campaign._id)){
+          campaign.coupons.pop(coupon._id);
+          await campaign.save();
+          // console.log("2: ", campaign.coupons);
+          // console.log("##############");
+        }
+        
+      }
+
+      for (let i of req.body.campaigns) {
+        const campaign = await Campaign.findById(i);
+        if (!campaign.coupons.includes(coupon._id)) {
+          campaign.coupons.push(coupon._id);
+          await campaign.save();
+          // console.log("1: ", campaign.coupons);
+          // console.log("##############");
+        } 
+      }
+      coupon.campaigns = req.body.campaigns
+    } else {
+      coupon.campaigns = coupon.campaigns
+    }
     const updatedCoupon = await coupon.save();
 
-    for (let id of updatedCoupon.campaigns) {
-      const campaign = await Campaign.findById(id);
-      if (!campaign.coupons.includes(updatedCoupon._id)) {
-        campaign.coupons.push(updatedCoupon._id);
-      }
-      const updatedcampaign = await campaign.save();
-      // console.log("updatedcampaign  : ", updatedcampaign);
-    }
-    console.log("coupon updated successfullt!");
+    
+    console.log("coupon updated successfully!");
     return res.status(200).send(updatedCoupon);
   } catch (error) {
     return res.status(500).send({
