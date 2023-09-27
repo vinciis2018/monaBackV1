@@ -146,33 +146,78 @@ export async function updateCoupon(req, res) {
     coupon.couponRewardInfo.images =
       req.body.images || coupon.couponRewardInfo.images;
 
-    if (req.body.campaigns !== coupon.campaigns) {
-      for (let id of coupon.campaigns) {
-        const campaign = await Campaign.findById(id);
-        // console.log(campaign._id);
-        // console.log(coupon.campaigns);
-        if (campaign.coupons.includes(coupon._id) && !req.body.campaigns.includes(campaign._id)){
-          campaign.coupons.pop(coupon._id);
-          await campaign.save();
-          // console.log("2: ", campaign.coupons);
-          // console.log("##############");
-        }
-        
-      }
+    console.log(req.body.campaigns);
+    if (req.body.campaigns) {
+      const selectedCampaigns = [];
+      for (let c of req.body.campaigns) {
+        const campaign = await Campaign.findById(c);
 
-      for (let i of req.body.campaigns) {
-        const campaign = await Campaign.findById(i);
-        if (!campaign.coupons.includes(coupon._id)) {
-          campaign.coupons.push(coupon._id);
-          await campaign.save();
-          // console.log("1: ", campaign.coupons);
-          // console.log("##############");
-        } 
+        const desiredCampaign = await Campaign.find({
+          campaignName: campaign.campaignName,
+          cid: campaign.cid,
+        })
+        // console.log(desiredCampaign);
+        desiredCampaign.map((camp) => {
+          return selectedCampaigns.push(camp._id);
+        })
+        // selectedCampaigns.push(desiredCampaign._id);
       }
-      coupon.campaigns = req.body.campaigns
-    } else {
-      coupon.campaigns = coupon.campaigns
+      console.log(selectedCampaigns);
+      if (selectedCampaigns !== coupon.campaigns) {
+        for (let id of coupon.campaigns) {
+          const campaign = await Campaign.findById(id);
+          // console.log(campaign._id);
+          // console.log(coupon.campaigns);
+          if (campaign.coupons.includes(coupon._id) && !selectedCampaigns.includes(campaign._id)){
+            campaign.coupons.pop(coupon._id);
+            await campaign.save();
+            // console.log("2: ", campaign.coupons);
+            // console.log("##############");
+          }
+          
+        }
+
+        for (let i of selectedCampaigns) {
+          const campaign = await Campaign.findById(i);
+          if (!campaign.coupons.includes(coupon._id)) {
+            campaign.coupons.push(coupon._id);
+            await campaign.save();
+            // console.log("1: ", campaign.coupons);
+            // console.log("##############");
+          } 
+        }
+        coupon.campaigns = selectedCampaigns
+      } else {
+        coupon.campaigns = coupon.campaigns
+      }
     }
+    // if (req.body.campaigns !== coupon.campaigns) {
+    //   for (let id of coupon.campaigns) {
+    //     const campaign = await Campaign.findById(id);
+    //     // console.log(campaign._id);
+    //     // console.log(coupon.campaigns);
+    //     if (campaign.coupons.includes(coupon._id) && !req.body.campaigns.includes(campaign._id)){
+    //       campaign.coupons.pop(coupon._id);
+    //       await campaign.save();
+    //       // console.log("2: ", campaign.coupons);
+    //       // console.log("##############");
+    //     }
+        
+    //   }
+
+    //   for (let i of req.body.campaigns) {
+    //     const campaign = await Campaign.findById(i);
+    //     if (!campaign.coupons.includes(coupon._id)) {
+    //       campaign.coupons.push(coupon._id);
+    //       await campaign.save();
+    //       // console.log("1: ", campaign.coupons);
+    //       // console.log("##############");
+    //     } 
+    //   }
+    //   coupon.campaigns = req.body.campaigns
+    // } else {
+    //   coupon.campaigns = coupon.campaigns
+    // }
     const updatedCoupon = await coupon.save();
 
     
