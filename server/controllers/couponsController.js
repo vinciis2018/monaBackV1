@@ -9,6 +9,7 @@ import Campaign from "../models/campaignModel.js";
 import Coupon from "../models/couponModel.js";
 import User from "../models/userModel.js";
 import Screen from "../models/screenModel.js";
+import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
 
 export const createNewCoupon = async (req, res) => {
   try {
@@ -16,64 +17,79 @@ export const createNewCoupon = async (req, res) => {
     // console.log(brand);
     if (!brand) {
       return req.status(404).send("No brand found");
-    } else {
-      const newCoupon = new Coupon({
-        offerName: req.body.offerName,
-        offerDetails: req.body.offerDetails,
-        brand: brand._id,
-        brandName: brand.brandName,
-        offerCreator: req.params.userId,
-        // nfts: [{ type: String, default: ""}],
-        brandLogo: brand.brandDetails.logo,
-        quantity: req.body.quantity,
-        couponCode: req.body.couponCode,
-        campaigns: req.body.campaigns || [],
+    }
 
-        couponRewardInfo: {
-          couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
-          minimumOrderCondition: req.body.minimumOrderCondition,
-          minimumOrderValue: req.body.minimumOrderValue,
-          minimumOrderQuantity: req.body.minimumOrderQuantity,
-          discountPersentage: req.body.discountPersentage,
-          discountAmount: req.body.discountAmount,
-          buyItems: req.body.buyItems, // buy x get y
-          freeItems: req.body.freeItems, // buy x gey y
-          freebieItemsName: req.body.freebieItemsName, //freebie
-          loyaltyPoints: req.body.loyaltyPoints,
-          redeemFrequency: req.body.redeemFrequency,
-          validity: {
-            to: req.body.endDateAndTime,
-            from: req.body.startDateAndTime,
-          },
+    // first find all camapign with same name and cid for comming coupon id:
+    let campaignsId = [];
 
-          showCouponToCustomer: req.body.showCouponToCustomer,
-          validForOnLinePayment: req.body.validForOnLinePayment,
-          validForNewCostomer: req.body.validForNewCostomer,
-          autoApplyCoupon: req.body.autoApplyCoupon,
-          images: req.body.images || [],
+    for (let campaignId of req.body.campaigns) {
+      const campaign = await Campaign.findById(campaignId);
+      const campaigns = await Campaign.find({
+        cid: campaign?.cid,
+        campaignName: campaign.campaignName,
+        status: CAMPAIGN_STATUS_ACTIVE,
+      });
+      const ids = campaigns.map((campaign) => campaign._id);
+      campaignsId = [...campaignsId, ...ids];
+    }
+
+    const newCoupon = new Coupon({
+      offerName: req.body.offerName,
+      offerDetails: req.body.offerDetails,
+      brand: brand._id,
+      brandName: brand.brandName,
+      offerCreator: req.params.userId,
+      // nfts: [{ type: String, default: ""}],
+      brandLogo: brand.brandDetails.logo,
+      quantity: req.body.quantity,
+      couponCode: req.body.couponCode,
+      campaigns: req.body.campaigns || [],
+
+      couponRewardInfo: {
+        couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
+        minimumOrderCondition: req.body.minimumOrderCondition,
+        minimumOrderValue: req.body.minimumOrderValue,
+        minimumOrderQuantity: req.body.minimumOrderQuantity,
+        discountPersentage: req.body.discountPersentage,
+        discountAmount: req.body.discountAmount,
+        buyItems: req.body.buyItems, // buy x get y
+        freeItems: req.body.freeItems, // buy x gey y
+        freebieItemsName: req.body.freebieItemsName, //freebie
+        loyaltyPoints: req.body.loyaltyPoints,
+        redeemFrequency: req.body.redeemFrequency,
+        validity: {
+          to: req.body.endDateAndTime,
+          from: req.body.startDateAndTime,
         },
 
-        ratings: 0,
-        reviews: [],
-        createdOn: Date.now(),
-      });
+        showCouponToCustomer: req.body.showCouponToCustomer,
+        validForOnLinePayment: req.body.validForOnLinePayment,
+        validForNewCostomer: req.body.validForNewCostomer,
+        autoApplyCoupon: req.body.autoApplyCoupon,
+        images: req.body.images || [],
+      },
 
-      const coupon = await newCoupon.save();
-      for (let id of coupon.campaigns) {
-        const campaign = await Campaign.findById(id);
-        if (!campaign.coupons.includes(coupon._id)) {
-          campaign.coupons.push(coupon._id);
-        }
-        const updatedcampaign = await campaign.save();
-        // console.log("updatedcampaign  : ", updatedcampaign);
+      ratings: 0,
+      reviews: [],
+      createdOn: Date.now(),
+    });
+
+    const coupon = await newCoupon.save();
+    // Iterate each campaign id and add coupon to the each camapign
+    for (let id of campaignsId) {
+      const campaign = await Campaign.findById(id);
+      if (!campaign.coupons.includes(coupon._id)) {
+        campaign.coupons.push(coupon._id);
       }
-      brand.offers.push(coupon);
-      await brand.save();
-
-      return res.status(200).send(coupon);
+      const updatedcampaign = await campaign.save();
+      // console.log("updatedcampaign  : ", updatedcampaign);
     }
+
+    brand.offers.push(coupon);
+    await brand.save();
+
+    return res.status(200).send(coupon);
   } catch (error) {
-    console.log("error : ", error);
     return res.status(500).send({
       message: `Coupon Reward controller error at createNewCoupon ${error.message}`,
     });
@@ -97,6 +113,8 @@ export async function updateCoupon(req, res) {
   try {
     console.log("edit coupon details called! ");
     const coupon = await Coupon.findById(req.params.couponId);
+
+    if (!coupon) return res.status(404).send({ message: "Coupon not found!" });
 
     coupon.offerName = req.body.offerName || coupon.offerName;
     coupon.offerDetails = req.body.offerDetails || coupon.offerDetails;
@@ -146,7 +164,6 @@ export async function updateCoupon(req, res) {
     coupon.couponRewardInfo.images =
       req.body.images || coupon.couponRewardInfo.images;
 
-    console.log(req.body.campaigns);
     if (req.body.campaigns) {
       const selectedCampaigns = [];
       for (let c of req.body.campaigns) {
@@ -155,26 +172,28 @@ export async function updateCoupon(req, res) {
         const desiredCampaign = await Campaign.find({
           campaignName: campaign.campaignName,
           cid: campaign.cid,
-        })
+        });
         // console.log(desiredCampaign);
         desiredCampaign.map((camp) => {
           return selectedCampaigns.push(camp._id);
-        })
+        });
         // selectedCampaigns.push(desiredCampaign._id);
       }
-      console.log(selectedCampaigns);
+      // console.log(selectedCampaigns);
       if (selectedCampaigns !== coupon.campaigns) {
         for (let id of coupon.campaigns) {
           const campaign = await Campaign.findById(id);
           // console.log(campaign._id);
           // console.log(coupon.campaigns);
-          if (campaign.coupons.includes(coupon._id) && !selectedCampaigns.includes(campaign._id)){
+          if (
+            campaign.coupons.includes(coupon._id) &&
+            !selectedCampaigns.includes(campaign._id)
+          ) {
             campaign.coupons.pop(coupon._id);
             await campaign.save();
             // console.log("2: ", campaign.coupons);
             // console.log("##############");
           }
-          
         }
 
         for (let i of selectedCampaigns) {
@@ -184,11 +203,11 @@ export async function updateCoupon(req, res) {
             await campaign.save();
             // console.log("1: ", campaign.coupons);
             // console.log("##############");
-          } 
+          }
         }
-        coupon.campaigns = selectedCampaigns
+        coupon.campaigns = selectedCampaigns;
       } else {
-        coupon.campaigns = coupon.campaigns
+        coupon.campaigns = coupon.campaigns;
       }
     }
     // if (req.body.campaigns !== coupon.campaigns) {
@@ -202,7 +221,7 @@ export async function updateCoupon(req, res) {
     //       // console.log("2: ", campaign.coupons);
     //       // console.log("##############");
     //     }
-        
+
     //   }
 
     //   for (let i of req.body.campaigns) {
@@ -212,7 +231,7 @@ export async function updateCoupon(req, res) {
     //       await campaign.save();
     //       // console.log("1: ", campaign.coupons);
     //       // console.log("##############");
-    //     } 
+    //     }
     //   }
     //   coupon.campaigns = req.body.campaigns
     // } else {
@@ -220,8 +239,7 @@ export async function updateCoupon(req, res) {
     // }
     const updatedCoupon = await coupon.save();
 
-    
-    console.log("coupon updated successfully!");
+    // console.log("coupon updated successfully!");
     return res.status(200).send(updatedCoupon);
   } catch (error) {
     return res.status(500).send({
@@ -263,7 +281,20 @@ export const deleteCoupon = async (req, res) => {
     // change for parmanent delete or not
     if (status === COUPON_STATUS_DELETED) {
       if (coupon.campaigns.length > 0) {
+        // first remove coupon from each campaigns which attached to this coupon
+        let campaignsId = [];
+
         for (let campaignId of coupon.campaigns) {
+          const campaign = await Campaign.findById(campaignId);
+          const campaigns = await Campaign.find({
+            cid: campaign.cid,
+            campaignName: campaign.campaignName,
+          });
+          const ids = campaigns.map((campaign) => campaign._id);
+          campaignsId = [...campaignsId, ...ids];
+        }
+
+        for (let campaignId of campaignsId) {
           const campaign = await Campaign.findById(campaignId);
           // console.log("before campaigns : ", campaign.coupons);
           campaign.coupons = campaign.coupons.filter((id) => id != couponId);
@@ -273,13 +304,13 @@ export const deleteCoupon = async (req, res) => {
       }
 
       const deletedCoupon = await coupon.delete();
-      console.log("DELETD COUPON PERMANENTLY : ", deleteCoupon);
+      // console.log("DELETD COUPON PERMANENTLY : ", deletedCoupon);
       return res.status(200).send(deletedCoupon);
     }
     coupon.status = status;
-    await coupon.save();
+    const updatedCoupon = await coupon.save();
     // console.log("delted coupon : ", deletedCoupon);
-    return res.status(200).send(coupon);
+    return res.status(200).send(updatedCoupon);
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -317,7 +348,9 @@ export async function addRedeemerToCoupon(req, res) {
     }
     // coupon has not reach its filnal limit
     // now check this user has redeem already or not
-    const user = coupon.rewardCoupons.filter(u => u.email === couponUser.email);
+    const user = coupon.rewardCoupons.filter(
+      (u) => u.email === couponUser.email
+    );
 
     // Ager user hai to, check karenge ki user kitne bar redeem kiya hai is coupon ko and maximum time kitna hai
     if (user.length === 0) {
@@ -331,7 +364,7 @@ export async function addRedeemerToCoupon(req, res) {
         redeemedFrequency: coupon.couponRewardInfo.redeemFrequency,
         email: couponUser.email,
         status: "CLAIMED",
-        claimedLocation: screen.address
+        claimedLocation: screen.address,
       };
       coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 
@@ -365,10 +398,7 @@ export async function addRedeemerToCoupon(req, res) {
       // );
       // console.log("updatedCoupon : ", updatedCoupon);
       // return res.status(200).send(updatedCoupon);
-     
     }
-
-
   } catch (error) {
     // console.log("eeeeeeee : ", error);
     return res.status(500).send({
