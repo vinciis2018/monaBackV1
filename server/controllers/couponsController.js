@@ -367,7 +367,8 @@ export async function addRedeemerToCoupon(req, res) {
         redeemedFrequency: coupon.couponRewardInfo.redeemFrequency,
         email: couponUser.email,
         status: "CLAIMED",
-        claimedLocation: screen.address,
+        claimedLocation: screen.screenAddress,
+        claimedScreen: screen._id,
       };
       coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 

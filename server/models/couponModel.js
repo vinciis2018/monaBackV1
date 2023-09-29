@@ -9,6 +9,7 @@ export const couponRewardSchema = new mongoose.Schema(
     status: { type: String, default: "CLAIMED" },
     email: { type: String },
     claimedLocation: { type: String },
+    claimedScreen: { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
   },
   {
     timestamps: true,
