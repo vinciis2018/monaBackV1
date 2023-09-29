@@ -13,7 +13,7 @@ import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import { ObjectId } from "mongodb";
 import Wallet from "../models/walletModel.js";
 import mongoose from "mongoose";
-import CampaignForMultipleScreen from "../models/campaignForMultipleScreenModel.js";
+import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -452,6 +452,8 @@ export async function getUserActiveCampaigns(req, res) {
         const campaign = await Campaign.findOne({
           cid: singleData._id.cid,
           campaignName: singleData._id.campaignName,
+          ally: allyId,
+          status: CAMPAIGN_STATUS_ACTIVE,
         });
         if (campaign) {
           myCampaigns.push(campaign);

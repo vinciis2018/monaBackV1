@@ -10,13 +10,14 @@ import Coupon from "../models/couponModel.js";
 import User from "../models/userModel.js";
 import Screen from "../models/screenModel.js";
 import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
+import { ObjectId } from "mongodb";
 
 export const createNewCoupon = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.brandId);
     // console.log(brand);
     if (!brand) {
-      return req.status(404).send("No brand found");
+      return res.status(404).send("No brand found");
     }
 
     // first find all camapign with same name and cid for comming coupon id:
@@ -28,6 +29,7 @@ export const createNewCoupon = async (req, res) => {
         cid: campaign?.cid,
         campaignName: campaign.campaignName,
         status: CAMPAIGN_STATUS_ACTIVE,
+        ally: campaign.ally,
       });
       const ids = campaigns.map((campaign) => campaign._id);
       campaignsId = [...campaignsId, ...ids];
@@ -44,6 +46,7 @@ export const createNewCoupon = async (req, res) => {
       quantity: req.body.quantity,
       couponCode: req.body.couponCode,
       campaigns: req.body.campaigns || [],
+      allCampaigns: campaignsId,
 
       couponRewardInfo: {
         couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
@@ -99,7 +102,7 @@ export const createNewCoupon = async (req, res) => {
 export async function getCouponListForBrand(req, res) {
   try {
     const brand = await Brand.findById(req.params.brandId);
-    if (!brand) return req.status(404).send("No brand found");
+    if (!brand) return res.status(404).send("No brand found");
     const couponList = await Coupon.find({ brand: brand._id });
     return res.status(200).send(couponList);
   } catch (error) {
@@ -112,15 +115,87 @@ export async function getCouponListForBrand(req, res) {
 export async function updateCoupon(req, res) {
   try {
     console.log("edit coupon details called! ");
-    const coupon = await Coupon.findById(req.params.couponId);
+    const couponId = req.params.couponId;
+    const coupon = await Coupon.findById(couponId);
 
     if (!coupon) return res.status(404).send({ message: "Coupon not found!" });
+
+    // before going to add campaign in coupon
+    // 1. first check old campaign present or not if not delete coupon from camoaigns
+    const newCampaignId = req.body.campaigns || [];
+    // console.log("newCampaigns : ", newCampaignId);
+    // console.log("coupon.campaigns : ", coupon.campaigns);
+    let oldCampaigns = [];
+    let allCampaigns = [];
+    for (let id of coupon.campaigns) {
+      if (newCampaignId.find((x) => x == id)) {
+        // old campaign id present in new campaign id
+        oldCampaigns.push(id);
+      } else {
+        // old campaign id has removed
+        // so we need to delete coupon from old camapigns and also delete camapigns id from allCampaigns in coupon
+        const campaign = await Campaign.findById(id);
+        const campaigns = await Campaign.find({
+          cid: campaign?.cid,
+          campaignName: campaign.campaignName,
+          status: CAMPAIGN_STATUS_ACTIVE,
+          ally: campaign.ally,
+        });
+        const ids = campaigns.map((campaign) => campaign._id);
+
+        for (let campaignId of ids) {
+          const campaign = await Campaign.findById(campaignId);
+          // console.log("before campaigns : ", campaign.coupons);
+          campaign.coupons = campaign.coupons.filter((id) => id != couponId);
+          const updatedCampaign = await campaign.save();
+          // console.log("updated campaigns : ", updatedCampaign.coupons);
+        }
+      }
+    }
+    // 2. iterate req.body.campaigns to check if any new id present then attached coupon to that campaigns
+    for (let id of newCampaignId) {
+      if (!oldCampaigns.find((x) => x == id)) {
+        // added new campaign added while update coupon
+        const campaign = await Campaign.findById(id);
+        const campaigns = await Campaign.find({
+          cid: campaign?.cid,
+          campaignName: campaign.campaignName,
+          status: CAMPAIGN_STATUS_ACTIVE,
+          ally: campaign.ally,
+        });
+        const ids = campaigns.map((campaign) => campaign._id);
+
+        for (let id of ids) {
+          const campaign = await Campaign.findById(id);
+          if (!campaign.coupons.includes(couponId)) {
+            campaign.coupons.push(couponId);
+          }
+          const updatedcampaign = await campaign.save();
+          // console.log("updatedcampaign  : ", updatedcampaign);
+        }
+      }
+    }
+
+    for (let id of req.body.campaigns) {
+      const campaign = await Campaign.findById(id);
+      const campaigns = await Campaign.find({
+        cid: campaign?.cid,
+        campaignName: campaign.campaignName,
+        status: CAMPAIGN_STATUS_ACTIVE,
+        ally: campaign.ally,
+      });
+      const ids = campaigns.map((campaign) => campaign._id);
+      allCampaigns = [...allCampaigns, ...ids];
+    }
+    console.log("allCampaigns : ", allCampaigns);
 
     coupon.offerName = req.body.offerName || coupon.offerName;
     coupon.offerDetails = req.body.offerDetails || coupon.offerDetails;
 
     coupon.quantity = req.body.quantity || coupon.quantity;
     coupon.couponCode = req.body.couponCode || coupon.couponCode;
+    coupon.campaigns = req.body.campaigns;
+    coupon.allCampaigns = allCampaigns;
 
     // coupon.couponRewardInfo.couponType = req.body.couponType; // % discount ; discount amount ; buy x get y ; freebie
     coupon.couponRewardInfo.minimumOrderCondition =
@@ -164,79 +239,6 @@ export async function updateCoupon(req, res) {
     coupon.couponRewardInfo.images =
       req.body.images || coupon.couponRewardInfo.images;
 
-    if (req.body.campaigns) {
-      const selectedCampaigns = [];
-      for (let c of req.body.campaigns) {
-        const campaign = await Campaign.findById(c);
-
-        const desiredCampaign = await Campaign.find({
-          campaignName: campaign.campaignName,
-          cid: campaign.cid,
-        });
-        // console.log(desiredCampaign);
-        desiredCampaign.map((camp) => {
-          return selectedCampaigns.push(camp._id);
-        });
-        // selectedCampaigns.push(desiredCampaign._id);
-      }
-      // console.log(selectedCampaigns);
-      if (selectedCampaigns !== coupon.campaigns) {
-        for (let id of coupon.campaigns) {
-          const campaign = await Campaign.findById(id);
-          // console.log(campaign._id);
-          // console.log(coupon.campaigns);
-          if (
-            campaign.coupons.includes(coupon._id) &&
-            !selectedCampaigns.includes(campaign._id)
-          ) {
-            campaign.coupons.pop(coupon._id);
-            await campaign.save();
-            // console.log("2: ", campaign.coupons);
-            // console.log("##############");
-          }
-        }
-
-        for (let i of selectedCampaigns) {
-          const campaign = await Campaign.findById(i);
-          if (!campaign.coupons.includes(coupon._id)) {
-            campaign.coupons.push(coupon._id);
-            await campaign.save();
-            // console.log("1: ", campaign.coupons);
-            // console.log("##############");
-          }
-        }
-        coupon.campaigns = selectedCampaigns;
-      } else {
-        coupon.campaigns = coupon.campaigns;
-      }
-    }
-    // if (req.body.campaigns !== coupon.campaigns) {
-    //   for (let id of coupon.campaigns) {
-    //     const campaign = await Campaign.findById(id);
-    //     // console.log(campaign._id);
-    //     // console.log(coupon.campaigns);
-    //     if (campaign.coupons.includes(coupon._id) && !req.body.campaigns.includes(campaign._id)){
-    //       campaign.coupons.pop(coupon._id);
-    //       await campaign.save();
-    //       // console.log("2: ", campaign.coupons);
-    //       // console.log("##############");
-    //     }
-
-    //   }
-
-    //   for (let i of req.body.campaigns) {
-    //     const campaign = await Campaign.findById(i);
-    //     if (!campaign.coupons.includes(coupon._id)) {
-    //       campaign.coupons.push(coupon._id);
-    //       await campaign.save();
-    //       // console.log("1: ", campaign.coupons);
-    //       // console.log("##############");
-    //     }
-    //   }
-    //   coupon.campaigns = req.body.campaigns
-    // } else {
-    //   coupon.campaigns = coupon.campaigns
-    // }
     const updatedCoupon = await coupon.save();
 
     // console.log("coupon updated successfully!");
@@ -250,16 +252,8 @@ export async function updateCoupon(req, res) {
 
 export const getAllActiveCouponList = async (req, res) => {
   try {
-    // const today = new Date();
-    // console.log("today : ", today);
     const coupons = await Coupon.find({ status: COUPON_STATUS_ACTIVE });
-    // const coupons = await Coupon.find({
-    //   $or: [
-    //     { "couponRewardInfo.validity.to": { $gte: today } },
-    //     { "couponRewardInfo.validity.to": { $eq: null } },
-    //   ],
-    //   "couponRewardInfo.validity.from": { $lte: today },
-    // });
+
     console.log("coupons: ", coupons.length);
     return res.status(200).send(coupons);
   } catch (error) {
@@ -278,22 +272,32 @@ export const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(404).send("Coupon not found!");
     }
+    console.log("oupon.allCampaigns : ", coupon);
     // change for parmanent delete or not
     if (status === COUPON_STATUS_DELETED) {
-      if (coupon.campaigns.length > 0) {
+      if (coupon.allCampaigns.length > 0) {
         // first remove coupon from each campaigns which attached to this coupon
+        for (let campaignId of coupon.allCampaigns) {
+          const campaign = await Campaign.findById(campaignId);
+          // console.log("before campaigns : ", campaign.coupons);
+          campaign.coupons = campaign.coupons.filter((id) => id != couponId);
+          const updatedCampaign = await campaign.save();
+          // console.log("updated campaigns : ", updatedCampaign.coupons);
+        }
+      } else if (coupon.campaigns > 0) {
         let campaignsId = [];
 
         for (let campaignId of coupon.campaigns) {
           const campaign = await Campaign.findById(campaignId);
           const campaigns = await Campaign.find({
-            cid: campaign.cid,
+            cid: campaign?.cid,
             campaignName: campaign.campaignName,
+            status: CAMPAIGN_STATUS_ACTIVE,
+            ally: campaign.ally,
           });
           const ids = campaigns.map((campaign) => campaign._id);
           campaignsId = [...campaignsId, ...ids];
         }
-
         for (let campaignId of campaignsId) {
           const campaign = await Campaign.findById(campaignId);
           // console.log("before campaigns : ", campaign.coupons);
@@ -302,7 +306,6 @@ export const deleteCoupon = async (req, res) => {
           // console.log("updated campaigns : ", updatedCampaign.coupons);
         }
       }
-
       const deletedCoupon = await coupon.delete();
       // console.log("DELETD COUPON PERMANENTLY : ", deletedCoupon);
       return res.status(200).send(deletedCoupon);
@@ -312,7 +315,7 @@ export const deleteCoupon = async (req, res) => {
     // console.log("delted coupon : ", deletedCoupon);
     return res.status(200).send(updatedCoupon);
   } catch (error) {
-    console.log(error);
+    console.log(" error in delete coupon : ", error);
     return res.status(500).send({
       message: `Coupon Reward controller error at getAllActiveCouponList ${error.message}`,
     });
@@ -431,6 +434,30 @@ export async function getCouponListForUser(req, res) {
     console.log("error : ", error);
     return res.status(500).send({
       message: `Error in getCouponListForUser ${error.message}`,
+    });
+  }
+}
+
+export async function getCouponDetailsAlongWithCampaignsAndScreens(req, res) {
+  try {
+    const couponId = req.params.id;
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) return res.status(404).send({ message: "Coupon not cound" });
+    const campaigns = await Campaign.find({
+      _id: { $in: coupon.allCampaigns },
+    });
+    const screenIds = campaigns.map((campaign) => campaign.screen);
+    const screens = await Screen.find({ _id: { $in: screenIds } });
+
+    return res.status(200).send({
+      coupon,
+      screens,
+      campaigns,
+    });
+  } catch (error) {
+    console.log("error : ", error);
+    return res.status(500).send({
+      message: `Error in getCouponDetails ${error.message}`,
     });
   }
 }

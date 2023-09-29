@@ -5,6 +5,7 @@ import {
   createNewCoupon,
   deleteCoupon,
   getAllActiveCouponList,
+  getCouponDetailsAlongWithCampaignsAndScreens,
   getCouponListForBrand,
   getCouponListForUser,
   updateCoupon,
@@ -17,6 +18,10 @@ couponRouter.post("/create/:userId/:brandId", createNewCoupon);
 //get
 couponRouter.get("/getActiveCoupons", getAllActiveCouponList);
 couponRouter.get("/user/:userId", getCouponListForUser);
+couponRouter.get(
+  "/couponDetails/:id",
+  getCouponDetailsAlongWithCampaignsAndScreens
+);
 couponRouter.get("/:brandId", getCouponListForBrand);
 
 //put
