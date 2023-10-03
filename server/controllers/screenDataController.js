@@ -87,12 +87,12 @@ export async function scanQrDataSave(req, res) {
     }
     const data = {
       scanUser: req.body.scanResult.scanUser,
-      scanTime: req.body.scanResult.timestamp,
+      scanTime: req.body.scanResult.timestamp || new Date(),
     }
     screenData.qrScanData.scanText = req.body.scanResult.text;
     screenData.qrScanData.scanDetails.push(data);
     const updatedScanData = await screenData.save();
-    console.log(screenData);
+    // console.log(screenData);
 
     return res.status(200).send(updatedScanData);
   } catch (error) {
@@ -106,7 +106,7 @@ export async function getQrScanData(req, res) {
     const screenData = await ScreenData.findOne({
       screen: req.params.screenId
     });
-    if (screenData.qrScanData === undefined) {
+    if (screenData.qrScanData === undefined || !screenData.qrScanData) {
       screenData.qrScanData = {}
     }
     const scanQrData = screenData.qrScanData;
