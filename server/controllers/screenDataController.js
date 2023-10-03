@@ -76,3 +76,43 @@ export async function getScreenDataByDate(req, res) {
     return res.status(404).send(error);
   }
 }
+
+export async function scanQrDataSave(req, res) {
+  try {
+    const screenData = await ScreenData.findOne({
+      screen: req.params.screenId
+    });
+    if (screenData.qrScanData === undefined) {
+      screenData.qrScanData = {}
+    }
+    const data = {
+      scanUser: req.body.scanResult.scanUser,
+      scanTime: req.body.scanResult.timestamp,
+    }
+    screenData.qrScanData.scanText = req.body.scanResult.text;
+    screenData.qrScanData.scanDetails.push(data);
+    const updatedScanData = await screenData.save();
+    console.log(screenData);
+
+    return res.status(200).send(updatedScanData);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send(error);
+  }
+}
+
+export async function getQrScanData(req, res) {
+  try {
+    const screenData = await ScreenData.findOne({
+      screen: req.params.screenId
+    });
+    if (screenData.qrScanData === undefined) {
+      screenData.qrScanData = {}
+    }
+    const scanQrData = screenData.qrScanData;
+    return res.status(200).send(scanQrData);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send(error);
+  }
+}

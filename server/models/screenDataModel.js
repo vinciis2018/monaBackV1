@@ -26,7 +26,11 @@ const screenDataSchema = new mongoose.Schema(
         to: { type: String },
         via: [{ type: String }],
       }]
-    }]
+    }],
+    qrScanData: {
+      scanText: { type: String },
+      scanDetails: [],
+    },
   },
   {
     timestamps: true,

@@ -5,8 +5,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { Web3Storage, getFilesFromPath } from "web3.storage";
-import sizeOf from "image-size";
-
+// import compressImages from "compress-images";
 import Media from "../models/mediaModel.js";
 import User from "../models/userModel.js";
 
@@ -23,9 +22,9 @@ ffmpeg.setFfmpegPath(ffmpegStatic);
 //first save file in local
 const localStorage = multer.diskStorage({
   destination: (req, file, callback) => {
+    // console.log(req);
     console.log("file : ", file);
     console.log("directory name : ", req.dirName);
-
     callback(null, path.join(__dirname, "server", "mediaFiles", req.dirName));
   },
   filename: (req, file, callback) => {
@@ -46,12 +45,31 @@ export const createFolder = (req, res, next) => {
   fs.mkdirSync(path.join(__dirname, "server", "mediaFiles", dirName));
   req.dirName = dirName;
   next();
-  return;
+  // return;
 };
 
 export const createVideoFromImage = (req, res, next) => {
-  try {
     console.log("createVideoFromImage : called! : ", req.dirName);
+    // const filePath = "";
+    // const compressedFilePath = "";
+
+    // compressImages(filePath, compressedFilePath, { compress_force: false, statistic: true, autoupdate: true }, false,
+    //   { jpg: { engine: "mozjpeg", command: ["-quality", compression] } },
+    //   { png: { engine: "pngquant", command: ["--quality=" + compression + "-" + compression, "-o"] } },
+    //   // { svg: { engine: "svgo", command: "--multipass" } },
+    //   // { gif: { engine: "gifsicle", command: ["--colors", "64", "--use-col=web"] } },
+    //   async function (error, completed, statistic) {
+    //     console.log("-------------")
+    //     console.log(error)
+    //     console.log(completed)
+    //     console.log(statistic)
+    //     console.log("-------------")
+
+    //     // fileSystem.unlink(filePath, function (error) {
+    //     //     if (error) throw error
+    //     // })
+    //   }
+    // )
     //after successfully uploaded image in folder
     const dimensions = sizeOf(path.join( __dirname,
       "server",
@@ -173,9 +191,4 @@ export const createVideoFromImage = (req, res, next) => {
       .on('exit', () => console.log('ffmpeg exited'))
       .on('close',  () => console.log('ffmpeg closed'))
      
-    // const loopTime = req.body.loopTime;
-  } catch (err) {
-    console.log("error : ", err);
-    return res.status(400).send({ message: err });
-  }
 };
