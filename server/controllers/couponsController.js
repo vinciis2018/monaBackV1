@@ -354,6 +354,9 @@ export async function addRedeemerToCoupon(req, res) {
     const user = coupon.rewardCoupons.filter(
       (u) => u.email === couponUser.email
     );
+    console.log(coupon.rewardCoupons);
+    console.log(user);
+    console.log(coupon);
 
     // Ager user hai to, check karenge ki user kitne bar redeem kiya hai is coupon ko and maximum time kitna hai
     if (user.length === 0) {

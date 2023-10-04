@@ -1219,7 +1219,7 @@ export const getCouponListByScreenId = async (req, res) => {
         couponList.push(coupon);
       }
     }
-
+    
     console.log(
       `${couponList.length} coupons found on this screen ${req.params.screenId}`
     );

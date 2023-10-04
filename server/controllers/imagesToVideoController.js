@@ -8,6 +8,7 @@ import { Web3Storage, getFilesFromPath } from "web3.storage";
 // import compressImages from "compress-images";
 import Media from "../models/mediaModel.js";
 import User from "../models/userModel.js";
+import sizeOf from "image-size";
 
 // export const __dirname = path.resolve();
 // if using in production
