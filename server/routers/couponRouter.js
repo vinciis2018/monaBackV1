@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  addOrRemoveCouponToUserWishlist,
   addRedeemerToCoupon,
   createNewCoupon,
   deleteCoupon,
@@ -14,6 +15,7 @@ const couponRouter = express.Router();
 
 // post
 couponRouter.post("/create/:userId/:brandId", createNewCoupon);
+couponRouter.post("/addOrRemoveWishlist", addOrRemoveCouponToUserWishlist);
 
 //get
 couponRouter.get("/getActiveCoupons", getAllActiveCouponList);

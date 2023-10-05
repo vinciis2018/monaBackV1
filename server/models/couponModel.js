@@ -67,7 +67,7 @@ const couponSchema = new mongoose.Schema(
     allCampaigns: [{ type: mongoose.Schema.Types.ObjectId, ref: "Campaign" }],
 
     rewardOfferPartners: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      { type: mongoose.Schema.Types.ObjectId, ref: "Screen" },
     ],
     ratings: { type: Number },
     reviews: [reviewSchema],

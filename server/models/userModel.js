@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.c6ASmT7d2qYobP4OPwAxVgAAAA%26pid%3DApi&f=1",
     },
 
-    phone: { type: Number, default: "99999999", required: true },
+    phone: { type: String, default: "99999999", required: true },
     address: { type: String, default: "address", required: true },
     districtCity: { type: String, default: "district/city", required: true },
     municipality: { type: String, default: "municipality", required: true },
@@ -60,6 +60,12 @@ const userSchema = new mongoose.Schema(
 
     alliedScreens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
     rewardCoupons: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Coupon",
+      },
+    ],
+    wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Coupon",

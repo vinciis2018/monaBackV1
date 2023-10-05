@@ -16,6 +16,7 @@ const brandSchema = new mongoose.Schema(
     brandName: { type: String },
     tagline: { type: String },
     address: { type: String },
+    affiliatedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     brandDetails: {
       website: { type: String },
       aboutBrand: { type: String },
@@ -40,11 +41,13 @@ const brandSchema = new mongoose.Schema(
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     offers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
-    services: [{
-      name: { type: String },
-      image: { type: String },
-      description: { type: String },
-    }],
+    services: [
+      {
+        name: { type: String },
+        image: { type: String },
+        description: { type: String },
+      },
+    ],
     gigs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Gig" }],
     additionalInfo: {},
     ratings: { type: Number },

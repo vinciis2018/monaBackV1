@@ -1219,7 +1219,7 @@ export const getCouponListByScreenId = async (req, res) => {
         couponList.push(coupon);
       }
     }
-    
+
     console.log(
       `${couponList.length} coupons found on this screen ${req.params.screenId}`
     );
@@ -1241,7 +1241,7 @@ export const camDataHandleScreen = async (req, res) => {
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
 
-    var arr =  Object.keys(req.body)
+    var arr = Object.keys(req.body);
     for (var i = 0; i < arr.length; i++) {
       var key = arr[i];
       var value = req.body[key];
@@ -1251,10 +1251,12 @@ export const camDataHandleScreen = async (req, res) => {
         const valueKey = value;
         const enter = {
           date: keyValue,
-          data: valueKey
-        }
+          data: valueKey,
+        };
 
-        if (!screenLog.peopleCounter.map((count) => count.date).includes(keyValue)) {
+        if (
+          !screenLog.peopleCounter.map((count) => count.date).includes(keyValue)
+        ) {
           screenLog.peopleCounter.push(enter);
           await screenLog.save();
         } else {
@@ -1262,7 +1264,7 @@ export const camDataHandleScreen = async (req, res) => {
         }
       }
     }
-   
+
     return res.status(200).send(screenLog.peopleCounter);
   } catch (error) {
     return res.status(500).send({
@@ -1279,7 +1281,7 @@ export const genderAgeCamDataHandleScreen = async (req, res) => {
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     console.log(screenLog._id);
     // screenLog.camData.push(dataEnter);
-    var arr =  Object.keys(req.body)
+    var arr = Object.keys(req.body);
     // console.log(arr);
     for (var i = 0; i < arr.length; i++) {
       var key = arr[i];
@@ -1291,7 +1293,9 @@ export const genderAgeCamDataHandleScreen = async (req, res) => {
 
         // console.log(screenLog.genderAge.map((count) => count.date).includes(keyValue))
 
-        if (!screenLog.genderAge.map((count) => count.date).includes(keyValue)) {
+        if (
+          !screenLog.genderAge.map((count) => count.date).includes(keyValue)
+        ) {
           screenLog.genderAge.push(valueKey);
           await screenLog.save();
         } else {
@@ -1322,3 +1326,27 @@ export const impressionCamDataHandleScreen = async (req, res) => {
     });
   }
 };
+
+export async function getScreensByUserIds(req, res) {
+  try {
+    const userIds = req.query.userIds?.split(",");
+    const screens = await Screen.find({ master: { $in: userIds } });
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error in getScreensByUserIds ${error.message}`,
+    });
+  }
+}
+
+export async function getScreensByScreenIds(req, res) {
+  try {
+    const screenIds = req.query.screenIds?.split(",");
+    const screens = await Screen.find({ _id: { $in: screenIds } });
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error in getScreensByScreenIds ${error.message}`,
+    });
+  }
+}

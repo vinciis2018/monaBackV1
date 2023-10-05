@@ -10,7 +10,7 @@ export async function getAllBrands(req, res) {
   try {
     const getBrands = await Brand.find();
     if (!getAllBrands) {
-      return res.status(404).send("No Brands Found!")
+      return res.status(404).send("No Brands Found!");
     } else {
       const allBrands = getBrands.reverse();
       return res.status(200).send(allBrands);
@@ -50,6 +50,7 @@ export async function createBrand(req, res) {
         brandCategory: req.body.brandCategory,
         brandType: req.body.brandType,
         user: user._id,
+        affiliatedUsers: req.body.affiliatedUsers || [],
         rewards: [],
         additionalInfo: {},
         brandDetails: {
@@ -96,6 +97,7 @@ export async function editBrand(req, res) {
     brand.address = req.body.address || brand.address;
     brand.brandCategory = req.body.brandCategory || brand.brandCategory;
     brand.brandType = req.body.brandType || brand.brandType;
+    brand.affiliatedUsers = req.body.affiliatedUsers || brand.affiliatedUsers;
     brand.brandDetails = {
       website: req.body.website || brand.brandDetails.website,
       aboutBrand: req.body.aboutBrand || brand.brandDetails.aboutBrand,

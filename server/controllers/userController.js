@@ -14,6 +14,7 @@ import { ObjectId } from "mongodb";
 import Wallet from "../models/walletModel.js";
 import mongoose from "mongoose";
 import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
+import Coupon from "../models/couponModel.js";
 
 const changePassword = async (req, res, user) => {
   try {
@@ -629,6 +630,41 @@ export async function updateUserProfile(req, res) {
     }
   } catch (error) {
     return res.status(404).send(error);
+  }
+}
+
+export async function filterUserByNameOrEmailOrPhone(req, res) {
+  try {
+    const searchString = req.params.searchString.trim();
+    console.log("filterUserByNameOrEmailOrPhone called :", searchString);
+
+    const nameFilter = { name: { $regex: searchString, $options: "i" } };
+    const emailFilter = {
+      email: { $regex: searchString, $options: "i" },
+    };
+
+    const users = await User.find({
+      $or: [nameFilter, emailFilter],
+      isMaster: true,
+    });
+    // console.log("users : ", users.length);
+
+    return res.status(200).send(users);
+  } catch (error) {
+    return res.status(404).send(`Errro in filterUser ${error}`);
+  }
+}
+
+export async function getUserWishlist(req, res) {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).send({ message: "User not found!" });
+    const coupons = await Coupon.find({ _id: { $in: user.wishlist } });
+    return res.status(200).send(coupons);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error in getUserWishlist ${error.message}`,
+    });
   }
 }
 

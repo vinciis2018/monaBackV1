@@ -47,6 +47,7 @@ export const createNewCoupon = async (req, res) => {
       couponCode: req.body.couponCode,
       campaigns: req.body.campaigns || [],
       allCampaigns: campaignsId,
+      rewardOfferPartners: req.body.rewardOfferPartners || [],
 
       couponRewardInfo: {
         couponType: req.body.couponType, // % discount , discount amount , buy x get y , freebie
@@ -238,6 +239,8 @@ export async function updateCoupon(req, res) {
       req.body.autoApplyCoupon || coupon.couponRewardInfo.autoApplyCoupon;
     coupon.couponRewardInfo.images =
       req.body.images || coupon.couponRewardInfo.images;
+    coupon.rewardOfferPartners =
+      req.body.rewardOfferPartners || coupon.rewardOfferPartners;
 
     const updatedCoupon = await coupon.save();
 
@@ -462,6 +465,37 @@ export async function getCouponDetailsAlongWithCampaignsAndScreens(req, res) {
     console.log("error : ", error);
     return res.status(500).send({
       message: `Error in getCouponDetails ${error.message}`,
+    });
+  }
+}
+
+export async function addOrRemoveCouponToUserWishlist(req, res) {
+  try {
+    const action = req.body.action; // ADD or REMOVE
+    const userId = req.body.userId;
+    const couponId = req.body.couponId;
+
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) return res.status(404).send({ message: "Coupon not found!" });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ message: "User not found!" });
+
+    if (action === "ADD") {
+      if (user.wishlist.find((id) => id == couponId)) {
+        return res.status(200).send({ message: "Added successfully!" });
+      }
+      user.wishlist = [...user.wishlist, couponId];
+      const updatedUser = await user.save();
+      return res.status(200).send({ message: "Added successfully!" });
+    } else if (action === "REMOVE") {
+      user.wishlist = user.wishlist.filter((id) => id != couponId);
+      const updatedUser = await user.save();
+      // console.log("updatedUser : ", updatedUser?.wishlist);
+      return res.status(200).send({ message: "Added successfully!" });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error in addOrRemoveCouponToUserWishlist ${error.message}`,
     });
   }
 }

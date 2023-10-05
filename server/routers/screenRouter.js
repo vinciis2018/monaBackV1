@@ -24,6 +24,8 @@ import {
   camDataHandleScreen,
   genderAgeCamDataHandleScreen,
   impressionCamDataHandleScreen,
+  getScreensByUserIds,
+  getScreensByScreenIds,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -44,6 +46,9 @@ screenRouter.post("/:id/allyPlea/ally", isAuth, addAllyPlea);
 screenRouter.get("/top-medias", getTopCampaigns);
 screenRouter.get("/", getScreensList);
 screenRouter.get("/getScreens", getScreensBySearchQuery);
+screenRouter.get("/getScreensByUserIds", getScreensByUserIds);
+screenRouter.get("/getScreensByScreenIds", getScreensByScreenIds);
+
 screenRouter.get("/couponList/:screenId", getCouponListByScreenId);
 screenRouter.get("/:id", getScreenDetailsByScreenId);
 screenRouter.get("/:id/pin", getPinDetailsByScreenId);
@@ -87,5 +92,8 @@ screenRouter.get("/get/allScreens", getAllScreens);
 // cam related
 screenRouter.post("/cam/:screenId", camDataHandleScreen);
 screenRouter.post("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
-screenRouter.post("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
+screenRouter.post(
+  "/impressionMultiplier/cam/:screenId",
+  impressionCamDataHandleScreen
+);
 export default screenRouter;

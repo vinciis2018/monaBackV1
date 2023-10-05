@@ -17,11 +17,12 @@ import {
   deleteAllMedias,
   updatePassword,
   getUserInfoById,
-  filterUserListByName,
   getUserCouponList,
   getUserActiveCampaigns,
   userSigninWithGoogleLogin,
   sendEmailToSetPassword,
+  filterUserByNameOrEmailOrPhone,
+  getUserWishlist,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -39,8 +40,10 @@ userRouter.get("/top-masters", topMasters);
 userRouter.get("/top-creators", topCreators);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
-userRouter.get("/filterUser/:name", filterUserListByName);
+userRouter.get("/filterUser/:searchString", filterUserByNameOrEmailOrPhone);
 userRouter.get("/getUserCouponList/:userId", getUserCouponList);
+userRouter.get("/getUserWishlist/:userId", getUserWishlist);
+
 userRouter.get("/:id/:walletAddress", getDefaultWallet);
 userRouter.get("/gus/:id/myScreens", getUserScreens); // tested
 userRouter.get("/gum/:id/myMedias", isAuth, getUserMedias);
