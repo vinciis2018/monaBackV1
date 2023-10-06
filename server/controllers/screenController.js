@@ -267,7 +267,7 @@ export async function addNewScreen(req, res) {
       calender: calender,
       allyUploads: [],
       reviews: [],
-      screenTags: ["blinds", "vinciis"],
+      screenTags: ["monad", "vinciis"],
       screenHighlights: ["School", "Colleges"],
       startTime: "" || req.body.startTime,
       endTime: "" || req.body.endTime,
@@ -811,7 +811,7 @@ export async function updateScreenById(req, res) {
         req.body.rentOffInPercent || screen.rentOffInPercent), //v
         (calender.slotTP = req.body.slotsTimePeriod || screen.slotsTimePeriod),
         (calender.screenName = req.body.name || screen.name);
-
+      screen.getCamData = req.body.getCamData || screen.getCamData;
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
       screen.additionalData = req.body.additionalData || screen.additionalData;
@@ -1021,14 +1021,6 @@ export async function addScreenLikeByScreenId(req, res) {
   }
 }
 
-// get campaign logs by
-// export async function getScreenLogs(req, res) {
-//   try {
-
-//   } catch (error) {
-
-//   }
-// }
 export async function getScreenLogs(req, res) {
   try {
     const screenId = req.params.screenId;
@@ -1036,27 +1028,6 @@ export async function getScreenLogs(req, res) {
     const screenLog = await ScreenLogs.findOne({ screen: screenId });
     console.log("getting screen logs: ", screenLog.playingDetails.length);
     const query = new Date();
-    // console.log(query);
-
-    // const overLogs = screenLog.playingDetails.filter(pl => (query - pl.createdAt)/1000/60/60/24 > 3);
-    // console.log(overLogs.length);
-    // console.log(overLogs);
-
-    // if (overLogs && overLogs.length > 0) {
-    //   console.log("found overlogs: ", overLogs.length);
-
-    // const last50  = screenLogs.playingDetails.reverse().slice(-50);
-    // const totalCount = screenLogs.playingDetails.length;
-    // const allLogs = screenLogs.playingDetails
-    // console.log(last50);
-    // console.log(totalCount);
-
-    // if (screenLog.playingDetails.length >= 5000) {
-    //   const fileDetails = await uploadWeb3File(req);
-
-    //   const carDetails = await createWeb3Name(req);
-    // }
-    // await uploadWeb3Name(cidData);
 
     console.log("got screen logs: ", screenLog.playingDetails.length);
     const last50 = screenLog.playingDetails.reverse().slice(0, 50);
@@ -1326,6 +1297,23 @@ export const impressionCamDataHandleScreen = async (req, res) => {
     });
   }
 };
+
+export const getScreenCamData = async (req, res) => {
+  try {
+    const screenId = req.params.screenId;
+    const screenLogs = await ScreenLogs.findOne({ screen: screenId });
+    const screenCamData = {
+      genderAge: screenLogs.genderAge,
+      peopleCounter: screenLogs.peopleCounter,
+      multiplier: screenLogs.multiplier,
+    };
+    return res.status(200).send(screenCamData);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at getScreenCamData ${error.message}`,
+    }); 
+  }
+}
 
 export async function getScreensByUserIds(req, res) {
   try {

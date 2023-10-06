@@ -17,14 +17,14 @@ export async function getScreenData(req, res) {
       screen: screen._id
     });;
     
-    if (!screenData && screen.category === "RAILWAYS") {
+    if (!screenData && screen.category === "RAILWAY") {
       screenData = new ScreenData({
         screen: screen._id,
-        dataType: "RAILWAYS",
+        dataType: "RAILWAY",
       });
       await screenData.save();
 
-    } else if (screenData && screen.category === "RAILWAYS") {
+    } else if (screenData && screen.category === "RAILWAY") {
       screenData = await ScreenData.findOne({ screen: screen._id});
     } else {
       screenData = {};

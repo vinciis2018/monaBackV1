@@ -24,8 +24,12 @@ import {
   camDataHandleScreen,
   genderAgeCamDataHandleScreen,
   impressionCamDataHandleScreen,
+<<<<<<< Updated upstream
   getScreensByUserIds,
   getScreensByScreenIds,
+=======
+  getScreenCamData,
+>>>>>>> Stashed changes
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -92,8 +96,14 @@ screenRouter.get("/get/allScreens", getAllScreens);
 // cam related
 screenRouter.post("/cam/:screenId", camDataHandleScreen);
 screenRouter.post("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
+<<<<<<< Updated upstream
 screenRouter.post(
   "/impressionMultiplier/cam/:screenId",
   impressionCamDataHandleScreen
 );
+=======
+screenRouter.post("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
+screenRouter.get("/getscreencamdata/:screenId", getScreenCamData);
+
+>>>>>>> Stashed changes
 export default screenRouter;

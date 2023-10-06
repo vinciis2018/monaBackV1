@@ -101,7 +101,7 @@ const screenSchema = new mongoose.Schema(
     endTime: { type: String },
     lastPlayed: { type: String },
     lastActive: { type: Date },
-
+    getCamData: { type: Boolean, default: false },
     additionalData: additionalDataSchema,
   },
   {
