@@ -50,6 +50,7 @@ const couponSchema = new mongoose.Schema(
       freeItems: [{ type: String }], // buy x gey y
       freebieItemsName: [{ type: String }], //freebie
       loyaltyPoints: { type: Number },
+      onlineURL: { type: String },
       redeemFrequency: { type: Number },
       validity: {
         to: { type: String },

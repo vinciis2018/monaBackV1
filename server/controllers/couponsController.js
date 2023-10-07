@@ -65,6 +65,7 @@ export const createNewCoupon = async (req, res) => {
           to: req.body.endDateAndTime,
           from: req.body.startDateAndTime,
         },
+        onlineURL: req.body.onlineURL || "",
 
         showCouponToCustomer: req.body.showCouponToCustomer,
         validForOnLinePayment: req.body.validForOnLinePayment,
@@ -188,7 +189,6 @@ export async function updateCoupon(req, res) {
       const ids = campaigns.map((campaign) => campaign._id);
       allCampaigns = [...allCampaigns, ...ids];
     }
-    console.log("allCampaigns : ", allCampaigns);
 
     coupon.offerName = req.body.offerName || coupon.offerName;
     coupon.offerDetails = req.body.offerDetails || coupon.offerDetails;
@@ -221,6 +221,8 @@ export async function updateCoupon(req, res) {
       req.body.loyaltyPoints || coupon.couponRewardInfo.loyaltyPoints;
     coupon.couponRewardInfo.redeemFrequency =
       req.body.redeemFrequency || coupon.couponRewardInfo.redeemFrequency;
+    coupon.couponRewardInfo.onlineURL =
+      req.body.onlineURL || coupon.couponRewardInfo.onlineURL;
     coupon.couponRewardInfo.validity.to =
       req.body.endDateAndTime || coupon.couponRewardInfo.validity.to;
     coupon.couponRewardInfo.validity.from =

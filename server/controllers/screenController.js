@@ -16,6 +16,8 @@ import ScreenData from "../models/screenDataModel.js";
 
 import { __dirname } from "./imagesToVideoController.js";
 import Coupon from "../models/couponModel.js";
+import Brand from "../models/brandModel.js";
+
 // for android APk
 
 const getActiveCampaignList = async (screenId) => {
@@ -1311,9 +1313,9 @@ export const getScreenCamData = async (req, res) => {
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at getScreenCamData ${error.message}`,
-    }); 
+    });
   }
-}
+};
 
 export async function getScreensByUserIds(req, res) {
   try {
@@ -1335,6 +1337,21 @@ export async function getScreensByScreenIds(req, res) {
   } catch (error) {
     return res.status(500).send({
       message: `Error in getScreensByScreenIds ${error.message}`,
+    });
+  }
+}
+
+export async function getScreensByCampaignIds(req, res) {
+  try {
+    updateBrand();
+    const campaignIds = req.query.campaignIds?.split(",");
+    const campaigns = await Campaign.find({ _id: { $in: campaignIds } });
+    const screenIds = campaigns.map((campaign) => campaign.screen);
+    const screens = await Screen.find({ _id: { $in: screenIds } });
+    return res.status(200).send(screens);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error in getScreensByCampaignIds ${error.message}`,
     });
   }
 }

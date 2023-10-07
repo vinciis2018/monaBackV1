@@ -27,6 +27,7 @@ import {
   getScreensByUserIds,
   getScreensByScreenIds,
   getScreenCamData,
+  getScreensByCampaignIds,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -49,6 +50,7 @@ screenRouter.get("/", getScreensList);
 screenRouter.get("/getScreens", getScreensBySearchQuery);
 screenRouter.get("/getScreensByUserIds", getScreensByUserIds);
 screenRouter.get("/getScreensByScreenIds", getScreensByScreenIds);
+screenRouter.get("/getScreensByCampaignIds", getScreensByCampaignIds);
 
 screenRouter.get("/couponList/:screenId", getCouponListByScreenId);
 screenRouter.get("/:id", getScreenDetailsByScreenId);
@@ -97,7 +99,10 @@ screenRouter.post(
   "/impressionMultiplier/cam/:screenId",
   impressionCamDataHandleScreen
 );
-screenRouter.post("/impressionMultiplier/cam/:screenId", impressionCamDataHandleScreen);
+screenRouter.post(
+  "/impressionMultiplier/cam/:screenId",
+  impressionCamDataHandleScreen
+);
 screenRouter.get("/getscreencamdata/:screenId", getScreenCamData);
 
 export default screenRouter;

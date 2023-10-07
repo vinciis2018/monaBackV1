@@ -37,7 +37,7 @@ const brandSchema = new mongoose.Schema(
       twitter: { type: String },
     },
     brandCategory: { type: String }, // restaurant/grocerry
-    brandType: { type: String }, // online/offline/both
+    brandType: { type: String }, // ONLINE, OFFLINE , HYBRID
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     offers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
