@@ -50,7 +50,7 @@ screenRouter.get("/", getScreensList);
 screenRouter.get("/getScreens", getScreensBySearchQuery);
 screenRouter.get("/getScreensByUserIds", getScreensByUserIds);
 screenRouter.get("/getScreensByScreenIds", getScreensByScreenIds);
-screenRouter.get("/getScreensByCampaignIds", getScreensByCampaignIds);
+screenRouter.get("/getScreensByCampaignIds/?", getScreensByCampaignIds);
 
 screenRouter.get("/couponList/:screenId", getCouponListByScreenId);
 screenRouter.get("/:id", getScreenDetailsByScreenId);
