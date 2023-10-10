@@ -1309,6 +1309,7 @@ export const getScreenCamData = async (req, res) => {
       peopleCounter: screenLogs.peopleCounter,
       multiplier: screenLogs.multiplier,
     };
+    // console.log(screenCamData);
     return res.status(200).send(screenCamData);
   } catch (error) {
     return res.status(500).send({
@@ -1343,7 +1344,7 @@ export async function getScreensByScreenIds(req, res) {
 
 export async function getScreensByCampaignIds(req, res) {
   try {
-    updateBrand();
+    // updateBrand();
     const campaignIds = req.query.campaignIds?.split(",");
     const campaigns = await Campaign.find({ _id: { $in: campaignIds } });
     const screenIds = campaigns.map((campaign) => campaign.screen);

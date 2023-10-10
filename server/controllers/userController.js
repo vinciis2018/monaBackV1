@@ -16,6 +16,21 @@ import mongoose from "mongoose";
 import { CAMPAIGN_STATUS_ACTIVE } from "../Constant/campaignStatusConstant.js";
 import Coupon from "../models/couponModel.js";
 
+export const pwaInstalledByUser = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id });
+    if (!user.pwaInstalled || user.pwaInstalled === false) {
+      user.pwaInstalled = true;
+      await user.save();
+    }
+    const pwaInstalledUser = await user.save();
+    return res.status(200).send(pwaInstalledUser);
+
+  } catch (error) {
+    return res.status(404).send(error);
+  }
+}
+
 const changePassword = async (req, res, user) => {
   try {
     user.password = bcrypt.hashSync(req.body.password, 8);
@@ -118,6 +133,7 @@ export async function userSignUp(req, res) {
         alliedScreens: createdUser.alliedScreens,
         createdAt: createdUser.createdAt,
         phone: user.phone,
+        pwaInstalled: user.pwaInstalled,
         districtCity: user.districtCity,
         pincode: user.pincode,
         address: user.address,
@@ -260,6 +276,7 @@ export async function userSigninWithGoogleLogin(req, res) {
 
       defaultWallet: user.defaultWallet,
       wallets: user.wallets,
+      pwaInstalled: user.pwaInstalled,
 
       screens: user.screens,
       screensSubscribed: user.screensSubscribed,
@@ -315,6 +332,7 @@ export async function userSignin(req, res) {
 
         defaultWallet: user.defaultWallet,
         wallets: user.wallets,
+        pwaInstalled: user.pwaInstalled,
 
         screens: user.screens,
         screensSubscribed: user.screensSubscribed,
@@ -611,6 +629,7 @@ export async function updateUserProfile(req, res) {
 
         defaultWallet: updatedUser.defaultWallet,
         wallets: updatedUser.wallets,
+        pwaInstalled: updatedUser.pwaInstalled,
 
         screens: updatedUser.screens,
         screensSubscribed: updatedUser.screensSubscribed,

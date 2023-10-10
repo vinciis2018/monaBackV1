@@ -23,6 +23,7 @@ import {
   sendEmailToSetPassword,
   filterUserByNameOrEmailOrPhone,
   getUserWishlist,
+  pwaInstalledByUser,
 } from "../controllers/userController.js";
 import { isAuth, isItanimulli } from "../utils/authUtils.js";
 
@@ -55,6 +56,7 @@ userRouter.get("/:id/:walletAddress", getUserInfoById);
 userRouter.put("/profile", isAuth, updateUserProfile);
 userRouter.put("/:id", isAuth, isItanimulli, updateUser);
 userRouter.put("/:id/updatePassword", updatePassword);
+userRouter.put("/pwaInstalled/:id", pwaInstalledByUser);
 
 //detele request
 userRouter.delete("/:id", isAuth, isItanimulli, deleteUser);

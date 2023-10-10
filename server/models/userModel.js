@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
     stateUt: { type: String, default: "state/UT", required: true },
     country: { type: String, default: "country", required: true },
 
+    pwaInstalled: { type: Boolean, default: false },
     isItanimulli: { type: Boolean, default: false, required: true },
     isViewer: { type: Boolean, default: true, required: true },
 
