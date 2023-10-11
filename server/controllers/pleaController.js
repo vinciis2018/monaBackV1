@@ -9,6 +9,7 @@ import {
   CAMPAIGN_STATUS_ACTIVE,
   CAMPAIGN_STATUS_REJECTED,
 } from "../Constant/campaignStatusConstant.js";
+import Coupon from "../models/couponModel.js";
 
 export async function getAllPleaListForBrand(req, res) {
   try {
@@ -140,9 +141,8 @@ export async function addNewPleaForUserRedeemCouponOffer(req, res) {
     const toUser = await User.findOne({
       _id: req.params.toUser,
     });
-    const coupon = await CouponRewardOffer.findById(req.params.couponId);
-    console.log("req.params.couponCode: ", req.params.couponCode);
-    if (!fromUser && !toUser && !req.params.couponCode && !coupon) {
+    const coupon = await Coupon.findById(req.params.couponId);
+    if (!fromUser && !toUser && !coupon) {
       return res
         .status(400)
         .send({ message: "User or user coupon not found!" });
@@ -151,10 +151,9 @@ export async function addNewPleaForUserRedeemCouponOffer(req, res) {
     //if not then create new plea
 
     const oldPlea = await Plea.findOne({
-      couponCode: req.params.couponCode,
+      couponId: req.params.couponId,
       to: toUser._id,
     });
-    console.log("oldplea : ", oldPlea);
     if (oldPlea) {
       return res.status(500).send({
         message: "Plea already made with same coupon code with same user",
@@ -165,24 +164,76 @@ export async function addNewPleaForUserRedeemCouponOffer(req, res) {
       from: fromUser._id,
       to: toUser._id,
       couponId: coupon._id,
-      couponCode: req.params.couponCode,
+      couponCode: coupon.couponCode,
       pleaType: "COUPON_REDEEM_PLEA",
-      content: `I would like to request a coupon plea for this ${req.params.couponCode} couponCode`,
+      content: `I would like to request a coupon plea for this ${coupon.couponCode} couponCode`,
       status: false,
       reject: false,
       blackList: false,
-      remarks: `${fromUser.name} has requested a readeem coupon  plea for ${req.params.couponCode} couponCode`,
+      remarks: `${fromUser.name} has requested a readeem coupon  plea for ${coupon.couponCode} couponCode`,
     });
     const savedPlea = await plea.save();
     fromUser.pleasMade.push(plea);
     await fromUser.save();
-    console.log("plea saved!", savedPlea);
     return res.status(200).send(savedPlea);
   } catch (error) {
     console.log("Errror : ", error);
     return res.status(500).send({
       message: `Plea router error  in addNewPleaForUserRedeemCouponOffer ${error.message}`,
     });
+  }
+}
+
+export async function addPurchaseDetailsInCoupon(req, res) {
+  try {
+    console.log("addPurchaseDetailsInCoupon called!");
+    const couponId = req.body.couponId;
+    const fromUser = req.body.fromUser;
+    const toUser = req.body.toUser;
+    const pleaId = req.body.plaeId;
+    const purchaseAmount = req.body.purchaseAmount;
+    const savedAmount = req.body.savedAmount;
+    const date = new Date();
+    console.log("req.body : ", req.body);
+
+    const plea = await Plea.findById(pleaId);
+
+    const coupon = await Coupon.findById(couponId);
+
+    if (!plea || !coupon) {
+      return res.status(404).send({ message: "Data not found" });
+    }
+
+    let rewardCoupons = coupon.rewardCoupons;
+    rewardCoupons = rewardCoupons.map((data) => {
+      if (data.redeemer == fromUser) {
+        if (
+          data.additionalInfo.length < coupon.couponRewardInfo.redeemFrequency
+        ) {
+          data.additionalInfo.push({
+            purchaseAmount,
+            savedAmount,
+            date,
+            user: toUser,
+          });
+          data.additionalInfo = data.redeemedFrequency =
+            data.redeemedFrequency + 1;
+          console.log("data");
+        }
+      }
+      return data;
+    });
+    coupon.rewardCoupons = rewardCoupons;
+    const updatedCoupon = await coupon.save();
+    plea.status = true;
+    await plea.save();
+    console.log("updatedCoupon : ", updatedCoupon);
+    return res.status(200).send(coupon);
+  } catch (error) {
+    console.log("error : ", error);
+    return res
+      .status(500)
+      .send({ message: `Campaign router error ${error.message}` });
   }
 }
 

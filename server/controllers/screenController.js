@@ -1343,7 +1343,6 @@ export async function getScreensByScreenIds(req, res) {
 
 export async function getScreensByCampaignIds(req, res) {
   try {
-    updateBrand();
     const campaignIds = req.query.campaignIds?.split(",");
     const campaigns = await Campaign.find({ _id: { $in: campaignIds } });
     const screenIds = campaigns.map((campaign) => campaign.screen);

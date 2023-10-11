@@ -372,7 +372,7 @@ export async function addRedeemerToCoupon(req, res) {
       const data = {
         _id: singleCouponId,
         redeemer: userId,
-        redeemedFrequency: coupon.couponRewardInfo.redeemFrequency,
+        redeemedFrequency: 0,
         email: couponUser.email,
         status: "CLAIMED",
         claimedLocation: screen.screenAddress,

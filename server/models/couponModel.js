@@ -5,7 +5,14 @@ export const couponRewardSchema = new mongoose.Schema(
   {
     redeemer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     redeemedFrequency: { type: Number, default: 0 }, // for each user, each user how many times redeemed this coupon
-    additionalInfo: {},
+    additionalInfo: [
+      {
+        purchaseAmount: { type: Number },
+        savedAmount: { type: Number },
+        date: { type: String },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
     status: { type: String, default: "CLAIMED" },
     email: { type: String },
     claimedLocation: { type: String },
