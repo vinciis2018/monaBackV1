@@ -9,7 +9,6 @@ import {
 } from "../utils/sendEmail.js";
 import data from "../utils/data.js";
 import Campaign from "../models/campaignModel.js";
-import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import { ObjectId } from "mongodb";
 import Wallet from "../models/walletModel.js";
 import mongoose from "mongoose";
@@ -736,24 +735,5 @@ export async function updateUser(req, res) {
     });
   } catch (error) {
     return res.status(404).send(error);
-  }
-}
-
-export async function getUserCouponList(req, res) {
-  try {
-    const userCouponList = [];
-    const user = await User.findById(req.params.userId);
-    //console.log("user.rewardCoupons  : ", user.rewardCoupons);
-    for (let couponId of user.rewardCoupons) {
-      //console.log("user couponId : ", couponId);
-      const singleCoupon = await CouponRewardOffer.findById(couponId);
-      userCouponList.push(singleCoupon);
-    }
-    //console.log("User coupon list : ", userCouponList);
-    return res.status(200).send(userCouponList);
-  } catch (error) {
-    return res.status(500).send({
-      message: `User router error in getUserCouponList${error.message}`,
-    });
   }
 }

@@ -39,9 +39,7 @@ const campaignSchema = new mongoose.Schema(
     country: { type: String, required: true }, //v
     status: { type: String, required: true, default: "Pending" },
     coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
-    couponRewads: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "CouponRewardOffer" },
-    ],
+
     // isPrivate: { type: Boolean, default: false },// for brands who want to keep their campaign private
     // isMain: { type: Boolean, default: false },// for one main content
     /**

@@ -17,7 +17,6 @@ import {
   deleteAllMedias,
   updatePassword,
   getUserInfoById,
-  getUserCouponList,
   getUserActiveCampaigns,
   userSigninWithGoogleLogin,
   sendEmailToSetPassword,
@@ -42,7 +41,6 @@ userRouter.get("/top-creators", topCreators);
 userRouter.get("/top-brands", topBrand);
 userRouter.get("/seed", seedData);
 userRouter.get("/filterUser/:searchString", filterUserByNameOrEmailOrPhone);
-userRouter.get("/getUserCouponList/:userId", getUserCouponList);
 userRouter.get("/getUserWishlist/:userId", getUserWishlist);
 
 userRouter.get("/:id/:walletAddress", getDefaultWallet);

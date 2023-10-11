@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addNewPleaForUserRedeemCouponOffer,
+  addPurchaseDetailsInCoupon,
   getAllPleaListForBrand,
   getAllPleaRequestAsScreenOwner,
   getPleaRequestListByScreenID,
@@ -22,12 +23,13 @@ pleaRouter.get("/:id/user", getAllPleaRequestAsScreenOwner);
 pleaRouter.get("/:id/screen", getPleaRequestListByScreenID);
 
 //put
+pleaRouter.put("/addPurchaseDetailsInCoupon", addPurchaseDetailsInCoupon);
+
 pleaRouter.put(
   "/:id/campaignAllayPlea/giveAccess",
   giveAccessToCampaignAllyPlea
 );
 pleaRouter.put("/:id/campaignAllayPlea/reject", rejectCampaignAllyPlea);
-
 //delete
 
 export default pleaRouter;
