@@ -93,7 +93,7 @@ export const createVideoFromImage = (req, res, next) => {
           "frame-001.png"
         )
       )
-      .loop("5")
+      .loop("20")
       .inputOptions("-framerate", "30")
       .videoBitrate("1024k")
       .videoCodec("libx264")
