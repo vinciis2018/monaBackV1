@@ -3,7 +3,6 @@ import Screen from "../models/screenModel.js";
 import User from "../models/userModel.js";
 import Campaign from "../models/campaignModel.js";
 import Media from "../models/mediaModel.js";
-import CouponRewardOffer from "../models/couponRewardOfferModel.js";
 import mongoose from "mongoose";
 import {
   CAMPAIGN_STATUS_ACTIVE,

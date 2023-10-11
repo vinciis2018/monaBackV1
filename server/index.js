@@ -4,7 +4,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import path from "path";
 import cors from "cors";
-import cron from "node-cron";
 import bodyParser from "body-parser";
 
 import userRouter from "./routers/userRouter.js";
@@ -21,8 +20,6 @@ import rewardRouter from "./routers/rewardRouter.js";
 import brandRouter from "./routers/brandRouter.js";
 import creatorRouter from "./routers/creatorRouter.js";
 // import dbBackupTask from "./utils/backupAndRestore.js";
-import couponRewardOfferRouter from "./routers/couponRewardOffeRouter.js";
-import cardRewardOfferRouter from "./routers/cardRewaedOfferRouter.js";
 import imageRouter from "./routers/imagesToVideoRouter.js";
 import couponRouter from "./routers/couponRouter.js";
 import qrcodeRouter from "./routers/qrcodeGeneratorRouter.js";
@@ -35,7 +32,9 @@ app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const url = process.env.DB_URL || "mongodb+srv://KishanVinciis:toomuchfun@cluster0.hxk5t.mongodb.net/mongoDB?retryWrites=true&w=majority";
+const url =
+  process.env.DB_URL ||
+  "mongodb+srv://KishanVinciis:toomuchfun@cluster0.hxk5t.mongodb.net/mongoDB?retryWrites=true&w=majority";
 mongoose.set("strictQuery", true);
 mongoose.connect(url, {
   useNewUrlParser: true,
@@ -70,8 +69,6 @@ app.use("/api/rewardPrograms", rewardRouter);
 app.use("/api/brands", brandRouter);
 app.use("/api/creators", creatorRouter);
 app.use("/api/qrcode", qrcodeRouter);
-app.use("/api/couponReward", couponRewardOfferRouter);
-app.use("/api/cardReward", cardRewardOfferRouter);
 app.use("/api/createVideoFromImage", imageRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/web3", web3Router);
