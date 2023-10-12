@@ -93,13 +93,9 @@ screenRouter.get("/qrscandata/:screenId", getQrScanData);
 screenRouter.get("/get/allScreens", getAllScreens);
 
 // cam related
-screenRouter.post("/cam/:screenId", camDataHandleScreen);
-screenRouter.post("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
-screenRouter.post(
-  "/impressionMultiplier/cam/:screenId",
-  impressionCamDataHandleScreen
-);
-screenRouter.post(
+screenRouter.put("/cam/:screenId", camDataHandleScreen);
+screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
+screenRouter.put(
   "/impressionMultiplier/cam/:screenId",
   impressionCamDataHandleScreen
 );

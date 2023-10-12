@@ -1210,35 +1210,37 @@ export const camDataHandleScreen = async (req, res) => {
   try {
     // console.log("screenId", req.params.screenId);
     // console.log("body", req.body);
+    res.status(200).send({ message: "Done" });
+    setTimeout(async () => {
 
-    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
-    console.log(screenLog._id);
+      const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
 
-    var arr = Object.keys(req.body);
-    for (var i = 0; i < arr.length; i++) {
-      var key = arr[i];
-      var value = req.body[key];
-      // console.log(Object.keys(value).length)
-      if (Object.keys(value).length !== 0) {
-        const keyValue = key;
-        const valueKey = value;
-        const enter = {
-          date: keyValue,
-          data: valueKey,
-        };
+      var arr = Object.keys(req.body);
+      for (var i = 0; i < arr.length; i++) {
+        var key = arr[i];
+        var value = req.body[key];
+        // console.log(Object.keys(value).length)
+        if (Object.keys(value).length !== 0) {
+          const keyValue = key;
+          const valueKey = value;
+          const enter = {
+            date: keyValue,
+            data: valueKey,
+          };
 
-        if (
-          !screenLog.peopleCounter.map((count) => count.date).includes(keyValue)
-        ) {
-          screenLog.peopleCounter.push(enter);
-          await screenLog.save();
-        } else {
-          // screenLog.peopleCounter
+          if (
+            !screenLog.peopleCounter.map((count) => count.date).includes(keyValue)
+          ) {
+            screenLog.peopleCounter.push(enter);
+            await screenLog.save();
+          } else {
+            // screenLog.peopleCounter
+          }
         }
       }
-    }
-
-    return res.status(200).send(screenLog.peopleCounter);
+      console.log(screenLog._id);
+    }, 0);
+    return;
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at camData ${error.message}`,
@@ -1250,33 +1252,35 @@ export const genderAgeCamDataHandleScreen = async (req, res) => {
   try {
     // console.log("screenId", req.params.screenId);
     // console.log("body for gender age", req.body);
+    res.status(200).send({ message: "Done" });
+    setTimeout(async () => {
+      const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+      // screenLog.camData.push(dataEnter);
+      var arr = Object.keys(req.body);
+      // console.log(arr);
+      for (var i = 0; i < arr.length; i++) {
+        var key = arr[i];
+        var value = req.body[key];
+        // console.log(Object.keys(value).length)
+        if (Object.keys(value).length !== 0) {
+          const keyValue = key;
+          const valueKey = value;
 
-    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
-    console.log(screenLog._id);
-    // screenLog.camData.push(dataEnter);
-    var arr = Object.keys(req.body);
-    // console.log(arr);
-    for (var i = 0; i < arr.length; i++) {
-      var key = arr[i];
-      var value = req.body[key];
-      // console.log(Object.keys(value).length)
-      if (Object.keys(value).length !== 0) {
-        const keyValue = key;
-        const valueKey = value;
+          // console.log(screenLog.genderAge.map((count) => count.date).includes(keyValue))
 
-        // console.log(screenLog.genderAge.map((count) => count.date).includes(keyValue))
-
-        if (
-          !screenLog.genderAge.map((count) => count.date).includes(keyValue)
-        ) {
-          screenLog.genderAge.push(valueKey);
-          await screenLog.save();
-        } else {
-          // screenLog.peopleCounter
+          if (
+            !screenLog.genderAge.map((count) => count.date).includes(keyValue)
+          ) {
+            screenLog.genderAge.push(valueKey);
+            await screenLog.save();
+          } else {
+            // screenLog.peopleCounter
+          }
         }
       }
-    }
-    return res.status(200).send(screenLog.genderAge);
+      console.log(screenLog._id);
+    }, 0);
+    return;
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at gender age ${error.message}`,
@@ -1284,15 +1288,17 @@ export const genderAgeCamDataHandleScreen = async (req, res) => {
   }
 };
 
-export const impressionCamDataHandleScreen = async (req, res) => {
+export const impressionCamDataHandleScreen = async (req, res, next) => {
   try {
     console.log("screenId", req.params.screenId);
     console.log("body for impression multiplier", req.body);
-
-    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
-    console.log(screenLog._id);
+    res.status(200).send({ message: "Done" });
+    setTimeout(async () => {
+      const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+      console.log(screenLog._id);
+    }, 0);
     // screenLog.camData.push(dataEnter);
-    return res.status(200).send(screenLog.camData);
+    return;
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at impression multiplier ${error.message}`,
@@ -1304,12 +1310,14 @@ export const getScreenCamData = async (req, res) => {
   try {
     const screenId = req.params.screenId;
     const screenLogs = await ScreenLogs.findOne({ screen: screenId });
+    screenLogs.genderAge = _.uniq(screenLogs.genderAge, false)
+    await screenLogs.save();
     const screenCamData = {
       genderAge: screenLogs.genderAge,
       peopleCounter: screenLogs.peopleCounter,
       multiplier: screenLogs.multiplier,
     };
-    // console.log(screenCamData);
+    console.log(_.uniq(screenLogs.genderAge, false));
     return res.status(200).send(screenCamData);
   } catch (error) {
     return res.status(500).send({

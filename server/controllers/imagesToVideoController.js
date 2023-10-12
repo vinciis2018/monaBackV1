@@ -94,7 +94,7 @@ export const createVideoFromImage = (req, res, next) => {
         )
       )
       .loop("20")
-      .inputOptions("-framerate", "30")
+      .inputOptions("-framerate", "1")
       .videoBitrate("1024k")
       .videoCodec("libx264")
       .size("1080x?") // get size from the image uploaded
@@ -129,7 +129,7 @@ export const createVideoFromImage = (req, res, next) => {
         const cid = await storage.put(files);
         console.log("Content added with CID:", cid);
         let resp = await storage.get(cid);
-        // console.log("response : ", resp);
+        console.log("response : ", resp);
         const Videofiles = await resp.files() || []; // Web3File[]
         for (const file of Videofiles) {
           //getting cid to create new media
