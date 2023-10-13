@@ -13,6 +13,7 @@ import {
   getAllCampaignListByBrandId,
   getCampaignDetailWithCidAndCampaignName,
   deleteCampaignsPermanentlyByUserId,
+  getCampaignLogs,
 } from "../controllers/campaignController.js";
 
 import { isAuth } from "../utils/authUtils.js";
@@ -24,6 +25,7 @@ campaignRouter.post("/create", isAuth, addNewCampaign);
 
 //get request
 campaignRouter.get("/brandCampaign/:brandId", getAllCampaignListByBrandId);
+campaignRouter.get("/campaignLogs", getCampaignLogs);
 campaignRouter.get("/:id/screen", getCampaignListByScreenId);
 campaignRouter.get("/:id/screen/all", getAllCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);

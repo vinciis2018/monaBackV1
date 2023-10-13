@@ -4,6 +4,7 @@ import Media from "../models/mediaModel.js";
 import { sendMoneyBackToAlly } from "../helpers/sendMoney.js";
 import Brand from "../models/brandModel.js";
 import User from "../models/userModel.js";
+import ScreenLogs from "../models/screenLogsModel.js";
 
 export async function addNewCampaign(req, res) {
   try {
@@ -398,5 +399,32 @@ export async function deleteCampaignsPermanentlyByUserId(req, res) {
     return res
       .status(404)
       .send({ message: `campaign router error, ${error.message}` });
+  }
+}
+
+export async function getCampaignLogs(req, res) {
+  try {
+    const start = req.query.start || 0;
+    const end = req.query.end || 50;
+    const screenId = req.query.screenId;
+    const cid = `${req.query.cid}.mp4`;
+    console.log("screenId , cid", screenId, cid, start, end);
+
+    console.log(screenId);
+    const screenLog = await ScreenLogs.findOne({ screen: screenId });
+    if (!screenLog) return res.status(200).send({ last50: [], totalCount: 0 });
+    console.log("getting screen logs: ", screenLog.playingDetails.length);
+    const result = screenLog.playingDetails?.filter(
+      (data) => data.playVideo === cid
+    );
+    const last50 = result.reverse().slice(start, end);
+
+    const totalCount = result.length;
+    return res.status(200).send({ last50, totalCount });
+  } catch (error) {
+    console.log("error : ", error);
+    return res
+      .status(500)
+      .send({ message: `Error in getCampaignLogs ${error.message}` });
   }
 }
