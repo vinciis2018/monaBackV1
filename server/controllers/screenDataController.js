@@ -6,7 +6,7 @@ export async function getScreenData(req, res) {
   try {
     // console.log(req.params)
     const screen = await Screen.findOne({
-      _id: req.params.id
+      _id: req.params.id,
     });
     if (!screen) {
       return res
@@ -14,18 +14,17 @@ export async function getScreenData(req, res) {
         .send({ message: "User Not Found! DO login again" });
     }
     let screenData = await ScreenData.findOne({
-      screen: screen._id
-    });;
-    
+      screen: screen._id,
+    });
+
     if (!screenData && screen.category === "RAILWAY") {
       screenData = new ScreenData({
         screen: screen._id,
         dataType: "RAILWAY",
       });
       await screenData.save();
-
     } else if (screenData && screen.category === "RAILWAY") {
-      screenData = await ScreenData.findOne({ screen: screen._id});
+      screenData = await ScreenData.findOne({ screen: screen._id });
     } else {
       screenData = {};
     }
@@ -44,7 +43,7 @@ export async function getScreenDataByDate(req, res) {
   try {
     // console.log(req.params)
     const screen = await Screen.findOne({
-      _id: req.params.id
+      _id: req.params.id,
     });
     if (!screen) {
       return res
@@ -52,8 +51,8 @@ export async function getScreenDataByDate(req, res) {
         .send({ message: "User Not Found! DO login again" });
     }
     let myScreenData = await ScreenData.findOne({
-      screen: screen._id
-    });;
+      screen: screen._id,
+    });
     const pageSize = 6;
     const page = Number(req.params.pageNumber);
 
@@ -62,13 +61,16 @@ export async function getScreenDataByDate(req, res) {
     // console.log(dateTime);
     // console.log(pageSize);
     // console.log(countDocuments);
-    const newTrainData = myScreenData.trains.splice((page - 1) * pageSize, page * pageSize); 
+    const newTrainData = myScreenData.trains.splice(
+      (page - 1) * pageSize,
+      page * pageSize
+    );
     myScreenData.trains = newTrainData;
     // console.log(newTrainData.length);
     // console.log(myScreenData.trains.length);
 
     return res.status(200).send({
-      screenData : myScreenData,
+      screenData: myScreenData,
       page,
       pageSize: Math.ceil(countDocuments / pageSize),
     });
@@ -80,17 +82,17 @@ export async function getScreenDataByDate(req, res) {
 export async function scanQrDataSave(req, res) {
   try {
     const screenData = await ScreenData.findOne({
-      screen: req.params.screenId
+      screen: req.params.screenId,
     });
     if (screenData.qrScanData === undefined) {
-      screenData.qrScanData = {}
+      screenData.qrScanData = {};
     }
     const data = {
       scanUser: req?.body?.scanUser,
       scanTime: req.body.scanResult.timestamp || new Date(),
       userLat: req.body.scanResult.userLat,
       userLng: req.body.scanResult.userLng,
-    }
+    };
     screenData.qrScanData.scanText = req.body.scanResult.text;
     screenData.qrScanData.scanDetails.push(data);
     const updatedScanData = await screenData.save();
@@ -107,10 +109,14 @@ export async function scanQrDataSave(req, res) {
 export async function getQrScanData(req, res) {
   try {
     const screenData = await ScreenData.findOne({
-      screen: req.params.screenId
+      screen: req.params.screenId,
     });
+    if (!screenData)
+      return res.status(404).send({ message: "Scan Data not found!" });
+    console.log("screenData : ", screenData);
+
     if (screenData.qrScanData === undefined || !screenData.qrScanData) {
-      screenData.qrScanData = {}
+      screenData.qrScanData = {};
     }
     const scanQrData = screenData.qrScanData;
     return res.status(200).send(scanQrData);

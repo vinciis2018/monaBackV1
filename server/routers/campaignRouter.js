@@ -3,7 +3,7 @@ import {
   addNewCampaign,
   getCampaignAndMediaListByScreenId,
   getCampaignDetail,
-  getCampaignList,
+  getAllActiveCampaignList,
   getCampaignListByScreenId,
   getCampaignListByScreenName,
   updateCampaignById,
@@ -29,7 +29,7 @@ campaignRouter.get("/campaignLogs", getCampaignLogs);
 campaignRouter.get("/:id/screen", getCampaignListByScreenId);
 campaignRouter.get("/:id/screen/all", getAllCampaignListByScreenId);
 campaignRouter.get("/:name/screenName", getCampaignListByScreenName);
-campaignRouter.get("/all", getCampaignList);
+campaignRouter.get("/all", getAllActiveCampaignList);
 campaignRouter.get("/:id", getCampaignDetail);
 campaignRouter.get(
   "/:cid/:campaignName",

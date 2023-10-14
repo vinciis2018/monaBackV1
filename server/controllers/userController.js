@@ -24,11 +24,10 @@ export const pwaInstalledByUser = async (req, res) => {
     }
     const pwaInstalledUser = await user.save();
     return res.status(200).send(pwaInstalledUser);
-
   } catch (error) {
     return res.status(404).send(error);
   }
-}
+};
 
 const changePassword = async (req, res, user) => {
   try {
@@ -196,9 +195,6 @@ export async function sendEmailToSetPassword(req, res) {
   try {
     console.log("request came to send email to user ", req.body.email);
     const requestCameFromURL = `${req.header("Origin")}/`;
-    //signup,
-    //forgetPsssword,
-
     const email = req.body.email;
     const signup = req.body.signup;
     const forgetPassword = req.body.forgetPsssword;
@@ -235,8 +231,6 @@ export async function userSigninWithGoogleLogin(req, res) {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // user not exist then create his account
-      // console.log("This is new user, Creatating new user!");
       const newUser = new User({
         name: req.body.name,
         email: req.body.email,
@@ -251,9 +245,6 @@ export async function userSigninWithGoogleLogin(req, res) {
         password: `12345678`,
       });
     }
-    // else {
-    //   console.log("This is old user, no need to create new account again!");
-    // }
 
     return res.status(200).send({
       _id: user._id,
@@ -399,23 +390,7 @@ export async function getUserCampaigns(req, res) {
         },
       },
     ]);
-    //  data = [ {
-    //   _id: {
-    //     cid: 'bafybeiaq7rgx742rqazkwja5o5c754ql7qnjjo6wh4r5g5wx5eglkxklba',
-    //     campaignName: 'play card'
-    //   }
-    // },]
-    // const data2 = await CampaignForMultipleScreen.aggregate([
-    //   { $match: { ally: new ObjectId(allyId) } },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         cid: "$cid",
-    //         campaignName: "$campaignName",
-    //       },
-    //     },
-    //   },
-    // ]);
+
     if (data.length === 0) {
       return res.status(404).send({ message: "Campaign not found" });
     }

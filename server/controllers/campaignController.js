@@ -72,16 +72,7 @@ export async function addNewCampaign(req, res) {
   }
 }
 
-export async function xxx(req, res) {
-  try {
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ message: `Campaign router error ${error.message}` });
-  }
-}
-
-// getCampaignList By screen id
+// getCampaignList By screen id campaign can be active or pause
 export async function getCampaignListByScreenId(req, res) {
   try {
     const screenId = req.params.id;
@@ -102,6 +93,7 @@ export async function getCampaignListByScreenId(req, res) {
   }
 }
 
+// here no need to check status of campaign
 export async function getAllCampaignListByScreenId(req, res) {
   try {
     const screenId = req.params.id;
@@ -136,8 +128,8 @@ export async function getCampaignListByScreenName(req, res) {
   }
 }
 
-// get all campaign list
-export async function getCampaignList(req, res) {
+// get all active campaign list
+export async function getAllActiveCampaignList(req, res) {
   try {
     const allCampaign = await Campaign.find({ status: { $eq: "Active" } });
     if (allCampaign) {
@@ -167,7 +159,6 @@ export async function changeCampaignStatus(req, res) {
     }
 
     if (campaignStatus === "Deleted") {
-      const screen = await Screen.findById(campaign.screen);
       // first we will send sdeleteCampaignend money back to ally wallet and then delete campaign
       if (campaign.remainingSlots > 0) {
         sendMoneyBackToAlly({
@@ -287,12 +278,6 @@ export async function updateCampaignById(req, res) {
 
 export async function getFilteredCampaignListBydateRange(req, res) {
   try {
-    // console.log("filterCampaignByDateRange called! : ");
-    // console.log("Start date : ", req.params.startValue);
-    // console.log("endDate date : ", req.params.endValue);
-    // console.log("screen master  : ", req.params.userId);
-    // console.log("screen id  : ", req.params.screenId);
-
     const campaigns = await Campaign.find({
       startDate: {
         $gte: req.params.startValue,
