@@ -104,7 +104,7 @@ export async function getScreenDetailsForApk(req, res) {
     console.log("getScreenDetailsForApk screenName : ", screenName);
 
     const screen = await Screen.findOne({ name: screenName });
-    console.log("screen last active : ", screen.lastActive);
+    console.log("screen last active : ", screen?.lastActive);
 
     if (screen) {
       const screenVideos = await getActiveCampaignList(screen._id);
@@ -1295,9 +1295,10 @@ export const impressionCamDataHandleScreen = async (req, res, next) => {
     res.status(200).send({ message: "Done" });
     setTimeout(async () => {
       const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+      screenLog.multiplier.push(req.body);
+      await screenLog.save();
       console.log(screenLog._id);
     }, 0);
-    // screenLog.camData.push(dataEnter);
     return;
   } catch (error) {
     return res.status(500).send({
@@ -1310,14 +1311,13 @@ export const getScreenCamData = async (req, res) => {
   try {
     const screenId = req.params.screenId;
     const screenLogs = await ScreenLogs.findOne({ screen: screenId });
-    screenLogs.genderAge = _.uniq(screenLogs.genderAge, false)
-    await screenLogs.save();
+    // screenLogs.genderAge = screenLogs.genderAge, false)
+    // await screenLogs.save();
     const screenCamData = {
       genderAge: screenLogs.genderAge,
       peopleCounter: screenLogs.peopleCounter,
       multiplier: screenLogs.multiplier,
     };
-    console.log(_.uniq(screenLogs.genderAge, false));
     return res.status(200).send(screenCamData);
   } catch (error) {
     return res.status(500).send({
