@@ -1212,13 +1212,47 @@ export const getScreenCamData = async (req, res) => {
     const screenLogs = await ScreenLogs.findOne({ screen: screenId });
     // screenLogs.genderAge = screenLogs.genderAge, false)
     // await screenLogs.save();
+    const genderDataArr = [];
+    const nestedGenderObject = screenLogs.genderAge.reverse().slice(0, 50);
+    const nestedCounterObject = screenLogs.peopleCounter.reverse().slice(0, 50);
+    const counterDataArr = [];
+    for (let keyGender in nestedGenderObject) {
+      if (typeof nestedGenderObject[keyGender] === "object") {
+        for (let nestedGenderKey in nestedGenderObject[keyGender]) {
+          // console.log(nestedGenderObject[keyGender][nestedGenderKey]);
+          genderDataArr?.push(nestedGenderObject[keyGender][nestedGenderKey]);
+        }
+      } else {
+        // console.log(nestedObject[key]);
+        genderDataArr?.push(nestedGenderObject[keyGender]);
+      }
+      // console.log(nestedObject[key]);
+    }
+
+    for (let keyCounter in nestedCounterObject) {
+      // console.log(nestedCounterObject[keyCounter]);
+      if (typeof nestedCounterObject[keyCounter].data === "object") {
+        const dataHere = nestedCounterObject[keyCounter].data
+        for (let nestedCounterKey in dataHere) {
+          // console.log(dataHere[nestedCounterKey]);
+          counterDataArr?.push(
+            dataHere[nestedCounterKey]
+          );
+        }
+      } else {
+        // console.log(nestedObject[key]);
+        counterDataArr?.push(nestedCounterObject[keyCounter].data);
+      }
+    }
+
     const screenCamData = {
-      genderAge: screenLogs.genderAge,
-      peopleCounter: screenLogs.peopleCounter,
+      genderAge: genderDataArr,
+      peopleCounter: counterDataArr,
       multiplier: screenLogs.multiplier,
     };
     return res.status(200).send(screenCamData);
   } catch (error) {
+    console.error(error);
     return res.status(500).send({
       message: `Screen controller error at getScreenCamData ${error.message}`,
     });
