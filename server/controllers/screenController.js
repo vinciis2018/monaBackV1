@@ -1206,6 +1206,21 @@ export const getCouponListByScreenId = async (req, res) => {
   }
 };
 
+export const saveAlphaCamera = async (req, res) => {
+  try {
+    console.log("screenId", req.params.screenId);
+    console.log("body for impression multiplier", req.body);
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+    screenLog.alpha.push(req.body);
+    await screenLog.save();
+    console.log(screenLog.alpha);
+    return (screenLog.alpha);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Screen controller error at saving cam ip ${error.message}`,
+    });
+  }
+}
 export const camDataHandleScreen = async (req, res) => {
   try {
     // console.log("screenId", req.params.screenId);

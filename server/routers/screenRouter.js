@@ -28,6 +28,7 @@ import {
   getScreensByScreenIds,
   getScreenCamData,
   getScreensByCampaignIds,
+  saveAlphaCamera,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
 import {
@@ -99,6 +100,7 @@ screenRouter.put(
   "/impressionMultiplier/cam/:screenId",
   impressionCamDataHandleScreen
 );
+screenRouter.put("/alpha/:screenId", saveAlphaCamera);
 screenRouter.get("/getscreencamdata/:screenId", getScreenCamData);
 
 export default screenRouter;
