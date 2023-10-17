@@ -10,7 +10,6 @@ export async function getAllSlots(req, res) {
     let calender = await Calender.findOne({
       screen: req.params.id,
     });
-    //await calender.save();
 
     calender.slotDetails.map((slot) => {
       if (
@@ -31,13 +30,6 @@ export async function getAllSlots(req, res) {
       });
     });
     await calender.save();
-
-    // if(calender.dayDetails.map((day) => day.slotsBooked).length === 0){
-    //   console.log("1",calender.dayDetails.map((day) => day.slotsBooked))
-    // }else {
-    //   console.log("2",calender.dayDetails.map((day) => day.slotsBooked))
-    // }
-    // await calender.save();
 
     return res.status(200).send(calender);
   } catch (error) {
@@ -60,9 +52,6 @@ export async function addSlotEnquiry(req, res) {
     var givenDateIndex = calender.slotDetails.findIndex(
       (slotDetail) => slotDetail.slotTimeStart === req.body.dateHere
     );
-    // console.log(givenDateIndex);
-    // console.log(givenDateIndex - 1);
-    // console.log(givenDateIndex + 1);
 
     if (slotAsked) {
       var preceedingSlotAsked = calender.slotDetails[givenDateIndex - 1];
@@ -75,7 +64,6 @@ export async function addSlotEnquiry(req, res) {
         succeedingSlotAsked,
         slotAsked,
       };
-      // console.log("yup", viewSlots);
 
       return res.status(202).send({
         message: "slot is already booked",
@@ -91,7 +79,6 @@ export async function addSlotEnquiry(req, res) {
 
       calender.slotDetails.push(slot);
       await calender.save();
-      // console.log("calender saved", calender.slotDetails);
 
       return res.status(200).send({
         message: "slot booked",

@@ -50,27 +50,20 @@ export async function giveAccessToCampaignAllyPlea(req, res) {
     const pleaId = req.params.id;
 
     const plea = await Plea.findById(pleaId);
-
     if (!plea) {
-      // console.log("plea not found!");
       return res.status(404).send({ message: "Plea not found!" });
     }
 
-    // console.log("campaign id : ", plea.campaign);
     const campaign = await Campaign.findById(plea.campaign);
-
     const screen = await Screen.findOne({ _id: plea.screen });
-
     const master = await User.findOne({
       _id: plea.to,
       // defaultWallet: plea.to
     });
-
     const user = await User.findOne({
       _id: plea.from,
       // defaultWallet: plea.from
     });
-
     const remark = `${user.name} user has been given an Campaign Ally access for ${screen.name} screen from ${master.name} user`;
 
     plea.status = true;
@@ -99,9 +92,7 @@ export async function rejectCampaignAllyPlea(req, res) {
     console.log("rejectCampaignAllyPlea called!");
     const pleaId = req.params.id;
     const plea = await Plea.findById(pleaId);
-
     const screen = await Screen.findOne({ _id: plea.screen });
-
     const campaign = await Campaign.findById(plea.campaign);
 
     const master = await User.findOne({

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-import Reward from "../models/rewardModel.js";
 import Creator from "../models/creatorModel.js";
 import Campaign from "../models/campaignModel.js";
 import User from "../models/userModel.js";
@@ -24,7 +23,9 @@ export async function createCreator(req, res) {
     console.log("createCreator called !");
     const user = await User.findOne({ _id: req.user._id });
     if (!user) {
-      return res.status(404).send({ message: "User Not Found! DO login again" });
+      return res
+        .status(404)
+        .send({ message: "User Not Found! DO login again" });
     }
 
     if (user.creator.length > 0) {
@@ -35,7 +36,7 @@ export async function createCreator(req, res) {
       const creator = new Creator({
         _id: creatorId,
         creatorName: "CreatorName" || req.body.creatorName,
-        creatorType: "INFLUENCER" || req.body.creatorType, 
+        creatorType: "INFLUENCER" || req.body.creatorType,
         user: user._id,
         socialId: [],
         services: [],
@@ -56,7 +57,7 @@ export async function createCreator(req, res) {
         additionalInfo: {},
         reviews: [],
         tags: [],
-        ratings: 0
+        ratings: 0,
       });
 
       user.creator.push(creatorId);
@@ -68,7 +69,9 @@ export async function createCreator(req, res) {
     }
   } catch (error) {
     console.log("error : ", error);
-    return res.status(500).send({ message: `Creator router error ${error.message}` });
+    return res
+      .status(500)
+      .send({ message: `Creator router error ${error.message}` });
   }
 }
 

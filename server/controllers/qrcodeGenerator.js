@@ -3,14 +3,9 @@ import { generateRandonNumberOfLengthN } from "../utils/utils.js";
 import fs from "fs";
 import path from "path";
 
-import { Web3Storage, getFilesFromPath } from "web3.storage";
+import { getFilesFromPath } from "web3.storage";
 import Screen from "../models/screenModel.js";
 import { __dirname, storage } from "./imagesToVideoController.js";
-// const __dirname = path.resolve();
-// const token =
-//   process.env.REACT_APP_WEB3_STORAGE_API_TOKEN ||
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDczQTg1YzJhQTVmNzU1ZTM4MUUxODhmYkI2ZTg3M0E3MEJGRUQ2RjAiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjMxODkwNjgyOTEsIm5hbWUiOiJtb25hX2JldGEifQ.pONwiaib6R_lPL2bop4cTgk5-Z2Otf4723aDJjEYDLY";
-// const storage = new Web3Storage({ token });
 
 const handelError = async (err, filePath, screen) => {
   if (err) {

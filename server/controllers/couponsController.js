@@ -381,8 +381,6 @@ export async function addRedeemerToCoupon(req, res) {
       coupon.rewardCoupons.push(data); // pusing data value into rewardCoupons array
 
       const updatedCoupon = await coupon.save();
-      // console.log("updatedCoupon : ", updatedCoupon);
-      // saving coupon and user coupon details to user also to find all user coupon list easily
 
       const updateUser = await User.updateOne(
         { _id: couponUser._id },
@@ -399,17 +397,6 @@ export async function addRedeemerToCoupon(req, res) {
       return res.status(400).send({
         message: `You have already claimed this coupon.`,
       });
-      // Jab  singleUser.redeemedFrequency < coupon.couponRewardInfo.redeemFrequency came to else part
-      // const updatedCoupon = await Coupon.updateOne(
-      //   {
-      //     _id: couponId,
-      //     "rewardCoupons.redeemer": userId,
-      //   },
-
-      //   { $inc: { "rewardCoupons.$.redeemedFrequency": 1 } }
-      // );
-      // console.log("updatedCoupon : ", updatedCoupon);
-      // return res.status(200).send(updatedCoupon);
     }
   } catch (error) {
     // console.log("eeeeeeee : ", error);
@@ -422,7 +409,6 @@ export async function addRedeemerToCoupon(req, res) {
 // get coupon list by user id
 export async function getCouponListForUser(req, res) {
   try {
-    // console.log("getCouponListForUser called! ", req.params.userId);
     const userId = req.params.userId;
 
     const user = await User.findById(userId);
