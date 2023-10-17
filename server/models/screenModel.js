@@ -103,6 +103,11 @@ const screenSchema = new mongoose.Schema(
     lastActive: { type: Date },
     getCamData: { type: Boolean, default: false },
     additionalData: additionalDataSchema,
+    defaultMediaPlayback: {
+      toPlay: { type: Boolean },
+      playInterval: { type: Number },
+      adInterval: { type: Number }
+    }
   },
   {
     timestamps: true,

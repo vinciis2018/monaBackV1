@@ -728,6 +728,9 @@ export async function updateScreenById(req, res) {
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
       screen.additionalData = req.body.additionalData || screen.additionalData;
+      screen.defaultMediaPlayback.toPlay = req.body.toPlay || screen.defaultMediaPlayback.toPlay;
+      screen.defaultMediaPlayback.playInterval = req.body.playInterval || screen.defaultMediaPlayback.playInterval;
+      screen.defaultMediaPlayback.adInterval = req.body.adInterval || screen.defaultMediaPlayback.adInterval;
       pin.image = req.body.image || screen.image;
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
@@ -1087,12 +1090,12 @@ export const getCouponListByScreenId = async (req, res) => {
 export const saveAlphaCamera = async (req, res) => {
   try {
     console.log("screenId", req.params.screenId);
-    console.log("body for impression multiplier", req.body);
+    console.log("body for alpha", req.body);
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
     screenLog.alpha.push(req.body);
     await screenLog.save();
     console.log(screenLog.alpha);
-    return (screenLog.alpha);
+    return res.status(200).send(screenLog.alpha);
   } catch (error) {
     return res.status(500).send({
       message: `Screen controller error at saving cam ip ${error.message}`,
