@@ -13,10 +13,15 @@ import {
   // uploadWeb3Name,
 } from "../helpers/uploadWeb3Storage.js";
 import ScreenData from "../models/screenDataModel.js";
+import moment from "moment/moment.js";
 
 import { __dirname } from "./imagesToVideoController.js";
 import Coupon from "../models/couponModel.js";
 import Brand from "../models/brandModel.js";
+import {
+  COUPON_STATUS_ACTIVE,
+  COUPON_STATUS_DELETED,
+} from "../Constant/couponStatusConstant.js";
 
 // for android APk
 
@@ -728,9 +733,12 @@ export async function updateScreenById(req, res) {
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
       screen.additionalData = req.body.additionalData || screen.additionalData;
-      screen.defaultMediaPlayback.toPlay = req.body.toPlay || screen.defaultMediaPlayback.toPlay;
-      screen.defaultMediaPlayback.playInterval = req.body.playInterval || screen.defaultMediaPlayback.playInterval;
-      screen.defaultMediaPlayback.adInterval = req.body.adInterval || screen.defaultMediaPlayback.adInterval;
+      screen.defaultMediaPlayback.toPlay =
+        req.body.toPlay || screen.defaultMediaPlayback.toPlay;
+      screen.defaultMediaPlayback.playInterval =
+        req.body.playInterval || screen.defaultMediaPlayback.playInterval;
+      screen.defaultMediaPlayback.adInterval =
+        req.body.adInterval || screen.defaultMediaPlayback.adInterval;
       pin.image = req.body.image || screen.image;
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
@@ -1059,6 +1067,34 @@ export async function rejectAllayPlea(req, res) {
   }
 }
 
+export const changeCouponsStatus = async () => {
+  console.log("changeCouponsStatus called!");
+  const todayDate = moment().format();
+  const allCoupons = await Coupon.find({
+    $and: [
+      { "couponRewardInfo.validity.to": { $lt: todayDate } },
+      { status: COUPON_STATUS_ACTIVE },
+    ],
+  });
+  console.log("All coupon lenfth :  ", allCoupons.length);
+
+  for (let coupon of allCoupons) {
+    if (coupon.allCampaigns.length > 0) {
+      // first remove coupon from each campaigns which attached to this coupon
+      for (let campaignId of coupon.allCampaigns) {
+        const campaign = await Campaign.findById(campaignId);
+        console.log("before campaigns : ", campaign.coupons);
+        campaign.coupons = campaign.coupons.filter((id) => id != coupon._id);
+        const updatedCampaign = await campaign.save();
+        console.log("updated campaigns : ", updatedCampaign.coupons);
+      }
+      coupon.status = COUPON_STATUS_DELETED;
+      const updatedCoupon = await coupon.save();
+      console.log("updated coupon : ", updatedCoupon);
+    }
+  }
+};
+
 //get coupon list attached to campaign playing on this screen
 
 export const getCouponListByScreenId = async (req, res) => {
@@ -1069,14 +1105,21 @@ export const getCouponListByScreenId = async (req, res) => {
       "coupons.0": { $exists: true },
     });
 
-    const couponList = [];
+    let couponList = [];
+    const todayDate = moment().format();
     for (let campaign of screenVideos) {
       let coupons = campaign.coupons;
-      for (let couponId of coupons) {
-        const coupon = await Coupon.findById(couponId);
-        couponList.push(coupon);
-      }
+      const allCoupons = await Coupon.find({
+        $and: [
+          { _id: { $in: coupons } },
+          { "couponRewardInfo.validity.from": { $lte: todayDate } },
+          { "couponRewardInfo.validity.to": { $gte: todayDate } },
+          { status: COUPON_STATUS_ACTIVE },
+        ],
+      });
+      couponList = [...couponList, ...allCoupons];
     }
+    console.log("coupon list : ", couponList.length);
 
     return res.status(200).send(couponList);
   } catch (error) {
@@ -1101,7 +1144,7 @@ export const saveAlphaCamera = async (req, res) => {
       message: `Screen controller error at saving cam ip ${error.message}`,
     });
   }
-}
+};
 export const camDataHandleScreen = async (req, res) => {
   try {
     res.status(200).send({ message: "Done" });
@@ -1193,10 +1236,11 @@ export const impressionCamDataHandleScreen = async (req, res, next) => {
     console.log("body for impression multiplier", req.body);
     res.status(200).send({ message: "Done" });
     setTimeout(async () => {
-      const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+      const screenLog = await ScreenLogs.findOne({
+        screen: req.params.screenId,
+      });
       screenLog.multiplier.push(req.body);
-      await screenLog.save();     
-      
+      await screenLog.save();
     }, 0);
     return;
   } catch (error) {
@@ -1232,12 +1276,10 @@ export const getScreenCamData = async (req, res) => {
     for (let keyCounter in nestedCounterObject) {
       // console.log(nestedCounterObject[keyCounter]);
       if (typeof nestedCounterObject[keyCounter].data === "object") {
-        const dataHere = nestedCounterObject[keyCounter].data
+        const dataHere = nestedCounterObject[keyCounter].data;
         for (let nestedCounterKey in dataHere) {
           // console.log(dataHere[nestedCounterKey]);
-          counterDataArr?.push(
-            dataHere[nestedCounterKey]
-          );
+          counterDataArr?.push(dataHere[nestedCounterKey]);
         }
       } else {
         // console.log(nestedObject[key]);

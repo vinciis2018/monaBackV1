@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import path from "path";
 import cors from "cors";
+import corn from "node-cron";
 import bodyParser from "body-parser";
 
 import userRouter from "./routers/userRouter.js";
@@ -23,6 +24,7 @@ import imageRouter from "./routers/imagesToVideoRouter.js";
 import couponRouter from "./routers/couponRouter.js";
 import qrcodeRouter from "./routers/qrcodeGeneratorRouter.js";
 import web3Router from "./routers/web3Router.js";
+import { changeCampaignStatus } from "./controllers/campaignController.js";
 
 const app = express();
 app.use(express.json({ limit: "100mb", extended: true }));
@@ -44,6 +46,8 @@ mongoose.connect(url, {
 // cron.schedule("55 23 * * *", () => {
 //   dbBackupTask();
 // });
+
+corn.schedule("* 1 * * *", () => changeCampaignStatus());
 
 app.use(function (req, res, next) {
   //console.log("request : ", req.url);
