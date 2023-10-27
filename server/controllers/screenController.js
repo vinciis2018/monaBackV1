@@ -38,7 +38,7 @@ const getActiveCampaignList = async (screenId) => {
 };
 
 const deleteVideoFromplayListWhenTimeUp = async (cid, screenId) => {
-  console.log("cid : screenId   ", cid, screenId);
+  // console.log("cid : screenId   ", cid, screenId);
   //first find campaign which you want to delete the campaign
   const campaign = await Campaign.findOne({
     $and: [
@@ -100,6 +100,8 @@ export async function getScreenDetailsForApk(req, res) {
 }
 
 export async function checkScreenPlaylistForApk(req, res) {
+  // console.log(req.query);
+
   try {
     const screenName = req.params.name;
     const time = req.params.time;
@@ -115,7 +117,7 @@ export async function checkScreenPlaylistForApk(req, res) {
     screen.lastPlayed = currentVideo;
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
     screenLogs.playingDetails.push(playData);
-    console.log("playData : ", playData);
+    // console.log("playData : ", playData);
     await screenLogs.save();
     await screen.save();
 
