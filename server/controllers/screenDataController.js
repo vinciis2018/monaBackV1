@@ -1,39 +1,18 @@
 import ScreenData from "../models/screenDataModel.js";
 import Screen from "../models/screenModel.js";
+import mongoose from "mongoose";
 
 //add new screen
-export async function getScreenData(req, res) {
+export async function getScreenDataByScreenId(req, res) {
   try {
-    // console.log(req.params)
-    const screen = await Screen.findOne({
-      _id: req.params.id,
+    // console.log(req.params.screenId);
+    const screenData = await ScreenData.findOne({
+      screen: req.params.screenId,
     });
-    if (!screen) {
-      return res
-        .status(404)
-        .send({ message: "User Not Found! DO login again" });
-    }
-    let screenData = await ScreenData.findOne({
-      screen: screen._id,
-    });
-
-    if (!screenData && screen.category === "RAILWAY") {
-      screenData = new ScreenData({
-        screen: screen._id,
-        dataType: "RAILWAY",
-      });
-      await screenData.save();
-    } else if (screenData && screen.category === "RAILWAY") {
-      screenData = await ScreenData.findOne({ screen: screen._id });
-    } else {
-      screenData = {};
-    }
-
-    console.log(screenData.stationName);
-
     return res.status(200).send({
       screenData,
     });
+
   } catch (error) {
     return res.status(404).send(error);
   }

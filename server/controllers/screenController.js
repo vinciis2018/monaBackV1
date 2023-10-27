@@ -749,7 +749,7 @@ export async function updateScreenById(req, res) {
 
         if (
           screen.category === "RAILWAYS" ||
-          req.body.dataType === "RAILWAYS"
+          req.body.screenDataType === "RAILWAYS"
         ) {
           console.log("2");
 
@@ -758,24 +758,30 @@ export async function updateScreenById(req, res) {
             trainCode: req.body.trainCode,
             trainDetails: req.body.trainDetails,
           };
-          screenData.stationName =
-            req.body.stationName || screenData.stationName;
-          screenData.stationCode =
-            req.body.stationCode || screenData.stationCode;
-          const myTrainData = screenData.trains.filter(
+          screenData.railwayData.stationName =
+            req.body.stationName || screenData.railwayData.stationName;
+          screenData.railwayData.stationCode =
+            req.body.stationCode || screenData.railwayData.stationCode;
+          const myTrainData = screenData.railwayData.trains.filter(
             (td) => td.trainName === req.body.trainName
           )[0];
-          const myTrainCode = screenData.trains
+          const myTrainCode = screenData.railwayData.trains
             .filter((tc) => tc.trainCode === req.body.trainCode)
             .map((mtc) => mtc.trainCode)[0];
 
           if (myTrainData && myTrainCode) {
             myTrainData.trainDetails.push(req.body.trainDetails);
           } else {
-            screenData.trains.push(trainDetailsHere);
+            screenData.railwayData.trains.push(trainDetailsHere);
           }
         }
-
+        if (
+          screen.category === "ERICKSHAW" ||
+          req.body.screenDataType === "ERICKSHAW"
+        ) {
+          screenData.erickshawData.defaultContents = req.body.defaultContents || screenData.erickshawData.defaultContents;
+          screenData.erickshawData.adIntervals = req.body.adIntervals || screenData.erickshawData.adIntervals
+        }
         const updatedScreenData = await screenData.save();
       }
 

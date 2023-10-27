@@ -33,7 +33,7 @@ import {
 import { isAuth } from "../utils/authUtils.js";
 import {
   getQrScanData,
-  getScreenData,
+  getScreenDataByScreenId,
   getScreenDataByDate,
   scanQrDataSave,
 } from "../controllers/screenDataController.js";
@@ -81,7 +81,7 @@ screenRouter.get(
 );
 
 // screendata related
-screenRouter.get("/screenData/:id", getScreenData);
+screenRouter.get("/screenData/:screenId", getScreenDataByScreenId);
 screenRouter.get(
   "/todayScreenData/:id/pageNumber/:pageNumber",
   getScreenDataByDate
