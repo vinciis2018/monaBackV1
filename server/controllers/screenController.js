@@ -735,12 +735,8 @@ export async function updateScreenById(req, res) {
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
       screen.additionalData = req.body.additionalData || screen.additionalData;
-      screen.defaultMediaPlayback.toPlay =
-        req.body.toPlay || screen.defaultMediaPlayback.toPlay;
-      screen.defaultMediaPlayback.playInterval =
-        req.body.playInterval || screen.defaultMediaPlayback.playInterval;
-      screen.defaultMediaPlayback.adInterval =
-        req.body.adInterval || screen.defaultMediaPlayback.adInterval;
+      screen.defaultMediaPlayback =
+        req.body.toPlay || screen.defaultMediaPlayback;
       pin.image = req.body.image || screen.image;
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
