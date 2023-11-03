@@ -119,8 +119,8 @@ export const paymentHandler = async (req, res) => {
     const amount = parseFloat(req.query.amount) * 100;
     const userId = req.query.userId;
     const transactionId = new mongoose.Types.ObjectId();
-
-    const callbackUrl = `http://localhost:3333/api/userWallet/callbackHandler?userId=${userId}&amount=${amount}&transactionId=${transactionId}`;
+    const prodURL = "https://servermonad.vinciis.in";
+    const callbackUrl = `${prodURL}/api/userWallet/callbackHandler?userId=${userId}&amount=${amount}&transactionId=${transactionId}`;
     // console.log("amount, userId, callbackUrl : ", amount, userId, callbackUrl);
     // console.log(
     //   "process.REACT_MERCHANT_ID : ",
