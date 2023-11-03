@@ -68,10 +68,10 @@ export async function syncScreenCodeForApk(req, res) {
 
     const screen = await Screen.findOne({ screenCode: syncCode });
     // console.log("screen with synccode : ", screen.name);
-
+    const screenData = await ScreenData.findOne({ screen: screen._id });
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
-      return res.status(200).send({ myScreenVideos: screenVideos, screen });
+      return res.status(200).send({ myScreenVideos: screenVideos, screen, screenData });
     }
     return res.status(402).send("screen videos not found");
   } catch (error) {
