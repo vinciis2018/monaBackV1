@@ -25,6 +25,7 @@ import couponRouter from "./routers/couponRouter.js";
 import qrcodeRouter from "./routers/qrcodeGeneratorRouter.js";
 import web3Router from "./routers/web3Router.js";
 import { changeCampaignStatus } from "./controllers/campaignController.js";
+import userWalletRouter from "./routers/userWalletRouter.js";
 
 const app = express();
 app.use(express.json({ limit: "100mb", extended: true }));
@@ -74,6 +75,7 @@ app.use("/api/qrcode", qrcodeRouter);
 app.use("/api/createVideoFromImage", imageRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/web3", web3Router);
+app.use("/api/userWallet", userWalletRouter);
 
 const __dirname = path.resolve();
 app.use("/api/static", express.static(path.join(__dirname, "public")));

@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     defaultWallet: { type: String },
 
     wallets: [{ type: String }],
+    userWallet: { type: mongoose.Schema.Types.ObjectId, ref: "UserWallet" }, // each user have only one wallet
 
     screens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Screen" }],
 
