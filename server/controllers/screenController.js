@@ -38,7 +38,7 @@ const getActiveCampaignList = async (screenId) => {
 };
 
 const deleteVideoFromplayListWhenTimeUp = async (cid, screenId) => {
-  console.log("cid : screenId   ", cid, screenId);
+  // console.log("cid : screenId   ", cid, screenId);
   //first find campaign which you want to delete the campaign
   const campaign = await Campaign.findOne({
     $and: [
@@ -68,10 +68,10 @@ export async function syncScreenCodeForApk(req, res) {
 
     const screen = await Screen.findOne({ screenCode: syncCode });
     // console.log("screen with synccode : ", screen.name);
-
+    const screenData = await ScreenData.findOne({ screen: screen._id });
     const screenVideos = await getActiveCampaignList(screen._id);
     if (screenVideos) {
-      return res.status(200).send({ myScreenVideos: screenVideos, screen });
+      return res.status(200).send({ myScreenVideos: screenVideos, screen, screenData });
     }
     return res.status(402).send("screen videos not found");
   } catch (error) {
@@ -100,6 +100,8 @@ export async function getScreenDetailsForApk(req, res) {
 }
 
 export async function checkScreenPlaylistForApk(req, res) {
+  // console.log(req.query);
+
   try {
     const screenName = req.params.name;
     const time = req.params.time;
@@ -115,7 +117,7 @@ export async function checkScreenPlaylistForApk(req, res) {
     screen.lastPlayed = currentVideo;
     const screenLogs = await ScreenLogs.findOne({ screen: screen._id });
     screenLogs.playingDetails.push(playData);
-    console.log("playData : ", playData);
+    // console.log("playData : ", playData);
     await screenLogs.save();
     await screen.save();
 
@@ -733,12 +735,8 @@ export async function updateScreenById(req, res) {
       screen.startTime = req.body.startTime || screen.startTime;
       screen.endTime = req.body.endTime || screen.endTime;
       screen.additionalData = req.body.additionalData || screen.additionalData;
-      screen.defaultMediaPlayback.toPlay =
-        req.body.toPlay || screen.defaultMediaPlayback.toPlay;
-      screen.defaultMediaPlayback.playInterval =
-        req.body.playInterval || screen.defaultMediaPlayback.playInterval;
-      screen.defaultMediaPlayback.adInterval =
-        req.body.adInterval || screen.defaultMediaPlayback.adInterval;
+      screen.defaultMediaPlayback =
+        req.body.toPlay || screen.defaultMediaPlayback;
       pin.image = req.body.image || screen.image;
       pin.lat = req.body.lat || pin.lat; //v
       pin.lng = req.body.lng || pin.lng; //v
@@ -749,7 +747,7 @@ export async function updateScreenById(req, res) {
 
         if (
           screen.category === "RAILWAYS" ||
-          req.body.dataType === "RAILWAYS"
+          req.body.screenDataType === "RAILWAYS"
         ) {
           console.log("2");
 
@@ -758,24 +756,30 @@ export async function updateScreenById(req, res) {
             trainCode: req.body.trainCode,
             trainDetails: req.body.trainDetails,
           };
-          screenData.stationName =
-            req.body.stationName || screenData.stationName;
-          screenData.stationCode =
-            req.body.stationCode || screenData.stationCode;
-          const myTrainData = screenData.trains.filter(
+          screenData.railwayData.stationName =
+            req.body.stationName || screenData.railwayData.stationName;
+          screenData.railwayData.stationCode =
+            req.body.stationCode || screenData.railwayData.stationCode;
+          const myTrainData = screenData.railwayData.trains.filter(
             (td) => td.trainName === req.body.trainName
           )[0];
-          const myTrainCode = screenData.trains
+          const myTrainCode = screenData.railwayData.trains
             .filter((tc) => tc.trainCode === req.body.trainCode)
             .map((mtc) => mtc.trainCode)[0];
 
           if (myTrainData && myTrainCode) {
             myTrainData.trainDetails.push(req.body.trainDetails);
           } else {
-            screenData.trains.push(trainDetailsHere);
+            screenData.railwayData.trains.push(trainDetailsHere);
           }
         }
-
+        if (
+          screen.category === "ERICKSHAW" ||
+          req.body.screenDataType === "ERICKSHAW"
+        ) {
+          screenData.erickshawData.defaultContents = req.body.defaultContents || screenData.erickshawData.defaultContents;
+          screenData.erickshawData.adIntervals = req.body.adIntervals || screenData.erickshawData.adIntervals
+        }
         const updatedScreenData = await screenData.save();
       }
 
