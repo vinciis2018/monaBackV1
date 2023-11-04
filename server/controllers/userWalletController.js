@@ -122,10 +122,13 @@ export const paymentHandler = async (req, res) => {
     const prodURL = "https://servermonad.vinciis.in";
     const callbackUrl = `${prodURL}/api/userWallet/callbackHandler?userId=${userId}&amount=${amount}&transactionId=${transactionId}`;
     console.log("amount, userId, callbackUrl : ", amount, userId, callbackUrl);
-    console.log("process.REACT_MERCHANT_ID : ", process.env.REACT_MERCHANT_ID);
+    console.log(
+      "process.REACT_MERCHANT_ID : ",
+      process.env.REACT_MERCHANT_ID || "MONADONLINE"
+    );
 
     const payloadForFetch = {
-      merchantId: process.env.REACT_MERCHANT_ID,
+      merchantId: process.env.REACT_MERCHANT_ID || "MONADONLINE",
       merchantTransactionId: transactionId,
       merchantUserId: "MUID123",
       amount: amount,
