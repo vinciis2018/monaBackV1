@@ -122,13 +122,10 @@ export const paymentHandler = async (req, res) => {
     const prodURL = "https://servermonad.vinciis.in";
     const callbackUrl = `${prodURL}/api/userWallet/callbackHandler?userId=${userId}&amount=${amount}&transactionId=${transactionId}`;
     console.log("amount, userId, callbackUrl : ", amount, userId, callbackUrl);
-    console.log(
-      "process.REACT_MERCHANT_ID : ",
-      process.env.REACT_MERCHANT_ID || "MONADONLINE"
-    );
+    console.log("process.REACT_MERCHANT_ID : MONADONLINE");
 
     const payloadForFetch = {
-      merchantId: process.env.REACT_MERCHANT_ID || "MONADONLINE",
+      merchantId: "MONADONLINE",
       merchantTransactionId: transactionId,
       merchantUserId: "MUID123",
       amount: amount,
@@ -141,6 +138,7 @@ export const paymentHandler = async (req, res) => {
       },
     };
     let objJsonStr = JSON.stringify(payloadForFetch);
+    console.log("payloadForFetch : ", objJsonStr);
     let payload = Buffer.from(objJsonStr).toString("base64");
     // console.log("payload : ", payloadForFetch);
     // console.log("payload : ", objJsonStr);
