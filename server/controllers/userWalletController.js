@@ -143,8 +143,8 @@ export const paymentHandler = async (req, res) => {
     // console.log("payload : ", payloadForFetch);
     // console.log("payload : ", objJsonStr);
     console.log("payload : ", payload);
-    const salt = process.env.REACT_PHONE_PAY_SALY;
-    // console.log("Salt : ", salt);
+    const salt = "12d82564-34a0-4c7a-938b-24916449add4"; // process.env.REACT_PHONE_PAY_SALY;
+    console.log("Salt : ", salt);
     const saltIndex = 1;
 
     /**
