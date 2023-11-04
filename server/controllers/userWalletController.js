@@ -121,12 +121,8 @@ export const paymentHandler = async (req, res) => {
     const transactionId = new mongoose.Types.ObjectId();
     const prodURL = "https://servermonad.vinciis.in";
     const callbackUrl = `${prodURL}/api/userWallet/callbackHandler?userId=${userId}&amount=${amount}&transactionId=${transactionId}`;
-    // console.log("amount, userId, callbackUrl : ", amount, userId, callbackUrl);
-    // console.log(
-    //   "process.REACT_MERCHANT_ID : ",
-    //   process.env.REACT_MERCHANT_ID,
-    //   transactionId
-    // );
+    console.log("amount, userId, callbackUrl : ", amount, userId, callbackUrl);
+    console.log("process.REACT_MERCHANT_ID : ", process.env.REACT_MERCHANT_ID);
 
     const payloadForFetch = {
       merchantId: process.env.REACT_MERCHANT_ID,
@@ -145,7 +141,7 @@ export const paymentHandler = async (req, res) => {
     let payload = Buffer.from(objJsonStr).toString("base64");
     // console.log("payload : ", payloadForFetch);
     // console.log("payload : ", objJsonStr);
-    // console.log("payload : ", payload);
+    console.log("payload : ", payload);
     const salt = process.env.REACT_PHONE_PAY_SALY;
     // console.log("Salt : ", salt);
     const saltIndex = 1;
@@ -156,7 +152,7 @@ export const paymentHandler = async (req, res) => {
 
     let url = SHA256(`${payload}/pg/v1/pay${salt}`).toString();
     url = url + "###" + saltIndex;
-    // console.log("url : ", url);
+    console.log("X-VERIFY : ", url);
 
     const { data } = await axios.post(
       PROD_HOST_URL,
@@ -171,15 +167,20 @@ export const paymentHandler = async (req, res) => {
         },
       }
     );
-    console.log("data : ", data);
+    console.log("response data : ", data);
     if (data.success) {
-      // console.log(data?.data?.instrumentResponse?.redirectInfo?.url);
+      console.log(
+        "response phonepay url : ",
+        data?.data?.instrumentResponse?.redirectInfo?.url
+      );
+
       res.send({ url: data?.data?.instrumentResponse?.redirectInfo?.url });
-    } else {
-      res.status(400).send({ message: "Something went wrong : " });
     }
+    console.log("Something went wrong");
+    res.status(400).send({ message: "Something went wrong" });
   } catch (error) {
-    res.status(400).send({ message: "Something went wrong : " });
+    console.log("Error in paymentHandler : ", error);
+    res.status(400).send({ message: `Error in paymentHandler ${error}` });
   }
 };
 
@@ -194,7 +195,7 @@ export const callbackHandler = async (req, res) => {
   );
   console.log("req.body.code", req.body.code);
 
-  return res.redirect("http://localhost:3000/wallet/payemtSuccess");
+  return res.redirect("https://monad.vinciis.in/wallet/payemtSuccess");
   // return res.status(200).send("payment sucessfull");
 };
 
