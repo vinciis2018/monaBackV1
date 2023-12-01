@@ -1136,12 +1136,17 @@ export const getCouponListByScreenId = async (req, res) => {
 
 export const saveAlphaCamera = async (req, res) => {
   try {
-    console.log("screenId", req.params.screenId);
-    console.log("body for alpha", req.body);
+    console.log(req.body.alpha);
+    console.log(screenLog.alpha[-1].alpha);
     const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
-    screenLog.alpha.push(req.body);
+    if (req.body.alpha !== screenLog.alpha[screenLog.alpha.length - 1].alpha) {
+      console.log(screenLog.alpha);
+      screenLog.alpha.push(req.body);
+    } else {
+      console.log(req.body.alpha);
+      console.log(screenLog.alpha[screenLog.alpha.length - 1].alpha);
+    }
     await screenLog.save();
-    console.log(screenLog.alpha);
     return res.status(200).send(screenLog.alpha);
   } catch (error) {
     return res.status(500).send({
@@ -1304,6 +1309,28 @@ export const getScreenCamData = async (req, res) => {
     });
   }
 };
+
+export async function enterScreenPlaybackLogs(req, res) {
+  try {
+    console.log(req.body);
+    const timeKeys = Object.keys(req.body);
+    const screenLog = await ScreenLogs.findOne({ screen: req.params.screenId });
+    const playData = {
+      deviceInfo: "pidata",
+      playTime: timeKeys[timeKeys.length - 1],
+      playVideo: req.body.timeKeys[timeKeys - 1],
+    };
+    if (timeKeys[timeKeys.length - 1] !== screenLog.playingDetails[screenLog.playingDetails.length - 1].playTime) {
+
+    }
+    return res.status(200).send({});
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      message: `Screen controller error at getScreenCamData ${error.message}`,
+    });
+  }
+}
 
 export async function getScreensByUserIds(req, res) {
   try {
