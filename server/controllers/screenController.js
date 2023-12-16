@@ -22,7 +22,20 @@ import {
   COUPON_STATUS_ACTIVE,
   COUPON_STATUS_DELETED,
 } from "../Constant/couponStatusConstant.js";
-
+import {
+  CAMPAIGN_STATUS_ACTIVE,
+  CAMPAIGN_STATUS_COMPLETED,
+  CAMPAIGN_STATUS_DELETED,
+  CAMPAIGN_STATUS_PAUSE,
+} from "../Constant/campaignStatusConstant.js";
+import {
+  changeCampaignStatusAsCompleted,
+  getAllCampaignStatus,
+} from "../helpers/campaignHelper.js";
+import {
+  addNewTransaction,
+  generateRemarkForCraditAmountToScreenOwner,
+} from "../helpers/userWalletHelper.js";
 // for android APk
 
 const getActiveCampaignList = async (screenId) => {
@@ -1306,7 +1319,7 @@ export async function enterScreenPlaybackLogs(req, res) {
     // const screenName = req.params.name;
     const deviceInfo = req.query.deviceInfo || req.body.deviceInfo;
     console.log(deviceInfo);
-    
+    const allPlayData = [];
     for (let i = 0; i < req.body.data.length; i++) {
       const value = req.body.data[i];
       const key = Object.keys(value)[0]
@@ -1317,27 +1330,73 @@ export async function enterScreenPlaybackLogs(req, res) {
         playTime: key,
         playVideo: currentVideo,
       };
-      if (playbackData.map(pd => pd.playtime).includes(key)) {
+      if (playbackData.map(pd => pd.playTime).includes(key)) {
         console.log("playData : ", i , playData);
 
       } else {
         playbackData.push(playData);
       }
-  
+      allPlayData.push(playData);
       // screenLogs.playingDetails.push(playData);
 
       await screenLogs.save();
 
     }
-    // const screen = await Screen.findOne({ _id: req.params.screenId });
-    // // screen.lastActive = time;
-    // // screen.lastPlayed = currentVideo;
-    // await screen.save();
+    const mostRecent = new Date(Math.max.apply(null, allPlayData.map( d => {
+      return new Date(d.playTime)
+    })))
+    const mostRecentData = allPlayData.filter(a => {
+      var b = new Date(a.playTime);
+      return b.getTime() === mostRecent.getTime();
+    })[0]
+    const screen = await Screen.findOne({ _id: req.params.screenId });
+    screen.lastActive = mostRecentData.playTime;
+    screen.lastPlayed = mostRecentData.playVideo;
+    await screen.save();
 
-  // deleteVideoFromplayListWhenTimeUp(currentVideo.split(".")[0], screen._id);
+    const campaign = await Campaign.findOne({
+      screen: screen._id,
+      cid: mostRecentData.playVideo.split(".")[0],
+      status: CAMPAIGN_STATUS_ACTIVE,
+    });
+    // console.log("campaign : ", campaign);
+    if (!campaign) {
+      console.log("Campaign not found!");
+      return res.status(400).send("Campaign not found, with this cid");
+    }
+    // campaign.campaignLogs.push({ deviceInfo: deviceInfo, playTime: mostRecentData.playTime });
 
-      // const screenVideos = await getActiveCampaignList(screen._id);
-    return res.status(200).send({});
+    //reduce remainingstolts by 1 every times WHEN campaign.remainingSlots > 0
+    if (!campaign.isDefaultCampaign && campaign.remainingSlots > 0) {
+      campaign.remainingSlots -= 1;
+      campaign.slotPlayedPerDay += 1;
+    } else if (!campaign.isDefaultCampaign && campaign.remainingSlots == 0) {
+      // set campaign as completed
+      console.log("change campaign status to completed");
+      await changeCampaignStatusAsCompleted(campaign);
+      const transaction = await addNewTransaction({
+        toUser: campaign.master, //
+        amount: campaign.vault,
+        remark: generateRemarkForCraditAmountToScreenOwner({
+          amount: campaign.vault,
+          campaignName: campaign.campaignName,
+          totalSlotPlayed: campaign.totalSlotBooked,
+          rentPerSlot: campaign.rentPerSlot,
+          screenName: screen.name,
+        }),
+        type: "CREDIT",
+        paymentStatus: true,
+      });
+      console.log("checkScreenPlaylistForApk transaction success");
+    }
+    await campaign.save();
+
+    console.log(screen.lastPlayed.split(".")[0]);
+
+    deleteVideoFromplayListWhenTimeUp(mostRecentData.playVideo.split(".")[0], screen._id);
+
+    const screenVideos = await getActiveCampaignList(screen._id);
+    return res.status(200).send(screenVideos);
   } catch (error) {
     console.error(error);
     return res.status(500).send({

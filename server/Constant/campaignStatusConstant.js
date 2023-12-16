@@ -3,3 +3,4 @@ export const CAMPAIGN_STATUS_ACTIVE = "Active"; // plea accepted || direct creat
 export const CAMPAIGN_STATUS_DELETED = "Deleted"; // deleetd by Ally or brand || enddate >= current date
 export const CAMPAIGN_STATUS_PAUSE = "Pause"; // pause by screen owner
 export const CAMPAIGN_STATUS_REJECTED = "Rejected"; // pause by screen owner
+export const CAMPAIGN_STATUS_COMPLETED = "Completed"; // when campaign.remainingSlots  = 0

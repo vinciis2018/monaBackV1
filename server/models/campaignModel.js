@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
-
+const playingDataSchema = new mongoose.Schema(
+  {
+    deviceInfo: {},
+    playTime: { type: Date },
+  },
+  {
+    timestamps: true,
+  }
+);
 const campaignSchema = new mongoose.Schema(
   {
     media: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
@@ -39,7 +47,7 @@ const campaignSchema = new mongoose.Schema(
     country: { type: String, required: true }, //v
     status: { type: String, required: true, default: "Pending" },
     coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
-
+    campaignLogs: [playingDataSchema],
     // isPrivate: { type: Boolean, default: false },// for brands who want to keep their campaign private
     // isMain: { type: Boolean, default: false },// for one main content
     /**
