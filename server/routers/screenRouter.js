@@ -22,13 +22,13 @@ import {
   getCouponListByScreenId,
   getScreensBySearchQuery,
   camDataHandleScreen,
-  genderAgeCamDataHandleScreen,
-  impressionCamDataHandleScreen,
+  // genderAgeCamDataHandleScreen,
+  // impressionCamDataHandleScreen,
   getScreensByUserIds,
   getScreensByScreenIds,
   getScreenCamData,
   getScreensByCampaignIds,
-  saveAlphaCamera,
+  // saveAlphaCamera,
   enterScreenPlaybackLogs,
 } from "../controllers/screenController.js";
 import { isAuth } from "../utils/authUtils.js";
@@ -96,12 +96,12 @@ screenRouter.get("/get/allScreens", getAllScreens);
 
 // cam related
 screenRouter.put("/cam/:screenId", camDataHandleScreen);
-screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
-screenRouter.put(
-  "/impressionMultiplier/cam/:screenId",
-  impressionCamDataHandleScreen
-);
-screenRouter.put("/alpha/:screenId", saveAlphaCamera);
+// screenRouter.put("/genderagecam/:screenId", genderAgeCamDataHandleScreen);
+// screenRouter.put(
+//   "/impressionMultiplier/cam/:screenId",
+//   impressionCamDataHandleScreen
+// );
+// screenRouter.put("/alpha/:screenId", saveAlphaCamera);
 screenRouter.put("/enterplaybacklogs/:screenId", enterScreenPlaybackLogs)
 screenRouter.get("/getscreencamdata/:screenId", getScreenCamData);
 

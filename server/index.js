@@ -95,7 +95,7 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: err.message });
 });
 
-const port = process.env.PORT || 3333;
+const port = process.env.PORT || 3334;
 const host = process.env.HOST || "http://localhost:";
 app.listen(port, async () => {
   console.log(`Server at ${host}${port}`);

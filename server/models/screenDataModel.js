@@ -32,6 +32,7 @@ const screenDataSchema = new mongoose.Schema(
     erickshawData: {
       defaultContents: [{}],
       adIntervals: [{}],
+      defaultContentNumber: { type: Number, default: 0 },
     },
     
     qrScanData: {
